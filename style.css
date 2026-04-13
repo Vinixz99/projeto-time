@@ -1,0 +1,130 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #0d0d0d;
+  color: white;
+}
+
+/* LAYOUT PRINCIPAL */
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: black;
+  border-bottom: 1px solid #222;
+  position: sticky;
+  top: 0;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* MENU DESKTOP */
+.menu {
+  display: flex;
+  gap: 20px;
+}
+
+.menu a {
+  color: #aaa;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.menu a:hover {
+  color: white;
+}
+
+/* BOTÃO */
+button {
+  background: white;
+  color: black;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+/* PÁGINAS (SPA) */
+.page {
+  display: none;
+  padding: 30px 10px;
+}
+
+.page.active {
+  display: block;
+}
+
+/* HERO */
+.hero {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 15px;
+}
+
+/* TITULOS */
+h1 {
+  font-size: 40px;
+}
+
+h2 {
+  font-size: 28px;
+  margin-bottom: 15px;
+}
+
+/* CARD */
+.card {
+  background: #1a1a1a;
+  padding: 15px;
+  margin-top: 10px;
+  border-radius: 12px;
+}
+
+/* GRID GALERIA */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.img-box {
+  background: #222;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .menu {
+    display: none;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  h1 {
+    font-size: 28px;
+  }
+}

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Nexus FC - Futsal de Aracaju. Site oficial do time.">
+    <title>Nexus FC • Futsal</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="tail-container bg-black text-white min-h-screen flex flex-col">
+
+    <!-- NAVBAR TOP (mobile-first) -->
+    <nav class="bg-black border-b border-white/20 sticky top-0 z-50">
+        <div class="max-w-screen-xl mx-auto px-4 py-3 flex items-center justify-between">
+            
+            <!-- Logo -->
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-white rounded-2xl flex items-center justify-center border-2 border-black shadow-inner">
+                    <!-- Escudo placeholder (branco e preto) -->
+                    <span class="text-black text-3xl font-bold logo-font tracking-[-2px]">N</span>
+                </div>
+                <div>
+                    <h1 class="logo-font text-3xl tracking-[-1px] leading-none">NEXUS</h1>
+                    <p class="text-[10px] text-white/70 -mt-1 tracking-[2px]">FC FUTSAL</p>
+                </div>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+                <a onclick="navigateTo('home')" class="hover:text-white/70 cursor-pointer flex items-center gap-1">
+                    <i class="fa-solid fa-house"></i> INÍCIO
+                </a>
+                <a onclick="navigateTo('equipe')" class="hover:text-white/70 cursor-pointer">EQUIPE</a>
+                <a onclick="navigateTo('agenda')" class="hover:text-white/70 cursor-pointer">AGENDA</a>
+                <a onclick="navigateTo('resultados')" class="hover:text-white/70 cursor-pointer">RESULTADOS</a>
+                <a onclick="navigateTo('noticias')" class="hover:text-white/70 cursor-pointer">NOTÍCIAS</a>
+                <a onclick="navigateTo('galeria')" class="hover:text-white/70 cursor-pointer">GALERIA</a>
+            </div>
+
+            <!-- Login / User -->
+            <div class="flex items-center gap-3">
+                <div id="user-info" class="hidden items-center gap-2 cursor-pointer" onclick="toggleProfileMenu()">
+                    <div class="text-right">
+                        <p id="user-name" class="text-sm font-semibold"></p>
+                        <p id="user-role" class="text-[10px] text-emerald-400"></p>
+                    </div>
+                    <div class="w-8 h-8 bg-white text-black rounded-2xl flex items-center justify-center text-xl">
+                        👤
+                    </div>
+                </div>
+                
+                <button onclick="showLoginModal()" 
+                        id="login-btn"
+                        class="px-5 py-2 bg-white text-black font-semibold rounded-3xl text-sm flex items-center gap-2 hover:bg-white/90">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>ENTRAR</span>
+                </button>
+
+                <!-- Hamburger -->
+                <button onclick="toggleMobileMenu()" class="md:hidden text-2xl">
+                    <i id="hamburger-icon" class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (slide) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-black border-t border-white/10 px-4 py-6">
+            <div class="flex flex-col gap-6 text-lg font-medium">
+                <a onclick="navigateTo('home');toggleMobileMenu()" class="flex items-center gap-3"><i class="fa-solid fa-house w-6"></i> Início</a>
+                <a onclick="navigateTo('equipe');toggleMobileMenu()" class="flex items-center gap-3"><i class="fa-solid fa-users w-6"></i> Equipe</a>
+                <a onclick="navigateTo('agenda');toggleMobileMenu()" class="flex items-center gap-3"><i class="fa-solid fa-calendar w-6"></i> Agenda</a>
+                <a onclick="navigateTo('resultados');toggleMobileMenu()" class="flex items-center gap-3"><i class="fa-solid fa-trophy w-6"></i> Resultados</a>
+                <a onclick="navigateTo('noticias');toggleMobileMenu()" class="flex items-center gap-3"><i class="fa-solid fa-newspaper w-6"></i> Notícias</a>
+                <a onclick="navigateTo('galeria');toggleMobileMenu()" class="flex items-center gap-3"><i class="fa-solid fa-images w-6"></i> Galeria</a>
+                <hr class="border-white/20">
+                <button onclick="showLoginModal();toggleMobileMenu()" 
+                        class="w-full bg-white text-black py-4 rounded-3xl font-bold flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> ENTRAR NA ÁREA DO TIME
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- BOTTOM NAV (app feel - só aparece no mobile) -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-black border-t border-white/20 z-50 bottom-nav">
+        <div class="max-w-screen-xl mx-auto grid grid-cols-5 text-center text-xs py-2">
+            <button onclick="navigateTo('home')" class="flex flex-col items-center gap-1 text-white/70 active:text-white">
+                <i class="fa-solid fa-house text-xl"></i>
+                <span class="mt-px">Início</span>
+            </button>
+            <button onclick="navigateTo('equipe')" class="flex flex-col items-center gap-1 text-white/70 active:text-white">
+                <i class="fa-solid fa-users text-xl"></i>
+                <span class="mt-px">Equipe</span>
+            </button>
+            <button onclick="navigateTo('agenda')" class="flex flex-col items-center gap-1 text-white/70 active:text-white">
+                <i class="fa-solid fa-calendar text-xl"></i>
+                <span class="mt-px">Agenda</span>
+            </button>
+            <button onclick="navigateTo('resultados')" class="flex flex-col items-center gap-1 text-white/70 active:text-white">
+                <i class="fa-solid fa-trophy text-xl"></i>
+                <span class="mt-px">Resultados</span>
+            </button>
+            <button onclick="navigateTo('perfil')" class="flex flex-col items-center gap-1 text-white/70 active:text-white">
+                <i class="fa-solid fa-user text-xl"></i>
+                <span class="mt-px">Perfil</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="flex-1 max-w-screen-xl mx-auto w-full pb-20 md:pb-8">
+
+        <!-- HOME -->
+        <div id="home" class="section active">
+            <div class="hero-bg h-screen flex items-center relative overflow-hidden">
+                <div class="px-6 max-w-xl">
+                    <div class="inline-flex items-center gap-2 bg-white/10 text-white text-sm font-medium px-4 py-2 rounded-3xl mb-6">
+                        <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                        ARACAJU • SERGIPE
+                    </div>
+                    <h2 class="logo-font text-7xl md:text-8xl leading-none tracking-[-3px] mb-4">
+                        NEXUS<br>FC
+                    </h2>
+                    <p class="text-2xl text-white/80 mb-8">Futsal que conecta. Força que une.</p>
+                    
+                    <div class="flex gap-4">
+                        <button onclick="navigateTo('agenda')" 
+                                class="flex-1 bg-white text-black font-bold py-5 rounded-3xl text-lg flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-calendar"></i>
+                            VER AGENDA
+                        </button>
+                        <button onclick="navigateTo('equipe')" 
+                                class="flex-1 border border-white/60 font-bold py-5 rounded-3xl text-lg">
+                            CONHEÇA A EQUIPE
+                        </button>
+                    </div>
+
+                    <!-- Próximo jogo -->
+                    <div class="mt-16 bg-white/10 backdrop-blur-xl rounded-3xl p-5">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-emerald-400 font-medium">PRÓXIMO JOGO</span>
+                            <span class="text-white/60">16 ABR • 20h • Ginásio Municipal</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-4xl">N</div>
+                                <div>
+                                    <p class="font-bold text-xl">Nexus FC</p>
+                                    <p class="text-sm text-white/60">vs</p>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-4xl font-bold text-white/30">X</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-bold text-xl">Dragões FC</p>
+                                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-4xl mx-auto">🐉</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bola de futsal decorativa -->
+                <div class="absolute bottom-12 right-6 text-[180px] opacity-10 rotate-12">⚽</div>
+            </div>
+        </div>
+
+        <!-- EQUIPE -->
+        <div id="equipe" class="section px-4 py-8">
+            <h2 class="text-4xl font-bold mb-8 px-2 logo-font">ELENCO 2026</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                <!-- Card exemplo - repita para cada jogador -->
+                <div class="card-hover bg-white/5 rounded-3xl p-4 text-center">
+                    <div class="w-24 h-24 mx-auto bg-gradient-to-br from-white to-gray-300 rounded-2xl flex items-center justify-center text-6xl mb-4 shadow-inner">👟</div>
+                    <h3 class="font-bold text-xl">João "Pivô" Silva</h3>
+                    <p class="text-emerald-400 text-sm">Pivô • #10 • 28 anos</p>
+                    <p class="mt-4 text-xs text-white/70">12 gols • 8 assistências • Capitão</p>
+                </div>
+                <!-- Adicione mais cards aqui -->
+                <div class="card-hover bg-white/5 rounded-3xl p-4 text-center">
+                    <div class="w-24 h-24 mx-auto bg-gradient-to-br from-white to-gray-300 rounded-2xl flex items-center justify-center text-6xl mb-4 shadow-inner">🏃</div>
+                    <h3 class="font-bold text-xl">Lucas Fixo</h3>
+                    <p class="text-emerald-400 text-sm">Fixo • #5 • 24 anos</p>
+                    <p class="mt-4 text-xs text-white/70">Defesa sólida • 3 gols</p>
+                </div>
+                <div class="card-hover bg-white/5 rounded-3xl p-4 text-center">
+                    <div class="w-24 h-24 mx-auto bg-gradient-to-br from-white to-gray-300 rounded-2xl flex items-center justify-center text-6xl mb-4 shadow-inner">⚡</div>
+                    <h3 class="font-bold text-xl">Mateus Ala</h3>
+                    <p class="text-emerald-400 text-sm">Ala • #7 • 19 anos</p>
+                    <p class="mt-4 text-xs text-white/70">Revelação do time</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- AGENDA -->
+        <div id="agenda" class="section px-4 py-8">
+            <h2 class="text-4xl font-bold mb-8 px-2 logo-font">AGENDA DE ABRIL</h2>
+            <div class="space-y-6">
+                <div class="bg-white/5 rounded-3xl p-6 flex gap-6">
+                    <div class="text-center">
+                        <p class="text-4xl font-bold">16</p>
+                        <p class="text-xs -mt-2">ABR</p>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-semibold text-lg">Nexus FC × Dragões FC</p>
+                        <p class="text-sm text-white/70">20h • Ginásio Municipal • Campeonato Sergipano</p>
+                        <div class="mt-4 flex gap-2">
+                            <span class="text-xs bg-emerald-400/20 text-emerald-400 px-3 py-1 rounded-3xl">EM CASA</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Mais eventos... -->
+            </div>
+        </div>
+
+        <!-- RESULTADOS -->
+        <div id="resultados" class="section px-4 py-8">
+            <h2 class="text-4xl font-bold mb-8 px-2 logo-font">ÚLTIMOS RESULTADOS</h2>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center bg-white/5 rounded-3xl px-6 py-5">
+                    <div>Nexus FC <span class="font-bold">4</span></div>
+                    <div class="text-center text-sm">09 ABR</div>
+                    <div><span class="font-bold">2</span> Unidos Futsal</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOTÍCIAS -->
+        <div id="noticias" class="section px-4 py-8">
+            <h2 class="text-4xl font-bold mb-8 px-2 logo-font">NOTÍCIAS DO TIME</h2>
+            <div class="grid gap-6">
+                <div class="bg-white/5 rounded-3xl p-6">
+                    <p class="text-emerald-400 text-sm">12 ABR 2026</p>
+                    <h3 class="text-2xl font-semibold mt-2">Treino tático com o novo técnico!</h3>
+                    <p class="text-white/70 mt-3">Foco total na defesa de 4x4. O time está voando!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- GALERIA -->
+        <div id="galeria" class="section px-4 py-8">
+            <h2 class="text-4xl font-bold mb-8 px-2 logo-font">GALERIA</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="aspect-square bg-white/10 rounded-3xl flex items-center justify-center text-6xl">📸</div>
+                <div class="aspect-square bg-white/10 rounded-3xl flex items-center justify-center text-6xl">🏆</div>
+                <!-- Adicione mais -->
+            </div>
+        </div>
+
+        <!-- PERFIL / DASHBOARD (após login) -->
+        <div id="perfil" class="section px-4 py-8">
+            <div class="bg-white/10 rounded-3xl p-8 text-center">
+                <h2 class="text-3xl font-bold mb-2">Bem-vindo de volta, <span id="dashboard-name" class="text-emerald-400"></span>!</h2>
+                <p class="text-white/60">Área exclusiva do time</p>
+                
+                <!-- Cards úteis para o time -->
+                <div class="mt-10 grid grid-cols-2 gap-6">
+                    <div onclick="marcarPresenca()" class="card-hover bg-white text-black rounded-3xl p-6 text-left">
+                        <i class="fa-solid fa-check-circle text-4xl mb-4"></i>
+                        <h4 class="font-bold text-xl">Marcar presença</h4>
+                        <p class="text-sm mt-2">Próximo treino: Hoje 18h</p>
+                        <button class="mt-6 w-full bg-black text-white py-4 rounded-3xl text-sm font-medium">CONFIRMAR PRESENÇA</button>
+                    </div>
+                    
+                    <div class="card-hover bg-white/10 rounded-3xl p-6 text-left">
+                        <i class="fa-solid fa-chart-bar text-4xl mb-4"></i>
+                        <h4 class="font-bold text-xl">Minhas stats</h4>
+                        <p class="text-5xl font-bold mt-6">8 <span class="text-sm font-normal text-white/60">gols</span></p>
+                        <p class="text-sm text-white/70">4 assistências • 92% passe certo</p>
+                    </div>
+                </div>
+
+                <div class="mt-8 bg-white/5 rounded-3xl p-6">
+                    <h4 class="font-semibold mb-4 flex items-center gap-2"><i class="fa-solid fa-bullhorn"></i> Comunicados do técnico</h4>
+                    <p class="text-sm text-white/70">"Treino amanhã às 17h. Tragam garrafas cheias!"</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- LOGIN MODAL -->
+    <div id="login-modal" onclick="if(event.target === this) hideLoginModal()" 
+         class="hidden fixed inset-0 bg-black/80 flex items-end md:items-center justify-center z-[9999]">
+        <div onclick="event.stopImmediatePropagation()" 
+             class="bg-white text-black w-full md:w-96 rounded-t-3xl md:rounded-3xl p-8">
+            <h2 class="text-3xl font-bold mb-8 text-center logo-font">ENTRAR NO NEXUS FC</h2>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="text-xs font-medium block mb-2">USUÁRIO / E-MAIL</label>
+                    <input id="login-user" type="text" value="joao.pivo" 
+                           class="w-full bg-zinc-100 px-6 py-5 rounded-3xl outline-none text-lg">
+                </div>
+                <div>
+                    <label class="text-xs font-medium block mb-2">SENHA</label>
+                    <input id="login-pass" type="password" value="123456" 
+                           class="w-full bg-zinc-100 px-6 py-5 rounded-3xl outline-none text-lg">
+                </div>
+                
+                <button onclick="fazerLogin()" 
+                        class="w-full bg-black text-white py-6 rounded-3xl text-xl font-bold flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    ENTRAR
+                </button>
+                
+                <p class="text-center text-xs text-black/60">Demo • Use "joao.pivo" / "123456"</p>
+                <p onclick="hideLoginModal()" class="text-center text-sm text-black/40 cursor-pointer">Fechar</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tailwind script já carregado
+        function initializeTailwind() {
+            return {
+                config(userConfig = {}) {
+                    return {
+                        configUser: userConfig,
+                        theme: {
+                            extend: {},
+                        },
+                    }
+                },
+                theme(userConfig = {}) {
+                    return {
+                        ...this.defaultTheme(),
+                        ...this.config(userConfig).theme,
+                    }
+                },
+                defaultTheme() {
+                    return {}
+                },
+            }
+        }
+        
+        // Navegação SPA
+        function navigateTo(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'))
+            const target = document.getElementById(section)
+            if (target) target.classList.add('active')
+            
+            // Scroll suave para o topo
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+        
+        // Mobile menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu')
+            const icon = document.getElementById('hamburger-icon')
+            menu.classList.toggle('hidden')
+            icon.classList.toggle('fa-bars')
+            icon.classList.toggle('fa-xmark')
+        }
+        
+        // Login modal
+        function showLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden')
+            document.getElementById('login-modal').classList.add('flex')
+        }
+        
+        function hideLoginModal() {
+            const modal = document.getElementById('login-modal')
+            modal.classList.add('hidden')
+            modal.classList.remove('flex')
+        }
+        
+        // Simulação de login
+        let currentUser = null
+        
+        function fazerLogin() {
+            const user = document.getElementById('login-user').value
+            const pass = document.getElementById('login-pass').value
+            
+            if (user && pass) {
+                currentUser = {
+                    name: user.split('.')[0].toUpperCase(),
+                    role: "Jogador"
+                }
+                
+                // Salva no localStorage (persiste mesmo fechando o navegador)
+                localStorage.setItem('nexusUser', JSON.stringify(currentUser))
+                
+                hideLoginModal()
+                updateUserUI()
+                navigateTo('perfil') // vai direto para o dashboard
+            }
+        }
+        
+        function updateUserUI() {
+            const saved = localStorage.getItem('nexusUser')
+            if (saved) {
+                currentUser = JSON.parse(saved)
+                document.getElementById('login-btn').classList.add('hidden')
+                const userInfo = document.getElementById('user-info')
+                userInfo.classList.remove('hidden')
+                userInfo.classList.add('flex')
+                document.getElementById('user-name').textContent = currentUser.name
+                document.getElementById('user-role').textContent = currentUser.role
+                document.getElementById('dashboard-name').textContent = currentUser.name
+            }
+        }
+        
+        function toggleProfileMenu() {
+            if (confirm('Deseja sair da conta?')) {
+                localStorage.removeItem('nexusUser')
+                currentUser = null
+                document.getElementById('user-info').classList.add('hidden')
+                document.getElementById('user-info').classList.remove('flex')
+                document.getElementById('login-btn').classList.remove('hidden')
+                navigateTo('home')
+            }
+        }
+        
+        // Função de presença (mock)
+        function marcarPresenca() {
+            alert('✅ Presença confirmada no treino de hoje!\n\nO técnico foi notificado. Boa preparação!')
+        }
+        
+        // Inicializa tudo
+        window.onload = function() {
+            initializeTailwind()
+            updateUserUI()
+            
+            // Mock data extra (pode expandir)
+            console.log('%c✅ Site Nexus FC carregado com sucesso! Mobile-first + Tema preto e branco + Área do time funcional.', 'color:#fff; background:#000; padding:2px 6px; border-radius:4px')
+        }
+    </script>
+</body>
+</html>
