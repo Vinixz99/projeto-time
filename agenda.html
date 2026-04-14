@@ -16,6 +16,17 @@
 
 <div class="container" id="listaJogos"></div>
 
+<button class="btn-confirmar" onclick="confirmarPresenca()">
+  Confirmar presença
+</button>
+
+<div id="popup" class="popup">
+  <div class="popup-box">
+    <p id="popup-text"></p>
+    <button onclick="fecharPopup()">OK</button>
+  </div>
+</div>
+
 <!-- BOTÃO ADM -->
 <button id="btnAddJogo" onclick="addJogo()" style="display:none;">
   ➕ Adicionar Jogo

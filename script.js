@@ -532,3 +532,33 @@ onValue(ref(db, 'jogos'), snapshot => {
   document.getElementById("time2").innerText = ultimo.time2;
 
 });
+
+function confirmarPresenca() {
+  const confirmacao = confirm("Deseja confirmar sua presença no jogo?");
+
+  if (!confirmacao) return;
+
+  // salva no Firebase
+  const presencaRef = ref(db, "presencas");
+
+  push(presencaRef, {
+    nome: "Jogador", // depois posso te ajudar a pegar nome do input/login
+    data: new Date().toISOString()
+  })
+  .then(() => {
+    mostrarPopup("✅ Presença confirmada com sucesso!");
+  })
+  .catch((error) => {
+    mostrarPopup("❌ Erro ao confirmar presença");
+    console.error(error);
+  });
+}
+
+function mostrarPopup(mensagem) {
+  document.getElementById("popup-text").innerText = mensagem;
+  document.getElementById("popup").style.display = "flex";
+}
+
+function fecharPopup() {
+  document.getElementById("popup").style.display = "none";
+}
