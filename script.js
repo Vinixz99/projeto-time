@@ -170,9 +170,12 @@ function verificarLogin(){
 
     if(area){
       area.innerHTML = `
-        <span>👤 ${user}${coroa}</span>
-        <button onclick="logout()">Sair</button>
-      `;
+  <div class="user-box">
+    <span>👤 ${user}</span>
+    <span>${coroa}</span>
+    <button onclick="logout()">Sair</button>
+  </div>
+`;
     }
 
     // 👇 liberar botões admin
@@ -562,3 +565,41 @@ function mostrarPopup(mensagem) {
 function fecharPopup() {
   document.getElementById("popup").style.display = "none";
 }
+
+if (localStorage.getItem("admin") === "true") {
+  document.getElementById("adminArea").style.display = "block";
+}
+
+const presencaRef = ref(db, "presenca");
+
+onValue(presencaRef, (snapshot) => {
+  const ul = document.getElementById("listaAdmin");
+  if (!ul) return;
+
+  ul.innerHTML = "";
+
+  snapshot.forEach((child) => {
+    const nome = child.key;
+
+    const li = document.createElement("li");
+    li.style.display = "flex";
+    li.style.justifyContent = "space-between";
+    li.style.padding = "10px";
+    li.style.borderBottom = "1px solid #333";
+
+    const span = document.createElement("span");
+    span.innerText = "⚽ " + nome;
+
+    const btn = document.createElement("button");
+    btn.innerText = "❌";
+    btn.style.width = "40px";
+
+    btn.onclick = () => {
+      remove(ref(db, "presenca/" + nome));
+    };
+
+    li.appendChild(span);
+    li.appendChild(btn);
+    ul.appendChild(li);
+  });
+});
