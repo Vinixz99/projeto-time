@@ -600,3 +600,8 @@ function fecharPopup() {
 if (localStorage.getItem("admin") === "true") {
   document.getElementById("adminArea").style.display = "block";
 }
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js")
+    .then(() => console.log("PWA ativo 🚀"));
+}
