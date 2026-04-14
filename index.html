@@ -63,5 +63,23 @@
   <a href="#">👤<span>Perfil</span></a>
 </nav>
 
+
+<!-- MODAL LOGIN -->
+<div class="modal" id="modalLogin">
+
+  <div class="modal-box">
+    <button class="btn-login" onclick="abrirLogin()">ENTRAR</button>
+
+    <input type="text" id="nomeJogador" placeholder="Seu nome">
+    <input type="password" id="senhaJogador" placeholder="Senha">
+    <input type="number" id="numeroJogador" placeholder="Número (camisa)">
+
+    <button onclick="loginJogador()">Entrar</button>
+    <button onclick="cadastrar()">Criar Conta</button>
+
+    <span onclick="fecharModal()">Fechar</span>
+  </div>
+  <script type="module" src="script.js"></script>
+</div>
 </body>
 </html>
