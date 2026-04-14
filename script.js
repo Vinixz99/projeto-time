@@ -1,5 +1,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { 
+  getDatabase, ref, set, get, push, remove, onValue 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+//////////////////////////////////////////////////////
+// CONFIG
+//////////////////////////////////////////////////////
 
 const firebaseConfig = {
   apiKey: "AIzaSyCu4_fFpODAZYGzf8cH6FYzoAczO08obUg",
@@ -15,6 +21,14 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 //////////////////////////////////////////////////////
+// ADMIN CHECK
+//////////////////////////////////////////////////////
+
+function isAdmin(){
+  return localStorage.getItem("admin") === "true";
+}
+
+//////////////////////////////////////////////////////
 // MODAL
 //////////////////////////////////////////////////////
 
@@ -27,7 +41,7 @@ window.fecharModal = function(){
 }
 
 //////////////////////////////////////////////////////
-// LOGIN
+// LOGIN JOGADOR
 //////////////////////////////////////////////////////
 
 window.loginJogador = function(){
@@ -49,8 +63,10 @@ window.loginJogador = function(){
 
     if(data.senha === senha){
       localStorage.setItem('user', nome);
-      alert("Login feito ✅");
-      window.location.reload();
+      localStorage.setItem('admin', 'false');
+
+      fecharModal();
+      verificarLogin();
     } else {
       alert("Senha errada ❌");
     }
@@ -100,4 +116,182 @@ window.cadastrar = function(){
 
     alert("Conta criada ✅");
   });
+}
+
+//////////////////////////////////////////////////////
+// LOGIN ADMIN
+//////////////////////////////////////////////////////
+
+const ADMIN_USER = "vini";
+const ADMIN_PASS = "2310";
+
+window.loginAdmin = function(){
+  let nome = document.getElementById('nomeAdmin').value.trim().toLowerCase();
+  let senha = document.getElementById('senhaAdmin').value.trim();
+
+  if(!nome || !senha){
+    alert("Preencha tudo");
+    return;
+  }
+
+  if(nome === ADMIN_USER && senha === ADMIN_PASS){
+    localStorage.setItem('user', nome);
+    localStorage.setItem('admin', 'true');
+
+    alert("Bem-vindo ADM 👑");
+
+    fecharModal();
+    verificarLogin();
+  } else {
+    alert("Dados incorretos ❌");
+  }
+}
+
+//////////////////////////////////////////////////////
+// USUÁRIO LOGADO
+//////////////////////////////////////////////////////
+
+function verificarLogin(){
+  const user = localStorage.getItem('user');
+  const admin = localStorage.getItem('admin');
+  const area = document.getElementById('areaUsuario');
+  const btnAdd = document.getElementById("btnAddJogo");
+
+  console.log("ADMIN:", admin); // DEBUG
+
+  if(user){
+    if(area){
+      let coroa = admin === "true" ? " 👑" : "";
+
+      area.innerHTML = `
+        <span>👤 ${user}${coroa}</span>
+        <button onclick="logout()">Sair</button>
+      `;
+    }
+
+    // 👇 AQUI FORÇA APARECER
+    if(btnAdd){
+      if(admin === "true"){
+        btnAdd.style.display = "block";
+        console.log("BOTÃO LIBERADO ✅");
+      } else {
+        btnAdd.style.display = "none";
+      }
+    }
+
+  } else {
+    if(area){
+      area.innerHTML = `
+        <button class="btn-login" onclick="abrirLogin()">ENTRAR</button>
+      `;
+    }
+  }
+}
+
+//////////////////////////////////////////////////////
+// LOGOUT
+//////////////////////////////////////////////////////
+
+window.logout = function(){
+  localStorage.removeItem('user');
+  localStorage.removeItem('admin');
+  location.reload();
+}
+
+//////////////////////////////////////////////////////
+// NAVEGAÇÃO
+//////////////////////////////////////////////////////
+
+window.irPagina = function(pagina){
+  window.location.href = pagina;
+}
+
+//////////////////////////////////////////////////////
+// JOGOS
+//////////////////////////////////////////////////////
+
+onValue(ref(db, 'jogos'), snapshot => {
+  const container = document.getElementById("listaJogos");
+  if(!container) return;
+
+  container.innerHTML = '';
+
+  snapshot.forEach(child => {
+    let id = child.key;
+    let jogo = child.val();
+
+    let btnRemover = '';
+
+    if(isAdmin()){
+      btnRemover = `<button onclick="removerJogo('${id}')">❌</button>`;
+    }
+
+    container.innerHTML += `
+      <div class="card">
+        <h3>${jogo.time1} x ${jogo.time2}</h3>
+        <p>${jogo.data} • ${jogo.local}</p>
+        ${btnRemover}
+      </div>
+    `;
+  });
+});
+
+window.addJogo = function(){
+  if(!isAdmin()){
+    alert("Apenas ADM pode adicionar jogos 👑");
+    return;
+  }
+
+  let time1 = prompt("Time 1:");
+  let time2 = prompt("Time 2:");
+  let data = prompt("Data:");
+  let local = prompt("Local:");
+
+  set(ref(db, 'jogos/' + Date.now()), {
+    time1,
+    time2,
+    data,
+    local
+  });
+}
+
+window.removerJogo = function(id){
+  if(!isAdmin()){
+    alert("Apenas ADM pode remover 👑");
+    return;
+  }
+
+  remove(ref(db, 'jogos/' + id));
+}
+
+//////////////////////////////////////////////////////
+// EQUIPE
+//////////////////////////////////////////////////////
+
+onValue(ref(db, 'usuarios'), snapshot => {
+  const container = document.getElementById("listaEquipe");
+  if(!container) return;
+
+  container.innerHTML = '';
+
+  snapshot.forEach(child => {
+    let nome = child.key;
+    let data = child.val();
+
+    container.innerHTML += `
+      <div class="card-player">
+        <div class="icon">⚽</div>
+        <h3>${nome}</h3>
+        <p>#${data.numero}</p>
+      </div>
+    `;
+  });
+});
+
+//////////////////////////////////////////////////////
+// INICIAR
+//////////////////////////////////////////////////////
+
+window.onload = () => {
+  verificarLogin();
 }

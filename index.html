@@ -19,7 +19,9 @@
     </div>
   </div>
 
-  <button class="btn-login">ENTRAR</button>
+  <div id="areaUsuario">
+  <button class="btn-login" onclick="abrirLogin()" id="btnEntrar">ENTRAR</button>
+</div>
 </header>
 
 <!-- CONTEÚDO -->
@@ -34,8 +36,8 @@
     <p>Futsal que conecta. Força que une.</p>
 
     <div class="buttons">
-      <button class="btn-primary">📅 VER AGENDA</button>
-      <button class="btn-outline">CONHEÇA A EQUIPE</button>
+      <button class="btn-primary" onclick="irPagina('agenda.html')">📅 VER AGENDA</button>
+<button class="btn-outline" onclick="irPagina('equipe.html')">CONHEÇA A EQUIPE</button>
     </div>
   </section>
 
@@ -56,11 +58,11 @@
 
 <!-- NAVBAR -->
 <nav class="navbar">
-  <a href="#">🏠<span>Início</span></a>
-  <a href="#">👥<span>Equipe</span></a>
-  <a href="#">📅<span>Agenda</span></a>
-  <a href="#">📊<span>Resultados</span></a>
-  <a href="#">👤<span>Perfil</span></a>
+  <a href="index.html">🏠<span>Início</span></a>
+<a href="equipe.html">👥<span>Equipe</span></a>
+<a href="agenda.html">📅<span>Agenda</span></a>
+<a href="resultados.html">📊<span>Resultados</span></a>
+<a href="perfil.html">👤<span>Perfil</span></a>
 </nav>
 
 
@@ -68,18 +70,26 @@
 <div class="modal" id="modalLogin">
 
   <div class="modal-box">
-    <button class="btn-login" onclick="abrirLogin()">ENTRAR</button>
-
+    
     <input type="text" id="nomeJogador" placeholder="Seu nome">
     <input type="password" id="senhaJogador" placeholder="Senha">
     <input type="number" id="numeroJogador" placeholder="Número (camisa)">
+
+    <hr>
+
+<h4>Modo Administrador 👑</h4>
+
+<input type="text" id="nomeAdmin" placeholder="Admin">
+<input type="password" id="senhaAdmin" placeholder="Senha">
+
+<button onclick="loginAdmin()">Entrar como ADM</button>
 
     <button onclick="loginJogador()">Entrar</button>
     <button onclick="cadastrar()">Criar Conta</button>
 
     <span onclick="fecharModal()">Fechar</span>
   </div>
-  <script type="module" src="script.js"></script>
 </div>
+<script type="module" src="script.js"></script>
 </body>
 </html>
