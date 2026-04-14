@@ -498,6 +498,7 @@ document.querySelectorAll('.navbar a').forEach(link => {
 
 // quando carregar a página
 window.addEventListener('load', () => {
+  lucide.createIcons();
   let pagina = localStorage.getItem('paginaAtiva');
 
   document.querySelectorAll('.navbar a').forEach(link => {
@@ -509,8 +510,6 @@ window.addEventListener('load', () => {
   });
 });
 
-import { onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
 onValue(ref(db, 'jogos'), snapshot => {
 
   if(!snapshot.exists()){
@@ -518,24 +517,18 @@ onValue(ref(db, 'jogos'), snapshot => {
     return;
   }
 
-  let primeiroJogo = null;
-
   let jogos = [];
 
-snapshot.forEach(child => {
-  jogos.push(child.val());
-});
+  snapshot.forEach(child => {
+    jogos.push(child.val());
+  });
 
-let ultimo = jogos[jogos.length - 1];
+  let ultimo = jogos[jogos.length - 1];
 
-  if(primeiroJogo){
-    document.getElementById("infoJogo").innerText =
-      `${primeiroJogo.data} • ${primeiroJogo.local}`;
+  document.getElementById("infoJogo").innerText =
+    `${ultimo.data} • ${ultimo.local}`;
 
-    document.getElementById("time1").innerText = primeiroJogo.time1;
-    document.getElementById("time2").innerText = primeiroJogo.time2;
-  }
+  document.getElementById("time1").innerText = ultimo.time1;
+  document.getElementById("time2").innerText = ultimo.time2;
 
 });
-
-lucide.createIcons();
