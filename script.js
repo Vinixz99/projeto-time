@@ -170,12 +170,9 @@ function verificarLogin(){
 
     if(area){
       area.innerHTML = `
-  <div class="user-box">
-    <span>👤 ${user}</span>
-    <span>${coroa}</span>
-    <button onclick="logout()">Sair</button>
-  </div>
-`;
+        <span>👤 ${user}${coroa}</span>
+        <button onclick="logout()">Sair</button>
+      `;
     }
 
     // 👇 liberar botões admin
@@ -557,19 +554,6 @@ function confirmarPresenca() {
   });
 }
 
-function mostrarPopup(mensagem) {
-  document.getElementById("popup-text").innerText = mensagem;
-  document.getElementById("popup").style.display = "flex";
-}
-
-function fecharPopup() {
-  document.getElementById("popup").style.display = "none";
-}
-
-if (localStorage.getItem("admin") === "true") {
-  document.getElementById("adminArea").style.display = "block";
-}
-
 const presencaRef = ref(db, "presenca");
 
 onValue(presencaRef, (snapshot) => {
@@ -603,3 +587,16 @@ onValue(presencaRef, (snapshot) => {
     ul.appendChild(li);
   });
 });
+
+function mostrarPopup(mensagem) {
+  document.getElementById("popup-text").innerText = mensagem;
+  document.getElementById("popup").style.display = "flex";
+}
+
+function fecharPopup() {
+  document.getElementById("popup").style.display = "none";
+}
+
+if (localStorage.getItem("admin") === "true") {
+  document.getElementById("adminArea").style.display = "block";
+}
