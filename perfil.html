@@ -3,28 +3,80 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Página</title>
+<title>Perfil</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
 
 <header class="header">
-  <h3>Nome da Página</h3>
+  <h2>👤 Perfil</h2>
 </header>
 
-<div class="container">
-  <h2>Conteúdo aqui</h2>
+<main class="container">
+
+  <div id="skeletonPerfil" class="skeleton-card">
+  <div class="skeleton-title"></div>
+
+  <div class="skeleton-dupla">
+    <div class="skeleton-box"></div>
+    <div class="skeleton-box"></div>
+  </div>
 </div>
 
+  <!-- CARD PRINCIPAL -->
+  <div class="card perfil-card">
+
+  <div class="titulo-perfil">
+    <h2 class="" id="nomePerfil">Bem-vindo</h2>
+    <p>Área exclusiva do time</p>
+  </div>
+
+  <div class="info-dupla">
+
+    <!-- TREINO -->
+    <div class="info-box">
+      <h4>📅 Próximo treino</h4>
+      <p id="proximoTreino">Carregando...</p>
+    </div>
+
+    <!-- COMUNICADO -->
+    <div class="info-box">
+      <h4>📢 Comunicados</h4>
+      <p id="comunicado">Nenhum comunicado</p>
+    </div>
+
+  </div>
+
+</div>
+
+  <!-- ADMIN -->
+  <div class="card" id="areaAdminPerfil" style="display:none;">
+  <h3>👑 Painel ADM</h3>
+
+  <button onclick="definirTreino()">Definir próximo treino</button>
+  <button onclick="removerTreino()">❌ Remover treino</button>
+
+  <button onclick="definirComunicado()">Criar comunicado</button>
+  <button onclick="removerComunicado()">❌ Remover comunicado</button>
+</div>
+
+</main>
+
+<!-- NAVBAR -->
 <nav class="navbar">
-  <a href="index.html">🏠<span>Início</span></a>
-  <a href="equipe.html">👥<span>Equipe</span></a>
-  <a href="agenda.html">📅<span>Agenda</span></a>
-  <a href="resultados.html">📊<span>Resultados</span></a>
-  <a href="perfil.html">👤<span>Perfil</span></a>
+  <a href="index.html"><i data-lucide="home"></i><span>Início</span></a>
+  <a href="equipe.html"><i data-lucide="users"></i><span>Equipe</span></a>
+  <a href="agenda.html"><i data-lucide="calendar"></i><span>Agenda</span></a>
+  <a href="resultados.html"><i data-lucide="bar-chart"></i><span>Resultados</span></a>
+  <a href="perfil.html"><i data-lucide="user"></i><span>Perfil</span></a>
 </nav>
 
 <script type="module" src="script.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
 </body>
 </html>

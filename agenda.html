@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agenda</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -21,12 +22,17 @@
 </button>
 
 <nav class="navbar">
-  <a href="index.html">🏠<span>Início</span></a>
-<a href="equipe.html">👥<span>Equipe</span></a>
-<a href="agenda.html">📅<span>Agenda</span></a>
-<a href="resultados.html">📊<span>Resultados</span></a>
-<a href="perfil.html">👤<span>Perfil</span></a>
+  <a href="index.html"><i data-lucide="home"></i><span>Início</span></a>
+  <a href="equipe.html"><i data-lucide="users"></i><span>Equipe</span></a>
+  <a href="agenda.html"><i data-lucide="calendar"></i><span>Agenda</span></a>
+  <a href="resultados.html"><i data-lucide="bar-chart"></i><span>Resultados</span></a>
+  <a href="perfil.html"><i data-lucide="user"></i><span>Perfil</span></a>
+</nav>
 
 <script type="module" src="script.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
 </body>
 </html>

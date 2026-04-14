@@ -1,6 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
 import { 
-  getDatabase, ref, set, get, push, remove, onValue 
+  getDatabase, 
+  ref, 
+  set, 
+  get, 
+  onValue, 
+  remove 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 //////////////////////////////////////////////////////
@@ -155,28 +161,24 @@ function verificarLogin(){
   const user = localStorage.getItem('user');
   const admin = localStorage.getItem('admin');
   const area = document.getElementById('areaUsuario');
-  const btnAdd = document.getElementById("btnAddJogo");
 
-  console.log("ADMIN:", admin); // DEBUG
+  const btnAdd = document.getElementById("btnAddJogo");
+  const btnRes = document.getElementById("btnAddResultado");
 
   if(user){
-    if(area){
-      let coroa = admin === "true" ? " 👑" : "";
+    let coroa = admin === "true" ? " 👑" : "";
 
+    if(area){
       area.innerHTML = `
         <span>👤 ${user}${coroa}</span>
         <button onclick="logout()">Sair</button>
       `;
     }
 
-    // 👇 AQUI FORÇA APARECER
-    if(btnAdd){
-      if(admin === "true"){
-        btnAdd.style.display = "block";
-        console.log("BOTÃO LIBERADO ✅");
-      } else {
-        btnAdd.style.display = "none";
-      }
+    // 👇 liberar botões admin
+    if(admin === "true"){
+      if(btnAdd) btnAdd.style.display = "block";
+      if(btnRes) btnRes.style.display = "block";
     }
 
   } else {
@@ -295,3 +297,245 @@ onValue(ref(db, 'usuarios'), snapshot => {
 window.onload = () => {
   verificarLogin();
 }
+
+//////////////////////////////////////////////////////
+// RESULTADOS
+//////////////////////////////////////////////////////
+
+onValue(ref(db, 'resultados'), snapshot => {
+  const container = document.getElementById("listaResultados");
+  if(!container) return;
+
+  container.innerHTML = '';
+
+  snapshot.forEach(child => {
+    let id = child.key;
+    let jogo = child.val();
+
+    let btn = '';
+
+    if(isAdmin()){
+      btn = `<button onclick="removerResultado('${id}')">❌</button>`;
+    }
+
+    container.innerHTML += `
+      <div class="card">
+        <h3>${jogo.time1} ${jogo.gols1} x ${jogo.gols2} ${jogo.time2}</h3>
+        <p>${jogo.data}</p>
+        ${btn}
+      </div>
+    `;
+  });
+});
+
+window.addResultado = function(){
+  if(!isAdmin()){
+    alert("Só ADM 👑");
+    return;
+  }
+
+  let time1 = prompt("Time 1");
+  let time2 = prompt("Time 2");
+  let gols1 = prompt("Gols time 1");
+  let gols2 = prompt("Gols time 2");
+  let data = prompt("Data");
+
+  set(ref(db, 'resultados/' + Date.now()), {
+    time1, time2, gols1, gols2, data
+  });
+}
+
+window.removerResultado = function(id){
+  if(!isAdmin()) return;
+
+  remove(ref(db, 'resultados/' + id));
+}
+
+//////////////////////////////////////////////////////
+// PERFIL
+//////////////////////////////////////////////////////
+
+function carregarPerfil(){
+  let user = localStorage.getItem('user');
+  let admin = localStorage.getItem('admin');
+
+  const nomeEl = document.getElementById("nomePerfil");
+  const treinoEl = document.getElementById("proximoTreino");
+  const comunicadoEl = document.getElementById("comunicado");
+  const areaAdmin = document.getElementById("areaAdminPerfil");
+
+  if(!user) return;
+
+  if(nomeEl){
+    nomeEl.innerText = "Bem-vindo, " + user;
+  }
+
+  // MOSTRAR ADMIN
+  if(admin === "true" && areaAdmin){
+    areaAdmin.style.display = "block";
+  }
+
+  // TREINO
+  onValue(ref(db, 'config/treino'), snapshot => {
+    if(treinoEl){
+      treinoEl.innerText = snapshot.val() || "Não definido";
+    }
+  });
+
+  // COMUNICADO
+  onValue(ref(db, 'config/comunicado'), snapshot => {
+    if(comunicadoEl){
+      comunicadoEl.innerText = snapshot.val() || "Nenhum comunicado";
+    }
+  });
+}
+
+//////////////////////////////////////////////////////
+// CONFIRMAR PRESENÇA
+//////////////////////////////////////////////////////
+
+window.confirmarPresenca = function(){
+  let user = localStorage.getItem('user');
+
+  if(!user){
+    alert("Faça login primeiro");
+    return;
+  }
+
+  set(ref(db, 'presenca/' + user), true);
+
+  alert("Presença confirmada ✅");
+}
+
+//////////////////////////////////////////////////////
+// ADMIN - TREINO
+//////////////////////////////////////////////////////
+
+window.definirTreino = function(){
+  if(localStorage.getItem('admin') !== 'true'){
+    alert("Só ADM 👑");
+    return;
+  }
+
+  let treino = prompt("Digite o próximo treino:");
+
+  if(!treino) return;
+
+  set(ref(db, 'config/treino'), treino);
+}
+
+//////////////////////////////////////////////////////
+// ADMIN - COMUNICADO
+//////////////////////////////////////////////////////
+
+window.definirComunicado = function(){
+  if(localStorage.getItem('admin') !== 'true'){
+    alert("Só ADM 👑");
+    return;
+  }
+
+  let texto = prompt("Digite o comunicado:");
+
+  if(!texto) return;
+
+  set(ref(db, 'config/comunicado'), texto);
+}
+
+//////////////////////////////////////////////////////
+// INICIAR
+//////////////////////////////////////////////////////
+
+carregarPerfil();
+
+//////////////////////////////////////////////////////
+// REMOVER TREINO
+//////////////////////////////////////////////////////
+
+window.removerTreino = function(){
+  if(localStorage.getItem('admin') !== 'true'){
+    alert("Só ADM 👑");
+    return;
+  }
+
+  remove(ref(db, 'config/treino'));
+  alert("Treino removido ❌");
+}
+
+//////////////////////////////////////////////////////
+// REMOVER COMUNICADO
+//////////////////////////////////////////////////////
+
+window.removerComunicado = function(){
+  if(localStorage.getItem('admin') !== 'true'){
+    alert("Só ADM 👑");
+    return;
+  }
+
+  remove(ref(db, 'config/comunicado'));
+  alert("Comunicado removido ❌");
+}
+
+function esconderSkeleton(){
+  let sk = document.getElementById("skeletonPerfil");
+  if(sk){
+    sk.style.display = "none";
+  }
+}
+
+onValue(ref(db, 'config/treino'), snapshot => {
+  document.getElementById("proximoTreino").innerText = snapshot.val() || "Não definido";
+  esconderSkeleton();
+});
+
+document.querySelectorAll('.navbar a').forEach(link => {
+  link.addEventListener('click', function(){
+
+    // salva qual foi clicado
+    localStorage.setItem('paginaAtiva', this.getAttribute('href'));
+
+  });
+});
+
+// quando carregar a página
+window.addEventListener('load', () => {
+  let pagina = localStorage.getItem('paginaAtiva');
+
+  document.querySelectorAll('.navbar a').forEach(link => {
+
+    if(link.getAttribute('href') === pagina){
+      link.classList.add('active');
+    }
+
+  });
+});
+
+import { onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+onValue(ref(db, 'jogos'), snapshot => {
+
+  if(!snapshot.exists()){
+    document.getElementById("infoJogo").innerText = "Nenhum jogo marcado";
+    return;
+  }
+
+  let primeiroJogo = null;
+
+  let jogos = [];
+
+snapshot.forEach(child => {
+  jogos.push(child.val());
+});
+
+let ultimo = jogos[jogos.length - 1];
+
+  if(primeiroJogo){
+    document.getElementById("infoJogo").innerText =
+      `${primeiroJogo.data} • ${primeiroJogo.local}`;
+
+    document.getElementById("time1").innerText = primeiroJogo.time1;
+    document.getElementById("time2").innerText = primeiroJogo.time2;
+  }
+
+});
+
+lucide.createIcons();
