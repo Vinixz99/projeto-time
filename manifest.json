@@ -1,6 +1,6 @@
 {
   "name": "Nexus FC",
-  "short_name": "FutsalApp",
+  "short_name": "NexusApp",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#000000",
