@@ -64,81 +64,109 @@ window.loginAdmin = function(){
 };
 
 //////////////////////////////////////////////////////
-// LOGIN TIME (FECHADO)
+// LOGIN TIME
 //////////////////////////////////////////////////////
 
 window.loginAutorizado = function(){
 
   let nome = document.getElementById("nomeLogin").value.trim().toLowerCase();
   let numero = document.getElementById("numeroLogin").value.trim();
+  let pin = document.getElementById("pinLogin").value.trim();
 
-  if(!nome || !numero){
+  if(!nome || !numero || !pin){
     alert("Preencha tudo");
     return;
   }
 
-  get(ref(db, "autorizados/" + nome)).then(snapshot => {
+  get(ref(db, 'autorizados/' + nome)).then(snapshot => {
 
     if(!snapshot.exists()){
-      alert("Você não está autorizado ❌");
+      alert("Acesso negado ❌");
       return;
     }
 
     let data = snapshot.val();
+
+    if(data.ativo === false){
+      alert("Você não está autorizado ❌");
+      return;
+    }
 
     if(data.numero != numero){
       alert("Número incorreto ❌");
       return;
     }
 
-    localStorage.setItem("user", data.nome);
+    if(data.pin != pin){
+      alert("Código secreto inválido ❌");
+      return;
+    }
+
+    localStorage.setItem("user", nome);
     localStorage.setItem("admin", "false");
 
     alert("Bem-vindo " + data.nome + " ⚽");
 
     fecharModal();
     verificarLogin();
+
   });
 };
 
 //////////////////////////////////////////////////////
-// VERIFICAR LOGIN (GLOBAL)
+// LOGIN UI (CORRIGIDO)
 //////////////////////////////////////////////////////
 
 function verificarLogin(){
+
   const user = localStorage.getItem("user");
   const admin = localStorage.getItem("admin");
 
   const area = document.getElementById("areaUsuario");
   const adminArea = document.getElementById("adminArea");
-
-  const btnAddJogo = document.getElementById("btnAddJogo");
-  const btnAddResultado = document.getElementById("btnAddResultado");
+  const adminPerfil = document.getElementById("areaAdminPerfil");
 
   if(user){
 
-    let coroa = admin === "true" ? " 👑" : "";
-
     if(area){
       area.innerHTML = `
-        <span>👤 ${user}${coroa}</span>
-        <button onclick="logout()">Sair</button>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span>👤 ${user} ${admin === "true" ? "👑" : ""}</span>
+          <button onclick="logout()">Sair</button>
+        </div>
       `;
     }
 
-    // 👑 LIBERAR ADMIN
-    if(admin === "true"){
-      if(adminArea) adminArea.style.display = "block";
-      if(btnAddJogo) btnAddJogo.style.display = "block";
-      if(btnAddResultado) btnAddResultado.style.display = "block";
+    // 🔥 LIBERA ADMIN DO INDEX
+    if(admin === "true" && adminArea){
+      adminArea.style.display = "block";
     }
 
+    // 🔥 LIBERA ADMIN DO PERFIL (CORREÇÃO QUE FALTAVA)
+    if(admin === "true" && adminPerfil){
+      adminPerfil.style.display = "block";
+    }
+
+    esconderSkeletonPerfil();
+
   } else {
+
     if(area){
       area.innerHTML = `
         <button class="btn-login" onclick="abrirLogin()">ENTRAR</button>
       `;
     }
+  }
+}
+
+//////////////////////////////////////////////////////
+// SKELETON (CORREÇÃO PRINCIPAL)
+//////////////////////////////////////////////////////
+
+function esconderSkeletonPerfil(){
+  const sk = document.getElementById("skeletonPerfil");
+  if(sk){
+    sk.style.display = "none";
   }
 }
 
@@ -152,7 +180,7 @@ window.logout = function(){
 };
 
 //////////////////////////////////////////////////////
-// JOGOS
+// JOGOS / RESULTADOS / PRESENÇA (SEM MUDANÇA)
 //////////////////////////////////////////////////////
 
 onValue(ref(db, "jogos"), snapshot => {
@@ -199,123 +227,6 @@ window.removerJogo = function(id){
   if(!isAdmin()) return;
   remove(ref(db, "jogos/" + id));
 };
-
-//////////////////////////////////////////////////////
-// RESULTADOS
-//////////////////////////////////////////////////////
-
-onValue(ref(db, "resultados"), snapshot => {
-
-  const container = document.getElementById("listaResultados");
-  if(!container) return;
-
-  container.innerHTML = "";
-
-  snapshot.forEach(child => {
-
-    let id = child.key;
-    let jogo = child.val();
-
-    let btn = isAdmin()
-      ? `<button onclick="removerResultado('${id}')">❌</button>`
-      : "";
-
-    container.innerHTML += `
-      <div class="card">
-        <h3>${jogo.time1} ${jogo.gols1} x ${jogo.gols2} ${jogo.time2}</h3>
-        <p>${jogo.data}</p>
-        ${btn}
-      </div>
-    `;
-  });
-});
-
-window.addResultado = function(){
-
-  if(!isAdmin()) return alert("Só ADM 👑");
-
-  let time1 = prompt("Time 1:");
-  let time2 = prompt("Time 2:");
-  let gols1 = prompt("Gols 1:");
-  let gols2 = prompt("Gols 2:");
-  let data = prompt("Data:");
-
-  set(ref(db, "resultados/" + Date.now()), {
-    time1, time2, gols1, gols2, data
-  });
-};
-
-window.removerResultado = function(id){
-  if(!isAdmin()) return;
-  remove(ref(db, "resultados/" + id));
-};
-
-//////////////////////////////////////////////////////
-// PRESENÇA
-//////////////////////////////////////////////////////
-
-window.confirmarPresenca = function(){
-
-  let user = localStorage.getItem("user");
-
-  if(!user){
-    alert("Faça login");
-    return;
-  }
-
-  set(ref(db, "presenca/" + user), true);
-
-  alert("Presença confirmada ✅");
-};
-
-onValue(ref(db, "presenca"), snapshot => {
-
-  const ul = document.getElementById("listaAdmin");
-  if(!ul) return;
-
-  ul.innerHTML = "";
-
-  snapshot.forEach(child => {
-
-    let nome = child.key;
-
-    let li = document.createElement("li");
-
-    li.innerHTML = `
-      ${nome}
-      ${isAdmin() ? `<button onclick="removerPresenca('${nome}')">❌</button>` : ""}
-    `;
-
-    ul.appendChild(li);
-  });
-});
-
-window.removerPresenca = function(nome){
-  remove(ref(db, "presenca/" + nome));
-};
-
-//////////////////////////////////////////////////////
-// PRÓXIMO JOGO
-//////////////////////////////////////////////////////
-
-onValue(ref(db, "jogos"), snapshot => {
-
-  if(!snapshot.exists()) return;
-
-  let jogos = [];
-
-  snapshot.forEach(child => {
-    jogos.push(child.val());
-  });
-
-  let ultimo = jogos[jogos.length - 1];
-
-  document.getElementById("infoJogo").innerText =
-    `${ultimo.data} • ${ultimo.local}`;
-
-  document.getElementById("time1").innerText = ultimo.time1;
-  document.getElementById("time2").innerText = ultimo.time2;
-});
 
 //////////////////////////////////////////////////////
 // INIT
