@@ -80,12 +80,27 @@
 <div class="modal" id="modalLogin">
 
   <div class="modal-box">
-    
-    <input type="text" id="nomeJogador" placeholder="Seu nome">
-    <input type="password" id="senhaJogador" placeholder="Senha">
-    <input type="number" id="numeroJogador" placeholder="Número (camisa)">
+
+    <h4>🔐 Login do Time</h4>
+
+   <input id="nomeLogin">
+   <input id="numeroLogin">
+    <button onclick="loginAutorizado()">Entrar</button>
 
     <hr>
+
+    <!-- ADMIN -->
+    <h4>Modo Administrador 👑</h4>
+
+    <input id="nomeAdmin">
+    <input id="senhaAdmin">
+
+    <button onclick="loginAdmin()">Entrar como ADM</button>
+
+    <span onclick="fecharModal()">Fechar</span>
+
+  </div>
+</div>
 
 <h4>Modo Administrador 👑</h4>
 
@@ -93,9 +108,6 @@
 <input type="password" id="senhaAdmin" placeholder="Senha">
 
 <button onclick="loginAdmin()">Entrar como ADM</button>
-
-    <button onclick="loginJogador()">Entrar</button>
-    <button onclick="cadastrar()">Criar Conta</button>
 
     <span onclick="fecharModal()">Fechar</span>
   </div>

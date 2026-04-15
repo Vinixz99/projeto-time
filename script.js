@@ -1,20 +1,13 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
-import { 
-  getDatabase, 
-  ref, 
-  set, 
-  get, 
-  onValue, 
-  remove 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, set, get, onValue, remove } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 //////////////////////////////////////////////////////
 // CONFIG
 //////////////////////////////////////////////////////
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCu4_fFpODAZYGzf8cH6FYzoAczO08obUg",
+  apiKey: "SUA KEY",
   authDomain: "time-efd5d.firebaseapp.com",
   databaseURL: "https://time-efd5d-default-rtdb.firebaseio.com",
   projectId: "time-efd5d",
@@ -27,8 +20,11 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 //////////////////////////////////////////////////////
-// ADMIN CHECK
+// ADMIN
 //////////////////////////////////////////////////////
+
+const ADMIN_USER = "vini";
+const ADMIN_PASS = "2310";
 
 function isAdmin(){
   return localStorage.getItem("admin") === "true";
@@ -38,134 +34,89 @@ function isAdmin(){
 // MODAL
 //////////////////////////////////////////////////////
 
-window.abrirLogin = function(){
+window.abrirLogin = () => {
   document.getElementById("modalLogin").style.display = "flex";
-}
+};
 
-window.fecharModal = function(){
+window.fecharModal = () => {
   document.getElementById("modalLogin").style.display = "none";
-}
-
-//////////////////////////////////////////////////////
-// LOGIN JOGADOR
-//////////////////////////////////////////////////////
-
-window.loginJogador = function(){
-  let nome = document.getElementById('nomeJogador').value.trim().toLowerCase();
-  let senha = document.getElementById('senhaJogador').value.trim();
-
-  if(!nome || !senha){
-    alert("Preencha tudo");
-    return;
-  }
-
-  get(ref(db, 'usuarios/' + nome)).then(snapshot => {
-    if(!snapshot.exists()){
-      alert("Usuário não existe");
-      return;
-    }
-
-    let data = snapshot.val();
-
-    if(data.senha === senha){
-      localStorage.setItem('user', nome);
-      localStorage.setItem('admin', 'false');
-
-      fecharModal();
-      verificarLogin();
-    } else {
-      alert("Senha errada ❌");
-    }
-  });
-}
-
-//////////////////////////////////////////////////////
-// CADASTRO
-//////////////////////////////////////////////////////
-
-window.cadastrar = function(){
-  let nome = document.getElementById('nomeJogador').value.trim().toLowerCase();
-  let senha = document.getElementById('senhaJogador').value.trim();
-  let numero = document.getElementById('numeroJogador').value.trim();
-
-  if(!nome || !senha || !numero){
-    alert("Preencha tudo");
-    return;
-  }
-
-  get(ref(db, 'usuarios')).then(snapshot => {
-
-    let existeNumero = false;
-    let existeNome = false;
-
-    snapshot.forEach(child => {
-      let data = child.val();
-
-      if(child.key === nome) existeNome = true;
-      if(data.numero == numero) existeNumero = true;
-    });
-
-    if(existeNome){
-      alert("Nome já existe");
-      return;
-    }
-
-    if(existeNumero){
-      alert("Número já usado");
-      return;
-    }
-
-    set(ref(db, 'usuarios/' + nome), {
-      senha: senha,
-      numero: numero
-    });
-
-    alert("Conta criada ✅");
-  });
-}
+};
 
 //////////////////////////////////////////////////////
 // LOGIN ADMIN
 //////////////////////////////////////////////////////
 
-const ADMIN_USER = "vini";
-const ADMIN_PASS = "2310";
-
 window.loginAdmin = function(){
-  let nome = document.getElementById('nomeAdmin').value.trim().toLowerCase();
-  let senha = document.getElementById('senhaAdmin').value.trim();
-
-  if(!nome || !senha){
-    alert("Preencha tudo");
-    return;
-  }
+  let nome = document.getElementById("nomeAdmin").value.trim().toLowerCase();
+  let senha = document.getElementById("senhaAdmin").value.trim();
 
   if(nome === ADMIN_USER && senha === ADMIN_PASS){
-    localStorage.setItem('user', nome);
-    localStorage.setItem('admin', 'true');
+    localStorage.setItem("user", nome);
+    localStorage.setItem("admin", "true");
 
     alert("Bem-vindo ADM 👑");
 
     fecharModal();
     verificarLogin();
   } else {
-    alert("Dados incorretos ❌");
+    alert("Login inválido ❌");
   }
-}
+};
 
 //////////////////////////////////////////////////////
-// USUÁRIO LOGADO
+// LOGIN TIME (FECHADO)
+//////////////////////////////////////////////////////
+
+window.loginAutorizado = function(){
+
+  let nome = document.getElementById("nomeLogin").value.trim().toLowerCase();
+  let numero = document.getElementById("numeroLogin").value.trim();
+
+  if(!nome || !numero){
+    alert("Preencha tudo");
+    return;
+  }
+
+  get(ref(db, "autorizados/" + nome)).then(snapshot => {
+
+    if(!snapshot.exists()){
+      alert("Você não está autorizado ❌");
+      return;
+    }
+
+    let data = snapshot.val();
+
+    if(data.numero != numero){
+      alert("Número incorreto ❌");
+      return;
+    }
+
+    localStorage.setItem("user", data.nome);
+    localStorage.setItem("admin", "false");
+
+    alert("Bem-vindo " + data.nome + " ⚽");
+
+    fecharModal();
+    verificarLogin();
+  });
+};
+
+//////////////////////////////////////////////////////
+// VERIFICAR LOGIN (GLOBAL)
 //////////////////////////////////////////////////////
 
 function verificarLogin(){
-  const user = localStorage.getItem('user');
-  const admin = localStorage.getItem('admin');
-  const area = document.getElementById('areaUsuario');
+  const user = localStorage.getItem("user");
+  const admin = localStorage.getItem("admin");
 
-  const btnAdd = document.getElementById("btnAddJogo");
-  const btnRes = document.getElementById("btnAddResultado");
+  const area = document.getElementById("areaUsuario");
+  const adminArea = document.getElementById("adminArea");
+
+  const btnAddJogo = document.getElementById("btnAddJogo");
+  const btnAddResultado = document.getElementById("btnAddResultado");
 
   if(user){
+
     let coroa = admin === "true" ? " 👑" : "";
 
     if(area){
@@ -175,10 +126,11 @@ function verificarLogin(){
       `;
     }
 
-    // 👇 liberar botões admin
+    // 👑 LIBERAR ADMIN
     if(admin === "true"){
-      if(btnAdd) btnAdd.style.display = "block";
-      if(btnRes) btnRes.style.display = "block";
+      if(adminArea) adminArea.style.display = "block";
+      if(btnAddJogo) btnAddJogo.style.display = "block";
+      if(btnAddResultado) btnAddResultado.style.display = "block";
     }
 
   } else {
@@ -195,128 +147,78 @@ function verificarLogin(){
 //////////////////////////////////////////////////////
 
 window.logout = function(){
-  localStorage.removeItem('user');
-  localStorage.removeItem('admin');
+  localStorage.clear();
   location.reload();
-}
-
-//////////////////////////////////////////////////////
-// NAVEGAÇÃO
-//////////////////////////////////////////////////////
-
-window.irPagina = function(pagina){
-  window.location.href = pagina;
-}
+};
 
 //////////////////////////////////////////////////////
 // JOGOS
 //////////////////////////////////////////////////////
 
-onValue(ref(db, 'jogos'), snapshot => {
+onValue(ref(db, "jogos"), snapshot => {
+
   const container = document.getElementById("listaJogos");
   if(!container) return;
 
-  container.innerHTML = '';
+  container.innerHTML = "";
 
   snapshot.forEach(child => {
+
     let id = child.key;
     let jogo = child.val();
 
-    let btnRemover = '';
-
-    if(isAdmin()){
-      btnRemover = `<button onclick="removerJogo('${id}')">❌</button>`;
-    }
+    let btn = isAdmin()
+      ? `<button onclick="removerJogo('${id}')">❌</button>`
+      : "";
 
     container.innerHTML += `
       <div class="card">
         <h3>${jogo.time1} x ${jogo.time2}</h3>
         <p>${jogo.data} • ${jogo.local}</p>
-        ${btnRemover}
+        ${btn}
       </div>
     `;
   });
 });
 
 window.addJogo = function(){
-  if(!isAdmin()){
-    alert("Apenas ADM pode adicionar jogos 👑");
-    return;
-  }
+
+  if(!isAdmin()) return alert("Só ADM 👑");
 
   let time1 = prompt("Time 1:");
   let time2 = prompt("Time 2:");
   let data = prompt("Data:");
   let local = prompt("Local:");
 
-  set(ref(db, 'jogos/' + Date.now()), {
-    time1,
-    time2,
-    data,
-    local
+  set(ref(db, "jogos/" + Date.now()), {
+    time1, time2, data, local
   });
-}
+};
 
 window.removerJogo = function(id){
-  if(!isAdmin()){
-    alert("Apenas ADM pode remover 👑");
-    return;
-  }
-
-  remove(ref(db, 'jogos/' + id));
-}
-
-//////////////////////////////////////////////////////
-// EQUIPE
-//////////////////////////////////////////////////////
-
-onValue(ref(db, 'usuarios'), snapshot => {
-  const container = document.getElementById("listaEquipe");
-  if(!container) return;
-
-  container.innerHTML = '';
-
-  snapshot.forEach(child => {
-    let nome = child.key;
-    let data = child.val();
-
-    container.innerHTML += `
-      <div class="card-player">
-        <div class="icon">⚽</div>
-        <h3>${nome}</h3>
-        <p>#${data.numero}</p>
-      </div>
-    `;
-  });
-});
-
-//////////////////////////////////////////////////////
-// INICIAR
-//////////////////////////////////////////////////////
-
-window.onload = () => {
-  verificarLogin();
-}
+  if(!isAdmin()) return;
+  remove(ref(db, "jogos/" + id));
+};
 
 //////////////////////////////////////////////////////
 // RESULTADOS
 //////////////////////////////////////////////////////
 
-onValue(ref(db, 'resultados'), snapshot => {
+onValue(ref(db, "resultados"), snapshot => {
+
   const container = document.getElementById("listaResultados");
   if(!container) return;
 
-  container.innerHTML = '';
+  container.innerHTML = "";
 
   snapshot.forEach(child => {
+
     let id = child.key;
     let jogo = child.val();
 
-    let btn = '';
-
-    if(isAdmin()){
-      btn = `<button onclick="removerResultado('${id}')">❌</button>`;
-    }
+    let btn = isAdmin()
+      ? `<button onclick="removerResultado('${id}')">❌</button>`
+      : "";
 
     container.innerHTML += `
       <div class="card">
@@ -329,193 +231,76 @@ onValue(ref(db, 'resultados'), snapshot => {
 });
 
 window.addResultado = function(){
-  if(!isAdmin()){
-    alert("Só ADM 👑");
-    return;
-  }
 
-  let time1 = prompt("Time 1");
-  let time2 = prompt("Time 2");
-  let gols1 = prompt("Gols time 1");
-  let gols2 = prompt("Gols time 2");
-  let data = prompt("Data");
+  if(!isAdmin()) return alert("Só ADM 👑");
 
-  set(ref(db, 'resultados/' + Date.now()), {
+  let time1 = prompt("Time 1:");
+  let time2 = prompt("Time 2:");
+  let gols1 = prompt("Gols 1:");
+  let gols2 = prompt("Gols 2:");
+  let data = prompt("Data:");
+
+  set(ref(db, "resultados/" + Date.now()), {
     time1, time2, gols1, gols2, data
   });
-}
+};
 
 window.removerResultado = function(id){
   if(!isAdmin()) return;
-
-  remove(ref(db, 'resultados/' + id));
-}
-
-//////////////////////////////////////////////////////
-// PERFIL
-//////////////////////////////////////////////////////
-
-function carregarPerfil(){
-  let user = localStorage.getItem('user');
-  let admin = localStorage.getItem('admin');
-
-  const nomeEl = document.getElementById("nomePerfil");
-  const treinoEl = document.getElementById("proximoTreino");
-  const comunicadoEl = document.getElementById("comunicado");
-  const areaAdmin = document.getElementById("areaAdminPerfil");
-
-  if(!user) return;
-
-  if(nomeEl){
-    nomeEl.innerText = "Bem-vindo, " + user;
-  }
-
-  // MOSTRAR ADMIN
-  if(admin === "true" && areaAdmin){
-    areaAdmin.style.display = "block";
-  }
-
-  // TREINO
-  onValue(ref(db, 'config/treino'), snapshot => {
-    if(treinoEl){
-      treinoEl.innerText = snapshot.val() || "Não definido";
-    }
-  });
-
-  // COMUNICADO
-  onValue(ref(db, 'config/comunicado'), snapshot => {
-    if(comunicadoEl){
-      comunicadoEl.innerText = snapshot.val() || "Nenhum comunicado";
-    }
-  });
-}
+  remove(ref(db, "resultados/" + id));
+};
 
 //////////////////////////////////////////////////////
-// CONFIRMAR PRESENÇA
+// PRESENÇA
 //////////////////////////////////////////////////////
 
 window.confirmarPresenca = function(){
-  let user = localStorage.getItem('user');
+
+  let user = localStorage.getItem("user");
 
   if(!user){
-    alert("Faça login primeiro");
+    alert("Faça login");
     return;
   }
 
-  set(ref(db, 'presenca/' + user), true);
+  set(ref(db, "presenca/" + user), true);
 
   alert("Presença confirmada ✅");
-}
+};
 
-//////////////////////////////////////////////////////
-// ADMIN - TREINO
-//////////////////////////////////////////////////////
+onValue(ref(db, "presenca"), snapshot => {
 
-window.definirTreino = function(){
-  if(localStorage.getItem('admin') !== 'true'){
-    alert("Só ADM 👑");
-    return;
-  }
+  const ul = document.getElementById("listaAdmin");
+  if(!ul) return;
 
-  let treino = prompt("Digite o próximo treino:");
+  ul.innerHTML = "";
 
-  if(!treino) return;
+  snapshot.forEach(child => {
 
-  set(ref(db, 'config/treino'), treino);
-}
+    let nome = child.key;
 
-//////////////////////////////////////////////////////
-// ADMIN - COMUNICADO
-//////////////////////////////////////////////////////
+    let li = document.createElement("li");
 
-window.definirComunicado = function(){
-  if(localStorage.getItem('admin') !== 'true'){
-    alert("Só ADM 👑");
-    return;
-  }
+    li.innerHTML = `
+      ${nome}
+      ${isAdmin() ? `<button onclick="removerPresenca('${nome}')">❌</button>` : ""}
+    `;
 
-  let texto = prompt("Digite o comunicado:");
-
-  if(!texto) return;
-
-  set(ref(db, 'config/comunicado'), texto);
-}
-
-//////////////////////////////////////////////////////
-// INICIAR
-//////////////////////////////////////////////////////
-
-carregarPerfil();
-
-//////////////////////////////////////////////////////
-// REMOVER TREINO
-//////////////////////////////////////////////////////
-
-window.removerTreino = function(){
-  if(localStorage.getItem('admin') !== 'true'){
-    alert("Só ADM 👑");
-    return;
-  }
-
-  remove(ref(db, 'config/treino'));
-  alert("Treino removido ❌");
-}
-
-//////////////////////////////////////////////////////
-// REMOVER COMUNICADO
-//////////////////////////////////////////////////////
-
-window.removerComunicado = function(){
-  if(localStorage.getItem('admin') !== 'true'){
-    alert("Só ADM 👑");
-    return;
-  }
-
-  remove(ref(db, 'config/comunicado'));
-  alert("Comunicado removido ❌");
-}
-
-function esconderSkeleton(){
-  let sk = document.getElementById("skeletonPerfil");
-  if(sk){
-    sk.style.display = "none";
-  }
-}
-
-onValue(ref(db, 'config/treino'), snapshot => {
-  document.getElementById("proximoTreino").innerText = snapshot.val() || "Não definido";
-  esconderSkeleton();
-});
-
-document.querySelectorAll('.navbar a').forEach(link => {
-  link.addEventListener('click', function(){
-
-    // salva qual foi clicado
-    localStorage.setItem('paginaAtiva', this.getAttribute('href'));
-
+    ul.appendChild(li);
   });
 });
 
-// quando carregar a página
-window.addEventListener('load', () => {
-  lucide.createIcons();
-  let pagina = localStorage.getItem('paginaAtiva');
+window.removerPresenca = function(nome){
+  remove(ref(db, "presenca/" + nome));
+};
 
-  document.querySelectorAll('.navbar a').forEach(link => {
+//////////////////////////////////////////////////////
+// PRÓXIMO JOGO
+//////////////////////////////////////////////////////
 
-    if(link.getAttribute('href') === pagina){
-      link.classList.add('active');
-    }
+onValue(ref(db, "jogos"), snapshot => {
 
-  });
-});
-
-onValue(ref(db, 'jogos'), snapshot => {
-
-  if(!snapshot.exists()){
-    document.getElementById("infoJogo").innerText = "Nenhum jogo marcado";
-    return;
-  }
+  if(!snapshot.exists()) return;
 
   let jogos = [];
 
@@ -530,78 +315,10 @@ onValue(ref(db, 'jogos'), snapshot => {
 
   document.getElementById("time1").innerText = ultimo.time1;
   document.getElementById("time2").innerText = ultimo.time2;
-
 });
 
-function confirmarPresenca() {
-  const confirmacao = confirm("Deseja confirmar sua presença no jogo?");
+//////////////////////////////////////////////////////
+// INIT
+//////////////////////////////////////////////////////
 
-  if (!confirmacao) return;
-
-  // salva no Firebase
-  const presencaRef = ref(db, "presencas");
-
-  push(presencaRef, {
-    nome: "Jogador", // depois posso te ajudar a pegar nome do input/login
-    data: new Date().toISOString()
-  })
-  .then(() => {
-    mostrarPopup("✅ Presença confirmada com sucesso!");
-  })
-  .catch((error) => {
-    mostrarPopup("❌ Erro ao confirmar presença");
-    console.error(error);
-  });
-}
-
-const presencaRef = ref(db, "presenca");
-
-onValue(presencaRef, (snapshot) => {
-  const ul = document.getElementById("listaAdmin");
-  if (!ul) return;
-
-  ul.innerHTML = "";
-
-  snapshot.forEach((child) => {
-    const nome = child.key;
-
-    const li = document.createElement("li");
-    li.style.display = "flex";
-    li.style.justifyContent = "space-between";
-    li.style.padding = "10px";
-    li.style.borderBottom = "1px solid #333";
-
-    const span = document.createElement("span");
-    span.innerText = "⚽ " + nome;
-
-    const btn = document.createElement("button");
-    btn.innerText = "❌";
-    btn.style.width = "40px";
-
-    btn.onclick = () => {
-      remove(ref(db, "presenca/" + nome));
-    };
-
-    li.appendChild(span);
-    li.appendChild(btn);
-    ul.appendChild(li);
-  });
-});
-
-function mostrarPopup(mensagem) {
-  document.getElementById("popup-text").innerText = mensagem;
-  document.getElementById("popup").style.display = "flex";
-}
-
-function fecharPopup() {
-  document.getElementById("popup").style.display = "none";
-}
-
-if (localStorage.getItem("admin") === "true") {
-  document.getElementById("adminArea").style.display = "block";
-}
-
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js")
-    .then(() => console.log("PWA ativo 🚀"));
-}
+document.addEventListener("DOMContentLoaded", verificarLogin);
