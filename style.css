@@ -340,66 +340,67 @@ button:active {
   }
 }
 
-/* card skeleton */
-.skeleton-card {
-  padding: 25px;
-  height: 320px;
-}
-
-/* efeito base */
-.skeleton-title,
-.skeleton-box {
-  background: linear-gradient(
-    90deg,
-    #1a1a1a 25%,
-    #2a2a2a 50%,
-    #1a1a1a 75%
-  );
-  background-size: 1000px 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 10px;
-}
-
-/* título fake */
-.skeleton-title {
-  width: 60%;
-  height: 25px;
-  margin-bottom: 20px;
-}
-
-/* container dupla */
-.skeleton-dupla {
+/* NAVBAR BASE */
+.navbar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #0d0d0d;
   display: flex;
-  gap: 15px;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 1px solid #222;
+  z-index: 1000;
 }
 
-/* caixas fake */
-.skeleton-box {
-  flex: 1;
-  height: 110px;
-}
-
+/* LINKS */
 .navbar a {
+  color: #aaa;
+  text-decoration: none;
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 12px;
-  color: white;
+  font-size: 11px;
+  transition: all 0.25s ease;
+  position: relative;
 }
 
-.navbar i {
-  width: 22px;
-  height: 22px;
-  margin-bottom: 3px;
+/* ÍCONE */
+.navbar a i {
+  margin-bottom: 4px;
+  transition: 0.25s;
 }
 
-.navbar a.active {
+/* 🔥 HOVER */
+.navbar a:hover {
+  color: #00ff88;
+  transform: translateY(-2px);
+}
+
+/* 🔥 CLICK */
+.navbar a:active {
+  transform: scale(0.9);
+}
+
+/* 🔥 LINK ATIVO */
+.navbar a.ativo {
   color: #00ff88;
 }
 
-.navbar a.active i {
+/* 🔥 LINHA EMBAIXO (efeito premium) */
+.navbar a.ativo::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  width: 20px;
+  height: 3px;
+  background: #00ff88;
+  border-radius: 10px;
+}
+
+/* 🔥 ANIMAÇÃO SUAVE */
+.navbar a.ativo i {
   transform: scale(1.2);
-  transition: 0.2s;
 }
 
 .btn-confirmar {
@@ -445,4 +446,29 @@ button:active {
   background: #00ff88;
   cursor: pointer;
   border-radius: 8px;
+}
+
+.posicao {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+  color: #aaa;
+}
+
+.card-player h3 {
+  font-size: 16px;
+}
+
+.card-player {
+  text-align: center;
+}
+
+.capitao {
+  color: gold;
+  font-weight: bold;
+  margin-left: 6px;
+}
+
+.btn-primary, .btn-outline {
+  text-decoration: none;
 }

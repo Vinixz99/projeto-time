@@ -39,8 +39,8 @@
     <p>Futsal que conecta. Força que une.</p>
 
     <div class="buttons">
-      <button class="btn-primary" onclick="irPagina('agenda.html')">📅 VER AGENDA</button>
-<button class="btn-outline" onclick="irPagina('equipe.html')">CONHEÇA A EQUIPE</button>
+     <a href="agenda.html" class="btn-primary">📅 VER AGENDA</a>
+<a href="equipe.html" class="btn-outline">CONHEÇA A EQUIPE</a>
     </div>
   </section>
 
@@ -58,6 +58,24 @@
   </div>
 </div>
   </section>
+
+ <div class="card">
+  <h3>📢 Comunicado</h3>
+  <p id="comunicado">Nenhum aviso</p>
+
+  <button id="btnRemoverComunicado" onclick="removerComunicado()" style="display:none;">
+    ❌ Remover comunicado
+  </button>
+</div>
+
+<button id="btnAddJogo" onclick="addJogo()">Adicionar jogo</button>
+
+<div id="areaCapitao" style="display:none;" class="card">
+  <h3>🅲 Área do Capitão</h3>
+
+  <button onclick="verPresencas()">Ver presenças</button>
+  <button onclick="enviarAviso()">Enviar aviso</button>
+</div>
 
   <div id="adminArea" style="display:none;" class="card">
   <h3>📋 Presença Confirmada</h3>
@@ -78,28 +96,27 @@
 
 <!-- MODAL LOGIN -->
 <div class="modal" id="modalLogin">
-
   <div class="modal-box">
 
     <h4>🔐 Login do Time</h4>
 
-   <input id="nomeLogin" placeholder="Nome">
-   <input id="numeroLogin" placeholder="Número">
-   <input type="password" id="pinLogin" placeholder="Código">
+    <input id="nomeLogin" placeholder="Nome">
+    <input id="numeroLogin" placeholder="Número">
+    <input type="password" id="pinLogin" placeholder="Código">
+
     <button onclick="loginAutorizado()">Entrar</button>
 
     <hr>
 
-</div>
+    <h4>Modo Administrador 👑</h4>
 
-<h4>Modo Administrador 👑</h4>
+    <input type="text" id="nomeAdmin" placeholder="Admin">
+    <input type="password" id="senhaAdmin" placeholder="Senha">
 
-<input type="text" id="nomeAdmin" placeholder="Admin">
-<input type="password" id="senhaAdmin" placeholder="Senha">
-
-<button onclick="loginAdmin()">Entrar como ADM</button>
+    <button onclick="loginAdmin()">Entrar como ADM</button>
 
     <span onclick="fecharModal()">Fechar</span>
+
   </div>
 </div>
 <script type="module" src="script.js"></script>
