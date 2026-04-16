@@ -315,6 +315,187 @@ window.addEventListener("load", () => {
   }
 });
 
+// ==================== TREINO ====================
+function carregarTreino() {
+  const treinoEl = document.getElementById("proximoTreino");
+  if (!treinoEl) return;
+  
+  onValue(ref(db, "treino"), (snapshot) => {
+    if (snapshot.exists()) {
+      const treino = snapshot.val();
+      treinoEl.textContent = `${treino.data} • ${treino.local} • ${treino.horario || ''}`;
+    } else {
+      treinoEl.textContent = "Nenhum treino agendado";
+    }
+  });
+}
+
+window.definirTreino = function() {
+  if (!isAdmin()) {
+    alert("❌ Apenas administradores podem definir treino!");
+    return;
+  }
+  
+  const data = prompt("📅 Data do treino (ex: 20/04/2025):");
+  if (!data) return;
+  
+  const horario = prompt("⏰ Horário (ex: 19h30):");
+  if (!horario) return;
+  
+  const local = prompt("📍 Local do treino:");
+  if (!local) return;
+  
+  set(ref(db, "treino"), {
+    data: data,
+    horario: horario,
+    local: local,
+    atualizadoEm: new Date().toLocaleString('pt-BR'),
+    atualizadoPor: getUserName()
+  }).then(() => {
+    alert("✅ Treino definido com sucesso!");
+    carregarTreino();
+  }).catch(error => {
+    console.error("Erro:", error);
+    alert("Erro ao definir treino");
+  });
+};
+
+window.removerTreino = function() {
+  if (!isAdmin()) {
+    alert("❌ Apenas administradores podem remover treino!");
+    return;
+  }
+  
+  if (confirm("⚠️ Tem certeza que deseja remover o próximo treino?")) {
+    remove(ref(db, "treino")).then(() => {
+      alert("✅ Treino removido!");
+      carregarTreino();
+    }).catch(error => {
+      console.error("Erro:", error);
+      alert("Erro ao remover treino");
+    });
+  }
+};
+
+// ==================== COMUNICADO (melhorado para o perfil) ====================
+function carregarComunicadoPerfil() {
+  const comunicadoEl = document.getElementById("comunicado");
+  if (!comunicadoEl) return;
+  
+  onValue(ref(db, "comunicado"), (snapshot) => {
+    if (snapshot.exists()) {
+      const comunicado = snapshot.val();
+      comunicadoEl.innerHTML = `${comunicado.texto}<br><small style="color: #888;">📅 ${comunicado.data || ''} • 👤 ${comunicado.enviadoPor || 'ADM'}</small>`;
+    } else {
+      comunicadoEl.textContent = "Nenhum comunicado no momento.";
+    }
+  });
+}
+
+window.definirComunicado = function() {
+  if (!isAdmin()) {
+    alert("❌ Apenas administradores podem criar comunicados!");
+    return;
+  }
+  
+  const texto = prompt("📢 Digite o comunicado para todos os jogadores:");
+  if (!texto) return;
+  
+  set(ref(db, "comunicado"), {
+    texto: texto,
+    data: new Date().toLocaleString('pt-BR'),
+    enviadoPor: getUserName()
+  }).then(() => {
+    alert("✅ Comunicado enviado com sucesso!");
+    carregarComunicadoPerfil();
+    carregarComunicado(); // Atualiza também o comunicado da home
+  }).catch(error => {
+    console.error("Erro:", error);
+    alert("Erro ao enviar comunicado");
+  });
+};
+
+window.removerComunicado = function() {
+  if (!isAdmin()) {
+    alert("❌ Apenas administradores podem remover comunicados!");
+    return;
+  }
+  
+  if (confirm("⚠️ Tem certeza que deseja remover o comunicado atual?")) {
+    remove(ref(db, "comunicado")).then(() => {
+      alert("✅ Comunicado removido!");
+      carregarComunicadoPerfil();
+      carregarComunicado(); // Atualiza também o comunicado da home
+    }).catch(error => {
+      console.error("Erro:", error);
+      alert("Erro ao remover comunicado");
+    });
+  }
+};
+
+// ==================== NOME DO PERFIL ====================
+function carregarNomePerfil() {
+  const nomeEl = document.getElementById("nomePerfil");
+  const user = getUserName();
+  
+  if (nomeEl) {
+    if (user) {
+      nomeEl.innerHTML = `Olá, ${user}! ${isAdmin() ? '👑' : isCapitao() ? '🅲' : '⚽'}`;
+    } else {
+      nomeEl.innerHTML = "Bem-vindo!";
+    }
+  }
+}
+
+// ==================== ATUALIZAR VERIFICAR LOGIN PARA PERFIL ====================
+// Adicione esta linha dentro da função verificarLogin() existente
+// Procure pela função verificarLogin() e adicione esta linha:
+
+function verificarLogin() {
+  const user = localStorage.getItem("user");
+  const admin = isAdmin();
+  const capitao = isCapitao();
+
+  const btnAddJogo = document.getElementById("btnAddJogo");
+  if (btnAddJogo) btnAddJogo.style.display = admin ? "block" : "none";
+  
+  const btnRemoverComunicado = document.getElementById("btnRemoverComunicado");
+  if (btnRemoverComunicado) btnRemoverComunicado.style.display = admin ? "block" : "none";
+  
+  const areaCapitao = document.getElementById("areaCapitao");
+  if (areaCapitao) areaCapitao.style.display = (admin || capitao) ? "block" : "none";
+  
+  const adminArea = document.getElementById("adminArea");
+  if (adminArea) adminArea.style.display = (admin || capitao) ? "block" : "none";
+  
+  // ⭐ NOVO: Mostrar painel ADM no perfil
+  const areaAdminPerfil = document.getElementById("areaAdminPerfil");
+  if (areaAdminPerfil) areaAdminPerfil.style.display = admin ? "block" : "none";
+
+  const areaUsuario = document.getElementById("areaUsuario");
+  if (areaUsuario) {
+    areaUsuario.innerHTML = user 
+      ? `<span>👤 ${user}</span><button onclick="logout()">Sair</button>`
+      : `<button onclick="abrirLogin()">ENTRAR</button>`;
+  }
+  
+  // Carregar nome no perfil
+  carregarNomePerfil();
+}
+
+// ==================== ATUALIZAR O DOMContentLoaded ====================
+// Substitua seu DOMContentLoaded existente por este:
+
+document.addEventListener("DOMContentLoaded", () => {
+  verificarLogin();
+  carregarProximoJogo();   // Home
+  carregarJogos();         // Agenda
+  carregarPresencas();     // Carregar lista de presenças
+  carregarComunicado();    // Carregar comunicado da home
+  carregarComunicadoPerfil(); // Carregar comunicado do perfil
+  carregarTreino();        // ⭐ NOVO: Carregar treino no perfil
+});
+
 // Desativa cache durante desenvolvimento
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(regs => {
