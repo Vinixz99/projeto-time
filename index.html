@@ -73,13 +73,17 @@
 <div id="areaCapitao" style="display:none;" class="card">
   <h3>🅲 Área do Capitão</h3>
 
-  <button onclick="verPresencas()">Ver presenças</button>
   <button onclick="enviarAviso()">Enviar aviso</button>
 </div>
 
   <div id="adminArea" style="display:none;" class="card">
   <h3>📋 Presença Confirmada</h3>
   <ul id="listaAdmin"></ul>
+  
+  <!-- Botão para limpar presenças -->
+  <button onclick="limparPresencas()" style="margin-top: 15px; background: #c42b2b; color: white;">
+    ❌ Limpar todas as presenças
+  </button>
 </div>
 
 </main>
