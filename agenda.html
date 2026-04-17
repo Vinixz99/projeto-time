@@ -11,7 +11,7 @@
 <body>
 
 <header class="header">
-   <h2><i data-lucide="calendar"></i> AGENDA</h2>
+  <h2><i data-lucide="calendar"></i> AGENDA</h2>
 </header>
 
 <div class="container" id="listaJogos"></div>
@@ -20,12 +20,7 @@
   <i data-lucide="check-circle"></i> Confirmar presença
 </button>
 
-<div id="popup" class="popup">
-  <div class="popup-box">
-    <p id="popup-text"></p>
-    <button onclick="fecharPopup()">OK</button>
-  </div>
-</div>
+<div id="statusJogos" style="text-align: center; margin-top: 10px; font-size: 12px; color: #888;"></div>
 
 <!-- BOTÃO ADM -->
 <button id="btnAddJogo" style="display:none;" onclick="addJogo()">
