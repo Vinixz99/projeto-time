@@ -145,6 +145,24 @@ window.loginJogador = async function () {
   } else {
     alert(`❌ Jogador não encontrado!`);
   }
+};
+  
+  if (jogadorEncontrado) {
+    if (jogadorEncontrado.pin == pin) {
+      localStorage.setItem("user", jogadorEncontrado.nome);
+      localStorage.setItem("numero", jogadorEncontrado.numero);
+      localStorage.setItem("admin", jogadorEncontrado.admin ? "true" : "false");
+      localStorage.setItem("capitao", jogadorEncontrado.capitao === true ? "true" : "false");
+      alert(`✅ Bem-vindo ${jogadorEncontrado.nome}!`);
+      
+      fecharModal();
+      location.reload();
+    } else {
+      alert("❌ PIN incorreto!");
+    }
+  } else {
+    alert(`❌ Jogador não encontrado!`);
+  }
 
   if (jogadorEncontrado) {
     if (jogadorEncontrado.pin == pin) {
@@ -159,7 +177,6 @@ window.loginJogador = async function () {
         fecharModal();
         location.reload();
     }
-}
 };
 
 // ==================== VERIFICAR LOGIN ====================
@@ -798,7 +815,7 @@ function suportaPush() {
     return 'Notification' in window && 'serviceWorker' in navigator;
 }
 
-// Solicitar permissão (chamar após login)
+// Solicitar permissão
 async function ativarNotificacoes() {
     if (!suportaPush()) {
         console.log("Navegador não suporta notificações");
@@ -843,15 +860,13 @@ async function registrarServiceWorker() {
     }
 }
 
-// Inicializar notificações (chamar após login)
+// Inicializar notificações
 async function inicializarNotificacoes() {
     const user = getUserName();
     if (!user) return;
     
-    // Registrar Service Worker
     await registrarServiceWorker();
     
-    // Solicitar permissão (só na primeira vez)
     const jaAtivou = localStorage.getItem('notificacoesAtivas');
     if (!jaAtivou) {
         const ativou = await ativarNotificacoes();
@@ -865,132 +880,6 @@ async function inicializarNotificacoes() {
 // Função para testar notificação
 window.testarNotificacao = function() {
     notificar("🔔 Teste Nexus FC", "Notificações funcionando!");
-};
-
-// Modificar funções existentes para enviar notificações
-
-// Dentro de addJogo
-window.addJogo = function() {
-    const time1 = prompt("Time 1:");
-    const time2 = prompt("Time 2:");
-    const data = prompt("Data (ex: 15/04, Sábado 19h):");
-    const local = prompt("Local:");
-    
-    if (time1 && time2 && data && local) {
-        push(ref(db, "jogos"), {
-            time1, time2, data, local,
-            criadoEm: new Date().toISOString()
-        }).then(() => {
-            alert("✅ Jogo adicionado!");
-            
-            // Notificação
-            notificar(
-                "📅 NOVO JOGO AGENDADO!",
-                `${time1} x ${time2}\n📆 ${data}\n📍 ${local}`
-            );
-            
-            carregarJogos();
-        });
-    }
-};
-
-// Dentro de definirTreino
-window.definirTreino = function() {
-    if (!isAdmin() && !isCapitao()) {
-        alert("❌ Apenas administradores e capitães!");
-        return;
-    }
-    
-    const data = prompt("📅 Data do treino:");
-    if (!data) return;
-    const horario = prompt("⏰ Horário:");
-    if (!horario) return;
-    const local = prompt("📍 Local:");
-    if (!local) return;
-    
-    set(ref(db, "treino"), {
-        data, horario, local,
-        atualizadoEm: new Date().toLocaleString('pt-BR'),
-        atualizadoPor: getUserName()
-    }).then(() => {
-        alert("✅ Treino definido!");
-        
-        // Notificação
-        notificar(
-            "⚽ NOVO TREINO MARCADO!",
-            `📆 ${data} • ${horario}\n📍 ${local}`
-        );
-        
-        carregarTreino();
-    });
-};
-
-// Dentro de adicionarResultado
-window.adicionarResultado = function() {
-    if (!isAdmin()) {
-        alert("❌ Apenas administradores!");
-        return;
-    }
-    
-    const data = prompt("📅 Data do jogo:");
-    if (!data) return;
-    const time1 = prompt("Time da casa:");
-    if (!time1) return;
-    const gols1 = prompt(`Gols do ${time1}:`);
-    if (gols1 === null) return;
-    const time2 = prompt("Time visitante:");
-    if (!time2) return;
-    const gols2 = prompt(`Gols do ${time2}:`);
-    if (gols2 === null) return;
-    const local = prompt("Local:");
-    if (!local) return;
-    
-    const resultadoId = `resultado_${Date.now()}`;
-    const vitoria = parseInt(gols1) > parseInt(gols2) ? time1 : parseInt(gols2) > parseInt(gols1) ? time2 : "Empate";
-    
-    set(ref(db, `resultados/${resultadoId}`), {
-        data, time1, gols1: parseInt(gols1), time2, gols2: parseInt(gols2), local,
-        criadoEm: new Date().toLocaleString('pt-BR'),
-        criadoPor: getUserName()
-    }).then(() => {
-        alert("✅ Resultado adicionado!");
-        
-        // Notificação
-        notificar(
-            "🏆 RESULTADO LANÇADO!",
-            `${time1} ${gols1} x ${gols2} ${time2}\n${vitoria === "Empate" ? "⚖️ EMPATE" : `🏆 VITÓRIA DO ${vitoria}`}`
-        );
-        
-        carregarResultados();
-    });
-};
-
-// Dentro de enviarAviso
-window.enviarAviso = function() {
-    if (!isAdmin() && !isCapitao()) {
-        alert("❌ Apenas administradores e capitães!");
-        return;
-    }
-    
-    const aviso = prompt("Digite o aviso:");
-    if (!aviso) return;
-    
-    set(ref(db, "comunicado"), {
-        texto: aviso,
-        data: new Date().toLocaleString('pt-BR'),
-        enviadoPor: getUserName()
-    }).then(() => {
-        alert("✅ Aviso enviado!");
-        
-        // Notificação
-        notificar(
-            "📢 NOVO COMUNICADO!",
-            aviso.length > 50 ? aviso.substring(0, 50) + "..." : aviso
-        );
-        
-        carregarComunicado();
-        carregarComunicadoPerfil();
-    });
 };
 
 // ==================== MARCAR PÁGINA ATIVA ====================
@@ -1023,6 +912,13 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarTreino();
   carregarEquipe();
   carregarResultados();
+  
+  // Inicializar notificações se já estiver logado
+  if (getUserName()) {
+    setTimeout(() => {
+      inicializarNotificacoes();
+    }, 2000);
+  }
 });
 
 window.addEventListener("load", () => {
