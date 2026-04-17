@@ -8,9 +8,14 @@ body {
   background: #000;
   color: #fff;
   font-family: 'Segoe UI', sans-serif;
+  padding-bottom: 70px;
 }
 
-/* HEADER */
+h4 {
+  margin-bottom: 10px;
+}
+
+/* ==================== HEADER ==================== */
 .header {
   position: fixed;
   top: 0;
@@ -50,14 +55,104 @@ body {
   padding: 10px 18px;
   border-radius: 20px;
   border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-/* CONTAINER */
+.btn-login:hover {
+  transform: scale(1.05);
+  background: #ff6b00;
+  color: #fff;
+}
+
+/* ==================== CONTAINER ==================== */
 .container {
-  padding: 90px 15px 90px;
+  padding: 90px 15px 100px;
 }
 
-/* HERO */
+/* ==================== NAVBAR ==================== */
+.navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(13, 13, 13, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0;
+  border-top: 1px solid #222;
+  z-index: 1000;
+}
+
+.navbar a {
+  color: #aaa;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 11px;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.navbar a i {
+  margin-bottom: 4px;
+  transition: 0.25s;
+}
+
+.navbar a:hover {
+  color: #00ff88;
+  transform: translateY(-2px);
+}
+
+.navbar a:active {
+  transform: scale(0.9);
+}
+
+.navbar a.ativo {
+  color: #00ff88;
+}
+
+.navbar a.ativo::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  width: 20px;
+  height: 3px;
+  background: #00ff88;
+  border-radius: 10px;
+}
+
+.navbar a.ativo i {
+  transform: scale(1.2);
+}
+
+/* Garantir que o último elemento não fique atrás da navbar */
+.container > :last-child {
+  margin-bottom: 20px;
+}
+
+/* Ajuste específico para a página de agenda */
+#listaJogos {
+  padding-bottom: 20px;
+}
+
+/* Ajuste para a página de resultados */
+#listaResultados {
+  padding-bottom: 30px;
+}
+
+/* Ajuste para o botão de confirmar presença na agenda */
+.btn-confirmar {
+  margin-bottom: 20px;
+}
+
+/* ==================== HERO ==================== */
+.hero {
+  padding-top: 30px;
+}
+
 .hero h1 {
   font-size: 48px;
   margin: 20px 0;
@@ -88,6 +183,16 @@ body {
   background: #fff;
   color: #000;
   font-weight: bold;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #ff6b00;
+  color: #fff;
+  transform: scale(1.02);
 }
 
 .btn-outline {
@@ -97,14 +202,31 @@ body {
   border: 1px solid #fff;
   background: transparent;
   color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-/* CARD */
+.btn-outline:hover {
+  background: #fff;
+  color: #000;
+  transform: scale(1.02);
+}
+
+/* ==================== CARDS ==================== */
 .card {
   background: #111;
   padding: 20px;
   border-radius: 20px;
   margin-top: 20px;
+  animation: fadeUp 0.6s ease forwards;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
 }
 
 .tag {
@@ -123,48 +245,33 @@ body {
   opacity: 0.5;
 }
 
-/* NAVBAR */
-.navbar {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: #000;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  border-top: 1px solid #222;
-}
-
-.navbar a {
-  color: #aaa;
-  text-decoration: none;
-  font-size: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.navbar a:hover {
-  color: #fff;
-}
-
+/* ==================== MODAL ==================== */
 .modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.9);
   display: none;
   justify-content: center;
   align-items: center;
+  z-index: 2000;
 }
 
 .modal-box {
   background: #111;
-  padding: 20px;
+  padding: 30px;
   border-radius: 20px;
   width: 90%;
+  max-width: 400px;
+  border: 1px solid #333;
+}
+
+.modal-box h4 {
+  color: #ff6b00;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .modal input {
@@ -172,7 +279,7 @@ body {
   padding: 12px;
   margin-top: 10px;
   border-radius: 10px;
-  border: none;
+  border: 1px solid #333;
   background: #1a1a1a;
   color: #fff;
 }
@@ -183,8 +290,24 @@ body {
   padding: 12px;
   border-radius: 10px;
   border: none;
+  background: #ff6b00;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
+.modal button:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.modal hr {
+  margin: 20px 0;
+  border-color: #333;
+}
+
+/* ==================== ÁREA DO USUÁRIO ==================== */
 #areaUsuario {
   display: flex;
   align-items: center;
@@ -192,92 +315,363 @@ body {
 }
 
 #areaUsuario button {
-  padding: 6px 12px;
-  border-radius: 10px;
+  padding: 8px 16px;
+  border-radius: 20px;
   border: none;
+  background: #ff6b00;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
+#areaUsuario button:hover {
+  transform: scale(1.05);
+  background: #ff9f00;
 }
 
-.card-player {
-  background: #111;
-  padding: 20px;
-  border-radius: 20px;
-  text-align: center;
-}
-
-.icon {
-  font-size: 40px;
-  margin-bottom: 10px;
-}
-
-.card {
-  background: #111;
-  padding: 20px;
-  border-radius: 20px;
-  margin-bottom: 15px;
-}
-
-/* CARD PRINCIPAL GRANDE */
-.perfil-card {
-  padding: 25px;
-  height: 320px; /* ⬅️ aumentei aqui */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-/* container das duas caixas */
-.info-dupla {
-  display: flex;
-  gap: 15px;
-}
-
-/* caixas internas */
-.info-box {
-  flex: 1;
+#areaUsuario span {
   background: #1a1a1a;
-  border-radius: 15px;
-  padding: 18px;
-  min-height: 110px; /* ⬅️ altura mínima */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 14px;
 }
 
-/* TITULO PEQUENO */
-.info-box h4 {
-  font-size: 13px;
-  margin-bottom: 5px;
-  opacity: 0.7;
-}
-
+/* ==================== BOTÕES GERAIS ==================== */
 button {
   width: 100%;
   padding: 12px;
   margin-top: 15px;
   border-radius: 10px;
   border: none;
-  background: #fff;
-  color: #000;
+  background: #ff6b00;
+  color: #fff;
   font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.titulo-perfil{
+button:active {
+  transform: scale(0.95);
+}
+
+/* ==================== PÁGINA DE EQUIPE ==================== */
+.grid-equipe {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 20px 0 30px 0;
+}
+
+.jogador-card {
+  background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+  border-radius: 20px;
+  padding: 25px 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid #2a2a2a;
+  position: relative;
+  overflow: hidden;
+}
+
+.jogador-card:hover {
+  transform: translateY(-8px);
+  border-color: #ff6b00;
+  box-shadow: 0 10px 30px rgba(255, 107, 0, 0.2);
+}
+
+.jogador-numero {
+  font-size: 60px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ff6b00, #ff9f00);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 10px;
+  text-shadow: 0 0 20px rgba(255, 107, 0, 0.3);
+  position: relative;
+  display: inline-block;
+}
+
+.jogador-numero::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 107, 0, 0.1);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.jogador-nome {
+  font-size: 22px;
+  font-weight: bold;
+  color: white;
+  margin: 15px 0 8px 0;
+  letter-spacing: 1px;
+}
+
+.jogador-posicao {
+  display: inline-block;
+  background: #2a2a2a;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #ff9f00;
+  margin: 10px 0;
+  font-weight: 500;
+}
+
+.jogador-status {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.capitao-badge {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #000;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-badge {
+  background: linear-gradient(135deg, #ff6b00, #ff9f00);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.contador-equipe {
+  text-align: center;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #1a1a1a, #111);
+  border-radius: 15px;
+  margin-top: 30px;
+  border: 1px solid #2a2a2a;
+  font-size: 16px;
+}
+
+.contador-equipe strong {
+  color: #ff6b00;
+  font-size: 20px;
+  margin: 0 5px;
+}
+
+/* ==================== PÁGINA DE PERFIL ==================== */
+.perfil-card {
+  padding: 25px;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.titulo-perfil {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.titulo-perfil h2 {
+  color: #ff6b00;
+  font-size: 24px;
+}
+
+.info-dupla {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.info-box {
+  flex: 1;
+  background: #1a1a1a;
+  border-radius: 15px;
+  padding: 18px;
+  min-height: 110px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.info-box:hover {
+  transform: scale(1.03);
+}
+
+.info-box h4 {
+  font-size: 13px;
+  margin-bottom: 5px;
+  opacity: 0.7;
+}
+
+/* ==================== PÁGINA DE RESULTADOS ==================== */
+.resultado-card {
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+.resultado-data {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 15px;
   text-align: center;
 }
 
-@media (max-width: 500px){
-  .info-dupla {
-    flex-direction: column;
-  }
+.resultado-placar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 20px;
 }
 
-/* animação base */
+.time-casa, .time-visitante {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.time-casa {
+  justify-content: flex-end;
+}
+
+.time-visitante {
+  justify-content: flex-start;
+}
+
+.time-nome {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.time-gols {
+  font-size: 32px;
+  font-weight: bold;
+  color: #ff6b00;
+}
+
+.placar-x {
+  font-size: 24px;
+  font-weight: bold;
+  color: #888;
+}
+
+.resultado-local {
+  text-align: center;
+  color: #888;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.resultado-status {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.resultado-criado {
+  font-size: 11px;
+  color: #555;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.contador-resultados {
+  text-align: center;
+  padding: 15px;
+  background: #1a1a1a;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.btn-remover-resultado {
+  cursor: pointer;
+  transition: opacity 0.3s;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  background: #c42b2b;
+}
+
+.btn-remover-resultado:hover {
+  opacity: 0.8;
+}
+
+/* ==================== LISTA DE PRESENÇAS ==================== */
+#listaAdmin {
+  list-style: none;
+  margin-top: 10px;
+}
+
+#listaAdmin li {
+  margin-bottom: 10px;
+  padding: 12px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#listaAdmin li button {
+  width: auto;
+  padding: 5px 10px;
+  margin: 0;
+  background: #c42b2b;
+}
+
+/* ==================== POPUP ==================== */
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.popup-box {
+  background: #1a1a1a;
+  padding: 25px;
+  border-radius: 16px;
+  text-align: center;
+  width: 280px;
+  border: 1px solid #333;
+}
+
+.popup-box button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  border: none;
+  background: #ff6b00;
+  cursor: pointer;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* ==================== ANIMAÇÕES ==================== */
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -289,71 +683,76 @@ button {
   }
 }
 
-/* aplica nos cards */
-.card {
-  animation: fadeUp 0.6s ease forwards;
-}
-
-.card:nth-child(1){
-  animation-delay: 0.1s;
-}
-
-.card:nth-child(2){
-  animation-delay: 0.2s;
-}
-
-.card:nth-child(3){
-  animation-delay: 0.3s;
-}
-
-button {
-  transition: all 0.2s ease;
-}
-
-button:active {
-  transform: scale(0.95);
-}
-
-button {
-  transition: all 0.2s ease;
-}
-
-button:active {
-  transform: scale(0.95);
-}
-
-.info-box {
-  transition: all 0.3s ease;
-}
-
-.info-box:hover {
-  transform: scale(1.03);
-}
-
-/* animação brilho */
-@keyframes shimmer {
-  0% {
-    background-position: -500px 0;
-  }
-  100% {
-    background-position: 500px 0;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-/* NAVBAR BASE */
-.navbar {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: #0d0d0d;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  border-top: 1px solid #222;
-  z-index: 1000;
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #888;
 }
 
-/* LINKS */
+.loading::after {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ff6b00;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+/* ==================== RESPONSIVIDADE ==================== */
+@media (max-width: 600px) {
+  .hero h1 {
+    font-size: 36px;
+  }
+  
+  .grid-equipe {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .jogador-numero {
+    font-size: 48px;
+  }
+  
+  .jogador-numero::before {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .jogador-nome {
+    font-size: 18px;
+  }
+  
+  .info-dupla {
+    flex-direction: column;
+  }
+  
+  .resultado-placar {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .time-casa, .time-visitante {
+    justify-content: center;
+  }
+  
+  .buttons {
+    flex-direction: column;
+  }
+}
+
+/* ==================== NAVBAR COM EFEITO LARANJA ==================== */
+
+/* Efeito hover laranja para todos os links da navbar */
 .navbar a {
   color: #aaa;
   text-decoration: none;
@@ -361,114 +760,113 @@ button:active {
   flex-direction: column;
   align-items: center;
   font-size: 11px;
-  transition: all 0.25s ease;
+  transition: all 0.3s ease;
   position: relative;
+  padding: 5px 10px;
+  border-radius: 10px;
 }
 
-/* ÍCONE */
+/* Hover effect - LARANJA */
+.navbar a:hover {
+  color: #ff6b00 !important;
+  transform: translateY(-3px);
+}
+
+.navbar a:hover i {
+  color: #ff6b00;
+  transform: scale(1.1);
+}
+
+/* Ícone dentro do link */
 .navbar a i {
   margin-bottom: 4px;
-  transition: 0.25s;
+  transition: all 0.3s ease;
+  font-size: 20px;
 }
 
-/* 🔥 HOVER */
-.navbar a:hover {
-  color: #00ff88;
-  transform: translateY(-2px);
-}
-
-/* 🔥 CLICK */
-.navbar a:active {
-  transform: scale(0.9);
-}
-
-/* 🔥 LINK ATIVO */
+/* Link ativo (página atual) - LARANJA */
 .navbar a.ativo {
-  color: #00ff88;
+  color: #ff6b00;
 }
 
-/* 🔥 LINHA EMBAIXO (efeito premium) */
+.navbar a.ativo i {
+  color: #ff6b00;
+  transform: scale(1.15);
+}
+
+/* Linha indicadora embaixo do link ativo */
 .navbar a.ativo::after {
   content: "";
   position: absolute;
-  bottom: -6px;
-  width: 20px;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 25px;
   height: 3px;
-  background: #00ff88;
+  background: #ff6b00;
   border-radius: 10px;
+  animation: fadeIn 0.3s ease;
 }
 
-/* 🔥 ANIMAÇÃO SUAVE */
-.navbar a.ativo i {
-  transform: scale(1.2);
+/* Animação da linha */
+@keyframes fadeIn {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 25px;
+    opacity: 1;
+  }
 }
 
-.btn-confirmar {
-  background: #00ff88;
-  color: #000;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 10px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
+/* Efeito de clique */
+.navbar a:active {
+  transform: scale(0.95);
 }
 
-.btn-confirmar:hover {
-  transform: scale(1.05);
-  background: #00cc6a;
+/* Responsivo para mobile */
+@media (max-width: 600px) {
+  .navbar a {
+    padding: 5px 8px;
+  }
+  
+  .navbar a i {
+    font-size: 18px;
+  }
+  
+  .navbar a span {
+    font-size: 10px;
+  }
 }
 
-.popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: none;
-  justify-content: center;
+/* Alinhamento de ícones */
+.btn-primary i, .btn-outline i, button i, .navbar a i {
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.btn-primary, .btn-outline, button {
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.popup-box {
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  text-align: center;
-  width: 250px;
+.navbar a {
+  gap: 4px;
 }
 
-.popup-box button {
-  margin-top: 10px;
-  padding: 8px 15px;
-  border: none;
-  background: #00ff88;
-  cursor: pointer;
-  border-radius: 8px;
+h2 i, h3 i, h4 i {
+  margin-right: 8px;
+  vertical-align: middle;
 }
 
-.posicao {
-  display: block;
-  margin-top: 5px;
-  font-size: 12px;
-  color: #aaa;
+.local i {
+  margin-right: 5px;
+  vertical-align: middle;
 }
 
-.card-player h3 {
-  font-size: 16px;
-}
-
-.card-player {
-  text-align: center;
-}
-
-.capitao {
-  color: gold;
-  font-weight: bold;
-  margin-left: 6px;
-}
-
-.btn-primary, .btn-outline {
-  text-decoration: none;
+.presencas {
+  margin-top: 20px;
 }

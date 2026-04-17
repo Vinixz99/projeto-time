@@ -23,8 +23,8 @@
   </div>
 
   <div id="areaUsuario">
-  <button class="btn-login" onclick="abrirLogin()">ENTRAR</button>
-</div>
+    <button class="btn-login" onclick="abrirLogin()">ENTRAR</button>
+  </div>
 </header>
 
 <!-- CONTEÚDO -->
@@ -32,57 +32,66 @@
 
   <!-- HERO -->
   <section class="hero">
-    <span class="local">🟢 ARACAJU • SERGIPE</span>
-
+    <span class="local"><i data-lucide="map-pin"></i> ARACAJU • SERGIPE</span>
     <h1>NEXUS<br>FC</h1>
-
     <p>Futsal que conecta. Força que une.</p>
-
     <div class="buttons">
-     <a href="agenda.html" class="btn-primary">📅 VER AGENDA</a>
-<a href="equipe.html" class="btn-outline">CONHEÇA A EQUIPE</a>
+      <a href="agenda.html" class="btn-primary"><i data-lucide="calendar"></i> VER AGENDA</a>
+      <a href="equipe.html" class="btn-outline"><i data-lucide="users"></i> CONHEÇA A EQUIPE</a>
     </div>
   </section>
 
   <!-- PRÓXIMO JOGO -->
   <section class="card jogo">
     <div class="card">
-  <h2>Próximo jogo</h2>
-
-  <p id="infoJogo">Carregando...</p>
-
-  <div class="times">
-    <span id="time1">...</span>
-    <span>X</span>
-    <span id="time2">...</span>
-  </div>
-</div>
+      <h2><i data-lucide="soccer"></i> Próximo jogo</h2>
+      <p id="infoJogo">Carregando...</p>
+      <div class="times">
+        <span id="time1">...</span>
+        <span>X</span>
+        <span id="time2">...</span>
+      </div>
+    </div>
   </section>
 
- <div class="card">
-  <h3>📢 Comunicado</h3>
+  <!-- COMUNICADO -->
+<div class="card">
+  <h3><i data-lucide="megaphone"></i> Comunicado</h3>
   <p id="comunicado">Nenhum aviso</p>
-
-  <button id="btnRemoverComunicado" onclick="removerComunicado()" style="display:none;">
-    ❌ Remover comunicado
-  </button>
+  <div id="botoesComunicado" style="display: none; gap: 10px; margin-top: 10px;">
+    <button onclick="enviarAviso()" style="flex: 1;"><i data-lucide="send"></i> Enviar Comunicado</button>
+     <button id="btnRemoverComunicado" onclick="removerComunicadoGlobal()" style="flex: 1; background: #ff5722;"><i data-lucide="trash-2"></i> Remover comunicado</button>
+  </div>
 </div>
 
-<button id="btnAddJogo" onclick="addJogo()">Adicionar jogo</button>
+ <div class="presencas">
+   <h4><i data-lucide="check-square"></i> Presenças Confirmadas</h4>
+    <ul id="listaAdmin"></ul>
+ </div>
 
-<div id="areaCapitao" style="display:none;" class="card">
-  <h3>🅲 Área do Capitão</h3>
-
-  <button onclick="enviarAviso()">Enviar aviso</button>
-</div>
-
-  <div id="adminArea" style="display:none;" class="card">
-  <h3>📋 Presença Confirmada</h3>
-  <ul id="listaAdmin"></ul>
+<!-- ÁREA DO ADMINISTRADOR -->
+<div id="adminArea" style="display:none;" class="card">
   
-  <!-- Botão para limpar presenças -->
-  <button onclick="limparPresencas()" style="margin-top: 15px; background: #c42b2b; color: white;">
-    ❌ Limpar todas as presenças
+  <h3><i data-lucide="shield"></i> Painel Administrativo</h3>
+  
+  <button onclick="limparPresencas()" style="background: #c42b2b; width: 100%; margin-bottom: 10px;">
+    <i data-lucide="trash-2"></i> Limpar todas as presenças
+  </button>
+  
+  <button onclick="cadastrarJogador()" style="margin-top: 15px; background: #4CAF50; width: 100%; margin-bottom: 10px;">
+    <i data-lucide="user-plus"></i> Cadastrar Novo Jogador
+  </button>
+  
+  <button onclick="tornarCapitao()" style="background: #ff9800; width: 100%; margin-bottom: 10px;">
+    <i data-lucide="crown"></i> Tornar Capitão
+  </button>
+  
+  <button onclick="removerCapitao()" style="background: #ff5722; width: 100%; margin-bottom: 10px;">
+    <i data-lucide="user-minus"></i> Remover Capitão
+  </button>
+  
+  <button onclick="removerJogador()" style="background: #c42b2b; width: 100%; margin-bottom: 10px;">
+    <i data-lucide="user-x"></i> Remover Jogador
   </button>
 </div>
 
@@ -93,36 +102,34 @@
   <a href="index.html"><i data-lucide="home"></i><span>Início</span></a>
   <a href="equipe.html"><i data-lucide="users"></i><span>Equipe</span></a>
   <a href="agenda.html"><i data-lucide="calendar"></i><span>Agenda</span></a>
-  <a href="resultados.html"><i data-lucide="bar-chart"></i><span>Resultados</span></a>
+  <a href="resultados.html"><i data-lucide="bar-chart-3"></i><span>Resultados</span></a>
   <a href="perfil.html"><i data-lucide="user"></i><span>Perfil</span></a>
 </nav>
-
 
 <!-- MODAL LOGIN -->
 <div class="modal" id="modalLogin">
   <div class="modal-box">
-
-    <h4>🔐 Login do Time</h4>
-
-    <input id="nomeLogin" placeholder="Nome">
-    <input id="numeroLogin" placeholder="Número">
-    <input type="password" id="pinLogin" placeholder="Código">
-
-    <button onclick="loginAutorizado()">Entrar</button>
-
+    <h4><i data-lucide="lock"></i> Login do Time</h4>
+    
+    <input id="nomeLogin" placeholder="Seu nome" type="text">
+    <input id="numeroLogin" placeholder="Número da camisa" type="text">
+    <input id="pinLogin" placeholder="PIN" type="password">
+    
+    <button onclick="loginJogador()"><i data-lucide="log-in"></i> Entrar</button>
+    
     <hr>
-
-    <h4>Modo Administrador 👑</h4>
-
+    
+    <h4><i data-lucide="shield"></i> Modo Administrador</h4>
+    
     <input type="text" id="nomeAdmin" placeholder="Admin">
     <input type="password" id="senhaAdmin" placeholder="Senha">
-
-    <button onclick="loginAdmin()">Entrar como ADM</button>
-
-    <span onclick="fecharModal()">Fechar</span>
-
+    
+    <button onclick="loginAdmin()"><i data-lucide="crown"></i> Entrar como ADM</button>
+    
+    <button onclick="fecharModal()" style="background: #555; margin-top: 10px;"><i data-lucide="x"></i> Fechar</button>
   </div>
 </div>
+
 <script type="module" src="script.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>

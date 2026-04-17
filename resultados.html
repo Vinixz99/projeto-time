@@ -11,14 +11,20 @@
 <body>
 
 <header class="header">
-  <h2>📊 Resultados</h2>
+  <h2><i data-lucide="trophy"></i> RESULTADOS</h2>
 </header>
 
 <main class="container">
+  
+  <!-- Botões para ADM -->
+  <div id="adminResultadosArea" style="display:none;" class="card">
+    <h3><i data-lucide="settings"></i> Gerenciar Resultados</h3>
+     <button onclick="adicionarResultado()" style="background: #4CAF50; width: 100%;">
+    <i data-lucide="plus-circle"></i> Adicionar Resultado
+  </button>
+  </div>
 
- <button id="btnAddResultado" style="display:none;" onclick="addResultado()">
-  + Adicionar resultado
-</button>
+  <!-- Lista de resultados -->
   <div id="listaResultados"></div>
 
 </main>
