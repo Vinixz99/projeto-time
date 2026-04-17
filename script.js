@@ -10,27 +10,30 @@ import {
   remove,
   get
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
+// ==================== CONFIGURAÇÃO FIREBASE ====================
 const app = initializeApp({
   apiKey: "AIzaSyCu4_fFpODAZYGzf8cH6FYzoAczO08obUg",
   authDomain: "time-efd5d.firebaseapp.com",
   databaseURL: "https://time-efd5d-default-rtdb.firebaseio.com",
   projectId: "time-efd5d"
 });
+
 const db = getDatabase(app);
-const messaging = getMessaging(app);
 
 // ==================== HELPERS ====================
 function isAdmin() {
   return localStorage.getItem("admin") === "true";
 }
+
 function isCapitao() {
   return localStorage.getItem("capitao") === "true";
 }
+
 function getUserName() {
   return localStorage.getItem("user") || "";
 }
+
 function getUserNumero() {
   return localStorage.getItem("numero") || "";
 }
@@ -39,57 +42,7 @@ function normalizarTexto(texto) {
   return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-// ==================== NOTIFICAÇÕES ====================
-async function enviarNotificacaoPush(titulo, mensagem, tipo, dados = {}) {
-  const tokensRef = ref(db, "tokens");
-  const snapshot = await get(tokensRef);
-  
-  if (!snapshot.exists()) {
-    console.log("Nenhum dispositivo registrado");
-    return;
-  }
-  
-  let enviados = 0;
-  
-  for (const child of snapshot) {
-    const tokenData = child.val();
-    const token = tokenData.token;
-    
-    try {
-      const response = await fetch('https://fcm.googleapis.com/fcm/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'BNS4k9UU7bU-MoSQSlcHS59qn9aVJtdpVcM1RnYUhKb5MvxZKfFPKSkHzGdKr_aLXG06vPCl94nrbujwGezrvm4'
-        },
-        body: JSON.stringify({
-          to: token,
-          notification: {
-            title: titulo,
-            body: mensagem,
-            icon: '/img/logo-nexus.png',
-            badge: '/img/logo-nexus.png',
-            sound: 'default',
-            vibrate: [200, 100, 200]
-          },
-          data: {
-            type: tipo,
-            url: dados.url || '/',
-            click_action: window.location.origin
-          }
-        })
-      });
-      
-      if (response.ok) enviados++;
-    } catch (error) {
-      console.error("Erro:", error);
-    }
-  }
-  
-  console.log(`📱 Notificação enviada para ${enviados} dispositivos`);
-  return enviados;
-}
-
+// ==================== TOAST (NOTIFICAÇÃO INTERNA) ====================
 function mostrarToast(mensagem, tipo = 'info') {
   const toast = document.createElement('div');
   toast.style.position = 'fixed';
@@ -120,45 +73,6 @@ function mostrarToast(mensagem, tipo = 'info') {
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
-window.ativarNotificacoes = async function() {
-  const user = getUserName();
-  if (!user) {
-    alert("❌ Faça login primeiro!");
-    return;
-  }
-  
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-        const token = await getToken(messaging, {
-          vapidKey: 'BNS4k9UU7bU-MoSQSlcHS59qn9aVJtdpVcM1RnYUhKb5MvxZKfFPKSkHzGdKr_aLXG06vPCl94nrbujwGezrvm4',
-          serviceWorkerRegistration: registration
-        });
-        
-        await set(ref(db, `tokens/${user.replace(/[.#$]/g, '_')}`), {
-          token: token,
-          user: user,
-          numero: getUserNumero(),
-          ativo: true,
-          updatedAt: new Date().toISOString()
-        });
-        
-        alert('✅ Notificações ativadas!');
-      }
-    }
-  } catch (error) {
-    console.error('Erro:', error);
-  }
-};
-
-onMessage(messaging, (payload) => {
-  if (payload.notification) {
-    mostrarToast(payload.notification.body, 'info');
-  }
-});
-
 // ==================== LOGIN ====================
 window.abrirLogin = () => {
   const modal = document.getElementById("modalLogin");
@@ -184,7 +98,6 @@ window.loginAdmin = function () {
   } else alert("❌ Login inválido");
 };
 
-// Login de Jogador - Aceita acentos
 window.loginJogador = async function () {
   const nomeDigitado = document.getElementById("nomeLogin").value.trim();
   const numero = document.getElementById("numeroLogin").value.trim();
@@ -224,9 +137,6 @@ window.loginJogador = async function () {
       localStorage.setItem("capitao", jogadorEncontrado.capitao === true ? "true" : "false");
       alert(`✅ Bem-vindo ${jogadorEncontrado.nome}!`);
       
-      // 🔥 ATIVAR NOTIFICAÇÕES AUTOMATICAMENTE 🔥
-      ativarNotificacoesAutomaticamente();
-      
       fecharModal();
       location.reload();
     } else {
@@ -235,61 +145,22 @@ window.loginJogador = async function () {
   } else {
     alert(`❌ Jogador não encontrado!`);
   }
-};
 
-// ==================== ATIVAR NOTIFICAÇÕES AUTOMATICAMENTE ====================
-async function ativarNotificacoesAutomaticamente() {
-  const user = getUserName();
-  if (!user) return;
-  
-  // Verificar se já tem token ativo
-  const tokenRef = ref(db, `tokens/${user.replace(/[.#$]/g, '_')}`);
-  const tokenSnapshot = await get(tokenRef);
-  
-  // Se já tem token ativo, não precisa ativar de novo
-  if (tokenSnapshot.exists() && tokenSnapshot.val().ativo === true) {
-    console.log("✅ Notificações já ativas para", user);
-    return;
-  }
-  
-  try {
-    // Solicitar permissão (o navegador vai pedir uma vez só)
-    const permission = await Notification.requestPermission();
-    
-    if (permission === 'granted') {
-      console.log("✅ Permissão concedida para", user);
-      
-      if ('serviceWorker' in navigator) {
-        // Registrar Service Worker
-        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-        console.log("✅ Service Worker registrado");
+  if (jogadorEncontrado) {
+    if (jogadorEncontrado.pin == pin) {
+        localStorage.setItem("user", jogadorEncontrado.nome);
+        // ... resto
         
-        // Obter token FCM
-        const token = await getToken(messaging, {
-          vapidKey: 'BNS4k9UU7bU-MoSQSlcHS59qn9aVJtdpVcM1RnYUhKb5MvxZKfFPKSkHzGdKr_aLXG06vPCl94nrbujwGezrvm4',
-          serviceWorkerRegistration: registration
-        });
+        // Inicializar notificações
+        setTimeout(() => {
+            inicializarNotificacoes();
+        }, 1000);
         
-        console.log("📱 Token FCM obtido:", token);
-        
-        // Salvar token no Firebase Database
-        await set(ref(db, `tokens/${user.replace(/[.#$]/g, '_')}`), {
-          token: token,
-          user: user,
-          numero: getUserNumero(),
-          ativo: true,
-          updatedAt: new Date().toISOString()
-        });
-        
-        console.log("✅ Notificações ativadas para", user);
-      }
-    } else {
-      console.log("❌ Permissão negada para", user);
+        fecharModal();
+        location.reload();
     }
-  } catch (error) {
-    console.error("❌ Erro ao ativar notificações:", error);
-  }
 }
+};
 
 // ==================== VERIFICAR LOGIN ====================
 function verificarLogin() {
@@ -326,7 +197,7 @@ function verificarLogin() {
   carregarNomePerfil();
 }
 
-// ==================== FUNÇÕES PRINCIPAIS ====================
+// ==================== PRÓXIMO JOGO ====================
 function carregarProximoJogo() {
   const infoJogo = document.getElementById("infoJogo");
   const time1El = document.getElementById("time1");
@@ -350,6 +221,7 @@ function carregarProximoJogo() {
   });
 }
 
+// ==================== JOGOS - AGENDA ====================
 function carregarJogos() {
   const container = document.getElementById("listaJogos");
   if (!container) return;
@@ -397,17 +269,16 @@ window.addJogo = function() {
     push(ref(db, "jogos"), {
       time1, time2, data, local,
       criadoEm: new Date().toISOString()
-    }).then(async () => {
+    }).then(() => {
       alert("✅ Jogo adicionado!");
-      const titulo = "📅 NOVO JOGO AGENDADO!";
       const mensagem = `${time1} x ${time2}\n📆 ${data}\n📍 ${local}`;
-      mostrarToast(mensagem, 'success');
-      await enviarNotificacaoPush(titulo, mensagem, 'novo_jogo', { data, time1, time2 });
+      mostrarToast("📅 NOVO JOGO! " + mensagem, 'success');
       carregarJogos();
     });
-  } else alert("Preencha todos os campos");
+  }
 };
 
+// ==================== CONFIRMAR PRESENÇA ====================
 window.confirmarPresenca = async function () {
   const user = getUserName();
   if (!user) return alert("❌ Faça login primeiro!");
@@ -417,6 +288,22 @@ window.confirmarPresenca = async function () {
   
   if (!jogosSnapshot.exists()) {
     alert("⚠️ Nenhum jogo cadastrado!");
+    return;
+  }
+  
+  let ultimoJogo = null;
+  jogosSnapshot.forEach(child => { ultimoJogo = child.val(); });
+  
+  const confirmar = confirm(
+    `📋 CONFIRMAÇÃO DE PRESENÇA\n\n` +
+    `🎮 Jogo: ${ultimoJogo.time1} x ${ultimoJogo.time2}\n` +
+    `📅 Data: ${ultimoJogo.data}\n` +
+    `📍 Local: ${ultimoJogo.local}\n\n` +
+    `👍 Deseja confirmar sua presença?`
+  );
+  
+  if (!confirmar) {
+    alert("❌ Confirmação cancelada!");
     return;
   }
   
@@ -435,21 +322,21 @@ window.confirmarPresenca = async function () {
     return;
   }
   
-  let ultimoJogo = null;
-  jogosSnapshot.forEach(child => { ultimoJogo = child.val(); });
-  
   push(ref(db, "presencas"), {
     nome: user,
     numero: getUserNumero(),
     horario: new Date().toLocaleString('pt-BR'),
     timestamp: Date.now(),
-    jogo: `${ultimoJogo.time1} x ${ultimoJogo.time2}`
+    jogo: `${ultimoJogo.time1} x ${ultimoJogo.time2}`,
+    dataJogo: ultimoJogo.data
   }).then(() => {
-    alert(`✅ ${user}, presença confirmada!`);
+    alert(`✅ PRESENÇA CONFIRMADA!\n\n👤 ${user} #${getUserNumero()}`);
+    mostrarToast(`✅ ${user} confirmou presença!`, 'success');
     carregarPresencas();
   });
 };
 
+// ==================== CARREGAR PRESENÇAS ====================
 function carregarPresencas() {
   const listaAdmin = document.getElementById("listaAdmin");
   if (!listaAdmin) return;
@@ -506,6 +393,7 @@ window.limparPresencas = function() {
   }
 };
 
+// ==================== COMUNICADO ====================
 function carregarComunicado() {
   const comunicadoEl = document.getElementById("comunicado");
   if (!comunicadoEl) return;
@@ -531,12 +419,9 @@ window.enviarAviso = function() {
       texto: aviso,
       data: new Date().toLocaleString('pt-BR'),
       enviadoPor: getUserName()
-    }).then(async () => {
+    }).then(() => {
       alert("✅ Aviso enviado!");
-      const titulo = "📢 NOVO COMUNICADO!";
-      const mensagem = aviso.length > 50 ? aviso.substring(0, 50) + "..." : aviso;
-      mostrarToast(mensagem, 'info');
-      await enviarNotificacaoPush(titulo, mensagem, 'novo_comunicado', { aviso });
+      mostrarToast(`📢 ${aviso}`, 'info');
       carregarComunicado();
       carregarComunicadoPerfil();
     });
@@ -557,6 +442,7 @@ window.removerComunicadoGlobal = function() {
   }
 };
 
+// ==================== TREINO ====================
 function carregarTreino() {
   const treinoEl = document.getElementById("proximoTreino");
   if (!treinoEl) return;
@@ -586,12 +472,9 @@ window.definirTreino = function() {
       data, horario, local,
       atualizadoEm: new Date().toLocaleString('pt-BR'),
       atualizadoPor: getUserName()
-    }).then(async () => {
+    }).then(() => {
       alert("✅ Treino definido!");
-      const titulo = "⚽ NOVO TREINO MARCADO!";
-      const mensagem = `📆 ${data} • ${horario}\n📍 ${local}`;
-      mostrarToast(mensagem, 'success');
-      await enviarNotificacaoPush(titulo, mensagem, 'novo_treino', { data, horario, local });
+      mostrarToast(`⚽ TREINO MARCADO!\n📆 ${data} • ${horario}\n📍 ${local}`, 'success');
       carregarTreino();
     });
   }
@@ -610,6 +493,7 @@ window.removerTreino = function() {
   }
 };
 
+// ==================== CARREGAR EQUIPE ====================
 function carregarEquipe() {
   const container = document.getElementById("listaEquipe");
   if (!container) return;
@@ -650,36 +534,51 @@ function carregarEquipe() {
   });
 }
 
+// ==================== RESULTADOS ====================
 window.adicionarResultado = function() {
   if (!isAdmin()) {
     alert("❌ Apenas administradores podem adicionar resultados!");
     return;
   }
   
-  const data = prompt("📅 Data do jogo:");
-  const time1 = prompt("Time da casa:");
-  const gols1 = prompt(`Gols do ${time1}:`);
-  const time2 = prompt("Time visitante:");
-  const gols2 = prompt(`Gols do ${time2}:`);
-  const local = prompt("Local:");
+  const data = prompt("📅 Data do jogo (ex: 15/04/2025):");
+  if (!data) return;
   
-  if (data && time1 && gols1 && time2 && gols2 && local) {
-    const resultadoId = `resultado_${Date.now()}`;
-    const vitoria = parseInt(gols1) > parseInt(gols2) ? time1 : parseInt(gols2) > parseInt(gols1) ? time2 : "Empate";
-    
-    set(ref(db, `resultados/${resultadoId}`), {
-      data, time1, gols1: parseInt(gols1), time2, gols2: parseInt(gols2), local,
-      criadoEm: new Date().toLocaleString('pt-BR'),
-      criadoPor: getUserName()
-    }).then(async () => {
-      alert("✅ Resultado adicionado!");
-      const titulo = "🏆 RESULTADO LANÇADO!";
-      const mensagem = `${time1} ${gols1} x ${gols2} ${time2}`;
-      mostrarToast(mensagem, 'success');
-      await enviarNotificacaoPush(titulo, mensagem, 'novo_resultado', { data, time1, time2, gols1, gols2 });
-      carregarResultados();
-    });
-  }
+  const time1 = prompt("Time da casa (ex: Nexus FC):");
+  if (!time1) return;
+  
+  const gols1 = prompt(`Gols do ${time1}:`);
+  if (gols1 === null) return;
+  
+  const time2 = prompt("Time visitante (ex: Adversário FC):");
+  if (!time2) return;
+  
+  const gols2 = prompt(`Gols do ${time2}:`);
+  if (gols2 === null) return;
+  
+  const local = prompt("Local do jogo:");
+  if (!local) return;
+  
+  const resultadoId = `resultado_${Date.now()}`;
+  const vitoria = parseInt(gols1) > parseInt(gols2) ? time1 : parseInt(gols2) > parseInt(gols1) ? time2 : "Empate";
+  
+  set(ref(db, `resultados/${resultadoId}`), {
+    data: data,
+    time1: time1,
+    gols1: parseInt(gols1),
+    time2: time2,
+    gols2: parseInt(gols2),
+    local: local,
+    criadoEm: new Date().toLocaleString('pt-BR'),
+    criadoPor: getUserName()
+  }).then(() => {
+    alert("✅ Resultado adicionado com sucesso!");
+    mostrarToast(`🏆 RESULTADO: ${time1} ${gols1} x ${gols2} ${time2}`, 'success');
+    carregarResultados();
+  }).catch(error => {
+    console.error("Erro:", error);
+    alert("Erro ao adicionar resultado");
+  });
 };
 
 window.removerResultado = function(id) {
@@ -745,6 +644,7 @@ function carregarResultados() {
   });
 }
 
+// ==================== COMUNICADO PERFIL ====================
 function carregarComunicadoPerfil() {
   const comunicadoEl = document.getElementById("comunicadoPerfil");
   if (!comunicadoEl) return;
@@ -790,6 +690,7 @@ window.removerComunicadoPerfil = function() {
   }
 };
 
+// ==================== CADASTRAR JOGADOR ====================
 window.cadastrarJogador = function() {
   if (!isAdmin()) {
     alert("❌ Apenas administradores podem cadastrar jogadores!");
@@ -821,7 +722,7 @@ window.removerJogador = function() {
     alert("❌ Apenas administradores podem remover jogadores!");
     return;
   }
-  const nome = prompt("Nome do jogador a remover:");
+  const nome = prompt("Nome do jogador:");
   if (!nome) return;
   const idNormalizado = normalizarTexto(nome.toLowerCase()).replace(/\s/g, '_');
   if (confirm(`Remover ${nome}?`)) {
@@ -840,8 +741,7 @@ window.tornarCapitao = function() {
   const nome = prompt("Nome do jogador:");
   if (!nome) return;
   const idNormalizado = normalizarTexto(nome.toLowerCase()).replace(/\s/g, '_');
-  const jogadorRef = ref(db, `autorizados/${idNormalizado}`);
-  get(jogadorRef).then((snapshot) => {
+  get(ref(db, `autorizados/${idNormalizado}`)).then((snapshot) => {
     if (!snapshot.exists()) {
       alert("Jogador não encontrado!");
       return;
@@ -865,8 +765,7 @@ window.removerCapitao = function() {
   const nome = prompt("Nome do jogador:");
   if (!nome) return;
   const idNormalizado = normalizarTexto(nome.toLowerCase()).replace(/\s/g, '_');
-  const jogadorRef = ref(db, `autorizados/${idNormalizado}`);
-  get(jogadorRef).then((snapshot) => {
+  get(ref(db, `autorizados/${idNormalizado}`)).then((snapshot) => {
     if (!snapshot.exists()) {
       alert("Jogador não encontrado!");
       return;
@@ -882,6 +781,7 @@ window.removerCapitao = function() {
   });
 };
 
+// ==================== NOME DO PERFIL ====================
 function carregarNomePerfil() {
   const nomeEl = document.getElementById("nomePerfil");
   const user = getUserName();
@@ -891,6 +791,209 @@ function carregarNomePerfil() {
   }
 }
 
+// ==================== WEB PUSH NOTIFICATIONS ====================
+
+// Verificar suporte
+function suportaPush() {
+    return 'Notification' in window && 'serviceWorker' in navigator;
+}
+
+// Solicitar permissão (chamar após login)
+async function ativarNotificacoes() {
+    if (!suportaPush()) {
+        console.log("Navegador não suporta notificações");
+        return false;
+    }
+    
+    const permission = await Notification.requestPermission();
+    return permission === 'granted';
+}
+
+// Enviar notificação para o usuário atual
+function notificar(titulo, mensagem, url = '/') {
+    if (Notification.permission !== 'granted') return;
+    
+    const options = {
+        body: mensagem,
+        icon: '/img/logo-nexus-192.png',
+        badge: '/img/logo-nexus-96.png',
+        vibrate: [200, 100, 200],
+        data: { url: url }
+    };
+    
+    const notification = new Notification(titulo, options);
+    
+    notification.onclick = (event) => {
+        event.preventDefault();
+        window.focus();
+        notification.close();
+    };
+}
+
+// Registrar Service Worker
+async function registrarServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    
+    try {
+        const registration = await navigator.serviceWorker.register('/sw.js');
+        console.log('Service Worker registrado:', registration);
+        return registration;
+    } catch (error) {
+        console.error('Erro ao registrar Service Worker:', error);
+    }
+}
+
+// Inicializar notificações (chamar após login)
+async function inicializarNotificacoes() {
+    const user = getUserName();
+    if (!user) return;
+    
+    // Registrar Service Worker
+    await registrarServiceWorker();
+    
+    // Solicitar permissão (só na primeira vez)
+    const jaAtivou = localStorage.getItem('notificacoesAtivas');
+    if (!jaAtivou) {
+        const ativou = await ativarNotificacoes();
+        if (ativou) {
+            localStorage.setItem('notificacoesAtivas', 'true');
+            console.log("✅ Notificações ativadas para", user);
+        }
+    }
+}
+
+// Função para testar notificação
+window.testarNotificacao = function() {
+    notificar("🔔 Teste Nexus FC", "Notificações funcionando!");
+};
+
+// Modificar funções existentes para enviar notificações
+
+// Dentro de addJogo
+window.addJogo = function() {
+    const time1 = prompt("Time 1:");
+    const time2 = prompt("Time 2:");
+    const data = prompt("Data (ex: 15/04, Sábado 19h):");
+    const local = prompt("Local:");
+    
+    if (time1 && time2 && data && local) {
+        push(ref(db, "jogos"), {
+            time1, time2, data, local,
+            criadoEm: new Date().toISOString()
+        }).then(() => {
+            alert("✅ Jogo adicionado!");
+            
+            // Notificação
+            notificar(
+                "📅 NOVO JOGO AGENDADO!",
+                `${time1} x ${time2}\n📆 ${data}\n📍 ${local}`
+            );
+            
+            carregarJogos();
+        });
+    }
+};
+
+// Dentro de definirTreino
+window.definirTreino = function() {
+    if (!isAdmin() && !isCapitao()) {
+        alert("❌ Apenas administradores e capitães!");
+        return;
+    }
+    
+    const data = prompt("📅 Data do treino:");
+    if (!data) return;
+    const horario = prompt("⏰ Horário:");
+    if (!horario) return;
+    const local = prompt("📍 Local:");
+    if (!local) return;
+    
+    set(ref(db, "treino"), {
+        data, horario, local,
+        atualizadoEm: new Date().toLocaleString('pt-BR'),
+        atualizadoPor: getUserName()
+    }).then(() => {
+        alert("✅ Treino definido!");
+        
+        // Notificação
+        notificar(
+            "⚽ NOVO TREINO MARCADO!",
+            `📆 ${data} • ${horario}\n📍 ${local}`
+        );
+        
+        carregarTreino();
+    });
+};
+
+// Dentro de adicionarResultado
+window.adicionarResultado = function() {
+    if (!isAdmin()) {
+        alert("❌ Apenas administradores!");
+        return;
+    }
+    
+    const data = prompt("📅 Data do jogo:");
+    if (!data) return;
+    const time1 = prompt("Time da casa:");
+    if (!time1) return;
+    const gols1 = prompt(`Gols do ${time1}:`);
+    if (gols1 === null) return;
+    const time2 = prompt("Time visitante:");
+    if (!time2) return;
+    const gols2 = prompt(`Gols do ${time2}:`);
+    if (gols2 === null) return;
+    const local = prompt("Local:");
+    if (!local) return;
+    
+    const resultadoId = `resultado_${Date.now()}`;
+    const vitoria = parseInt(gols1) > parseInt(gols2) ? time1 : parseInt(gols2) > parseInt(gols1) ? time2 : "Empate";
+    
+    set(ref(db, `resultados/${resultadoId}`), {
+        data, time1, gols1: parseInt(gols1), time2, gols2: parseInt(gols2), local,
+        criadoEm: new Date().toLocaleString('pt-BR'),
+        criadoPor: getUserName()
+    }).then(() => {
+        alert("✅ Resultado adicionado!");
+        
+        // Notificação
+        notificar(
+            "🏆 RESULTADO LANÇADO!",
+            `${time1} ${gols1} x ${gols2} ${time2}\n${vitoria === "Empate" ? "⚖️ EMPATE" : `🏆 VITÓRIA DO ${vitoria}`}`
+        );
+        
+        carregarResultados();
+    });
+};
+
+// Dentro de enviarAviso
+window.enviarAviso = function() {
+    if (!isAdmin() && !isCapitao()) {
+        alert("❌ Apenas administradores e capitães!");
+        return;
+    }
+    
+    const aviso = prompt("Digite o aviso:");
+    if (!aviso) return;
+    
+    set(ref(db, "comunicado"), {
+        texto: aviso,
+        data: new Date().toLocaleString('pt-BR'),
+        enviadoPor: getUserName()
+    }).then(() => {
+        alert("✅ Aviso enviado!");
+        
+        // Notificação
+        notificar(
+            "📢 NOVO COMUNICADO!",
+            aviso.length > 50 ? aviso.substring(0, 50) + "..." : aviso
+        );
+        
+        carregarComunicado();
+        carregarComunicadoPerfil();
+    });
+};
+
+// ==================== MARCAR PÁGINA ATIVA ====================
 function marcarPaginaAtiva() {
   const currentPage = window.location.pathname.split('/').pop();
   document.querySelectorAll('.navbar a').forEach(link => {
@@ -902,8 +1005,13 @@ function marcarPaginaAtiva() {
   });
 }
 
-window.logout = () => { localStorage.clear(); location.reload(); };
+// ==================== LOGOUT ====================
+window.logout = () => { 
+  localStorage.clear(); 
+  location.reload(); 
+};
 
+// ==================== INIT ====================
 document.addEventListener("DOMContentLoaded", () => {
   marcarPaginaAtiva();
   verificarLogin();
@@ -915,17 +1023,12 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarTreino();
   carregarEquipe();
   carregarResultados();
-  
-  // 🔥 TENTAR ATIVAR NOTIFICAÇÕES SE JÁ ESTIVER LOGADO 🔥
-  if (getUserName()) {
-    setTimeout(() => {
-      ativarNotificacoesAutomaticamente();
-    }, 2000); // Pequeno delay para garantir que tudo carregou
-  }
 });
 
 window.addEventListener("load", () => {
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
 });
 
 if ('serviceWorker' in navigator) {

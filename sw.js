@@ -1,20 +1,26 @@
-const CACHE_NAME = "nexusfc-v1";
-
-self.addEventListener("install", e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll([
-        "/",
-        "/index.html",
-        "/style.css",
-        "/script.js"
-      ]);
-    })
+// sw.js - Service Worker para Push Notifications
+self.addEventListener('push', function(event) {
+  const data = event.data.json();
+  
+  const options = {
+    body: data.body,
+    icon: '/img/logo-nexus-192.png',
+    badge: '/img/logo-nexus-96.png',
+    vibrate: [200, 100, 200],
+    data: {
+      url: data.url || '/'
+    }
+  };
+  
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
   );
 });
 
-self.addEventListener("fetch", e => {
-  e.respondWith(
-    caches.match(e.request).then(res => res || fetch(e.request))
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+  
+  event.waitUntil(
+    clients.openWindow(event.notification.data.url)
   );
 });
