@@ -1026,29 +1026,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-window.diagnosticoOneSignal = function() {
-    console.log("=== DIAGNÓSTICO ONESIGNAL ===");
+// Diagnóstico mais simples
+window.testarNotificacaoApp = function() {
+    alert("🔍 Testando notificações...");
     
-    if (typeof median !== 'undefined') {
-        console.log("✅ App Median detectado");
+    // Verificar se está no Median
+    if (typeof window.median !== 'undefined') {
+        alert("✅ App Median detectado!");
         
-        if (median.onesignal) {
-            console.log("✅ Plugin OneSignal disponível");
-            median.onesignal.getInfo().then(info => {
-                console.log("Info:", info);
-                if (info.userId) {
-                    alert(`✅ Registrado!\nUser ID: ${info.userId}`);
-                } else {
-                    alert("⚠️ Aguardando registro...");
-                }
+        // Verificar OneSignal
+        if (window.median.onesignal) {
+            alert("✅ OneSignal plugin encontrado!");
+            
+            // Tentar obter informações
+            window.median.onesignal.getInfo().then(info => {
+                alert(`📱 OneSignal ID: ${info.userId || 'Aguardando...'}`);
+            }).catch(err => {
+                alert("❌ Erro: " + JSON.stringify(err));
             });
         } else {
-            console.error("❌ Plugin OneSignal NÃO encontrado!");
-            alert("❌ Plugin OneSignal não está ativado no Median!\n\nVerifique nas configurações do seu app no Median.");
+            alert("❌ OneSignal NÃO encontrado!\n\nPlugin não está ativado no Median.");
         }
     } else {
-        console.log("⚠️ Não está no app Median");
-        alert("⚠️ Esta função só funciona no app instalado no celular");
+        alert("❌ Não está no app Median!\n\nEste app não foi gerado pelo Median.");
     }
 };
 
