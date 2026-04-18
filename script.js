@@ -1052,6 +1052,87 @@ window.testarNotificacaoApp = function() {
     }
 };
 
+// ==================== FORÇAR REGISTRO ONESIGNAL ====================
+function registrarOneSignal() {
+    console.log("🔔 Registrando OneSignal...");
+    
+    if (typeof window.median !== 'undefined' && window.median.onesignal) {
+        // Forçar registro
+        window.median.onesignal.register();
+        
+        // Obter o userId
+        window.median.onesignal.getInfo().then(info => {
+            console.log("📱 OneSignal User ID:", info.userId);
+            if (info.userId) {
+                localStorage.setItem('onesignal_user_id', info.userId);
+                mostrarToast("✅ Notificações ativadas!", 'success');
+            }
+        }).catch(err => {
+            console.log("Aguardando registro...");
+        });
+        
+        // Forçar pedido de permissão
+        setTimeout(() => {
+            window.median.onesignal.promptForPush();
+        }, 1000);
+    }
+}
+
+// Chamar quando o app carregar e o usuário estiver logado
+document.addEventListener("DOMContentLoaded", () => {
+    // ... seu código existente ...
+    
+    if (getUserName()) {
+        setTimeout(() => {
+            registrarOneSignal();
+        }, 3000);
+    }
+});
+
+window.ativarNotificacoesManualmente = function() {
+    if (typeof window.median !== 'undefined' && window.median.onesignal) {
+        window.median.onesignal.promptForPush();
+        mostrarToast("🔔 Permita as notificações para receber alertas!", 'info');
+    } else {
+        alert("❌ OneSignal não disponível");
+    }
+};
+
+window.enviarNotificacaoTeste = async function() {
+    const ONESIGNAL_APP_ID = "104480cd-3733-41c6-9a00-f89f221e3c52";
+    const ONESIGNAL_API_KEY = "os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i";
+    
+    mostrarToast("📤 Enviando notificação de teste...", 'info');
+    
+    try {
+        const response = await fetch('https://onesignal.com/api/v1/notifications', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Basic ${ONESIGNAL_API_KEY}`
+            },
+            body: JSON.stringify({
+                app_id: ONESIGNAL_APP_ID,
+                headings: { en: "🔔 TESTE NEXUS FC" },
+                contents: { en: "Se você está vendo isso, as notificações estão funcionando!" },
+                included_segments: ["Subscribed Users"]
+            })
+        });
+        
+        const result = await response.json();
+        console.log("Resultado:", result);
+        
+        if (result.id) {
+            mostrarToast("✅ Notificação enviada! Verifique seu celular.", 'success');
+        } else {
+            mostrarToast("❌ Erro: " + JSON.stringify(result.errors), 'error');
+        }
+    } catch (error) {
+        console.error("Erro:", error);
+        mostrarToast("❌ Erro ao enviar notificação", 'error');
+    }
+};
+
 
 // ==================== INIT ====================
 document.addEventListener("DOMContentLoaded", () => {
