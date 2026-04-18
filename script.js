@@ -1090,11 +1090,40 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.ativarNotificacoesManualmente = function() {
+    console.log("🔔 Tentando ativar notificações...");
+    
     if (typeof window.median !== 'undefined' && window.median.onesignal) {
-        window.median.onesignal.promptForPush();
-        mostrarToast("🔔 Permita as notificações para receber alertas!", 'info');
+        // Método 1: Registrar manualmente
+        window.median.onesignal.register();
+        
+        // Método 2: Tentar diferentes formas de pedir permissão
+        setTimeout(() => {
+            // Tenta o promptForPush
+            window.median.onesignal.promptForPush().catch(e => {
+                console.log("promptForPush falhou:", e);
+            });
+            
+            // Tenta o método alternativo
+            if (window.median.onesignal.promptLocation) {
+                window.median.onesignal.promptLocation();
+            }
+        }, 500);
+        
+        mostrarToast("🔔 Solicitando permissão para notificações...", 'info');
+        
+        // Verificar se já está registrado
+        setTimeout(() => {
+            window.median.onesignal.getInfo().then(info => {
+                if (info.userId) {
+                    mostrarToast("✅ Notificações já estão ativas!", 'success');
+                } else {
+                    mostrarToast("⚠️ Aguardando permissão. Verifique as configurações do app.", 'info');
+                }
+            });
+        }, 2000);
+        
     } else {
-        alert("❌ OneSignal não disponível");
+        alert("❌ OneSignal não disponível. Certifique-se de que está no app instalado.");
     }
 };
 
