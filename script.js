@@ -1,4 +1,4 @@
-console.log("🔥 SCRIPT V20 - LOGIN COM FIREBASE (Tudo Corrigido)");
+console.log("🔥 SCRIPT V20 - LOGIN COM FIREBASE (Notificações Automáticas)");
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -71,6 +71,71 @@ function mostrarToast(mensagem, tipo = 'info') {
   }, 5000);
   
   if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// ==================== NOTIFICAÇÕES PUSH AUTOMÁTICAS ====================
+const ONESIGNAL_APP_ID = "104480cd-3733-41c6-9a00-f89f221e3c52";
+const ONESIGNAL_API_KEY = "os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i";
+
+function isMedianApp() {
+  return typeof window.median !== 'undefined';
+}
+
+// Inicializar OneSignal automaticamente
+function initOneSignal() {
+  console.log("🔔 Inicializando OneSignal automaticamente...");
+  
+  if (isMedianApp() && window.median && window.median.onesignal) {
+    // Registrar automaticamente
+    window.median.onesignal.register();
+    
+    // Pedir permissão automaticamente após 2 segundos
+    setTimeout(() => {
+      window.median.onesignal.promptForPush();
+      console.log("🔔 Permissão solicitada automaticamente");
+    }, 2000);
+    
+    // Obter e salvar userId
+    setTimeout(() => {
+      window.median.onesignal.getInfo().then(info => {
+        if (info.userId) {
+          localStorage.setItem('onesignal_user_id', info.userId);
+          console.log("📱 OneSignal User ID:", info.userId);
+        }
+      }).catch(() => {});
+    }, 3000);
+  }
+}
+
+// Enviar notificação push
+async function enviarNotificacaoPush(titulo, mensagem, dados = {}) {
+  console.log("📤 Enviando notificação:", titulo);
+  
+  try {
+    const response = await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${ONESIGNAL_API_KEY}`
+      },
+      body: JSON.stringify({
+        app_id: ONESIGNAL_APP_ID,
+        headings: { en: titulo },
+        contents: { en: mensagem },
+        included_segments: ['Subscribed Users'],
+        url: dados.url || 'https://time-efd5d.web.app',
+        chrome_web_icon: 'https://time-efd5d.web.app/img/logo-nexus.png',
+        data: dados
+      })
+    });
+    
+    const result = await response.json();
+    console.log("✅ Notificação enviada:", result.id ? "Sucesso" : "Falha");
+    return true;
+  } catch (error) {
+    console.error("❌ Erro:", error);
+    return false;
+  }
 }
 
 // ==================== LOGIN ====================
@@ -261,9 +326,7 @@ window.addJogo = function() {
       time1, time2, data, local,
       criadoEm: new Date().toISOString()
     }).then(() => {
-      // Primeiro a notificação
       enviarNotificacaoPush("📅 NOVO JOGO!", `${time1} x ${time2}\n📆 ${data}\n📍 ${local}`);
-      // Depois os alerts
       alert("✅ Jogo adicionado!");
       mostrarToast(`📅 NOVO JOGO: ${time1} x ${time2}`, 'success');
       carregarJogos();
@@ -416,8 +479,7 @@ window.enviarAviso = function() {
       data: new Date().toLocaleString('pt-BR'),
       enviadoPor: getUserName()
     }).then(() => {
-      // Dentro do .then() após enviar o aviso
-enviarNotificacaoPush("📢 NOVO COMUNICADO!", aviso);
+      enviarNotificacaoPush("📢 NOVO COMUNICADO!", aviso);
       alert("✅ Aviso enviado!");
       mostrarToast(`📢 NOVO COMUNICADO: ${aviso}`, 'info');
       carregarComunicado();
@@ -471,8 +533,7 @@ window.definirTreino = function() {
       atualizadoEm: new Date().toLocaleString('pt-BR'),
       atualizadoPor: getUserName()
     }).then(() => {
-      // Dentro do .then() após definir o treino
-enviarNotificacaoPush("⚽ NOVO TREINO!", `📆 ${data} • ${horario}\n📍 ${local}`);
+      enviarNotificacaoPush("⚽ NOVO TREINO!", `📆 ${data} • ${horario}\n📍 ${local}`);
       alert("✅ Treino definido!");
       mostrarToast(`⚽ TREINO MARCADO!\n📆 ${data} • ${horario}\n📍 ${local}`, 'success');
       carregarTreino();
@@ -571,8 +632,7 @@ window.adicionarResultado = function() {
     criadoEm: new Date().toLocaleString('pt-BR'),
     criadoPor: getUserName()
   }).then(() => {
-    // Dentro do .then() após adicionar o resultado
-enviarNotificacaoPush("🏆 NOVO RESULTADO!", `${time1} ${gols1} x ${gols2} ${time2}`);
+    enviarNotificacaoPush("🏆 NOVO RESULTADO!", `${time1} ${gols1} x ${gols2} ${time2}`);
     alert("✅ Resultado adicionado com sucesso!");
     mostrarToast(`🏆 RESULTADO: ${time1} ${gols1} x ${gols2} ${time2}`, 'success');
     carregarResultados();
@@ -821,348 +881,6 @@ window.logout = function() {
   location.reload(); 
 };
 
-// ==================== WEB PUSH NOTIFICATIONS ====================
-function suportaPush() {
-    return 'Notification' in window && 'serviceWorker' in navigator;
-}
-
-async function ativarNotificacoes() {
-    if (!suportaPush()) {
-        console.log("Navegador não suporta notificações");
-        return false;
-    }
-    
-    const permission = await Notification.requestPermission();
-    return permission === 'granted';
-}
-
-function notificar(titulo, mensagem, url = '/') {
-    if (Notification.permission !== 'granted') return;
-    
-    const options = {
-        body: mensagem,
-        icon: '/img/logo-nexus.png',
-        badge: '/img/logo-nexus.png',
-        vibrate: [200, 100, 200],
-        data: { url: url }
-    };
-    
-    const notification = new Notification(titulo, options);
-    
-    notification.onclick = (event) => {
-        event.preventDefault();
-        window.focus();
-        notification.close();
-    };
-}
-
-async function registrarServiceWorker() {
-    if (!('serviceWorker' in navigator)) return;
-    
-    try {
-        const registration = await navigator.serviceWorker.register('/sw.js');
-        console.log('Service Worker registrado:', registration);
-        return registration;
-    } catch (error) {
-        console.error('Erro ao registrar Service Worker:', error);
-    }
-}
-
-async function inicializarNotificacoes() {
-    const user = getUserName();
-    if (!user) return;
-    
-    await registrarServiceWorker();
-    
-    const jaAtivou = localStorage.getItem('notificacoesAtivas');
-    if (!jaAtivou) {
-        const ativou = await ativarNotificacoes();
-        if (ativou) {
-            localStorage.setItem('notificacoesAtivas', 'true');
-            console.log("✅ Notificações ativadas para", user);
-        }
-    }
-}
-
-window.testarNotificacao = function() {
-    notificar("🔔 Teste Nexus FC", "Notificações funcionando!");
-};
-
-
-// ==================== NOTIFICAÇÕES PUSH VIA ONESIGNAL ====================
-
-// Configuração do OneSignal
-const ONESIGNAL_CONFIG = {
-    APP_ID: "104480cd-3733-41c6-9a00-f89f221e3c52",
-    API_KEY: "os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i" // ✅ JÁ TEM A API KEY!
-};
-
-// Verificar se está no app Median
-function isMedianApp() {
-    return typeof window.median !== 'undefined';
-}
-
-// Inicializar OneSignal
-function initOneSignal() {
-    console.log("🔔 Inicializando OneSignal...");
-    
-    if (isMedianApp()) {
-        console.log("✅ App Median detectado - OneSignal será gerenciado nativamente");
-        
-        // Tentar obter o userId
-        if (window.median && median.onesignal) {
-            median.onesignal.getInfo().then(info => {
-                console.log("📱 OneSignal User ID:", info.userId);
-                localStorage.setItem('onesignal_user_id', info.userId);
-            }).catch(() => {
-                console.log("Aguardando registro do OneSignal...");
-            });
-        }
-    } else {
-        console.log("⚠️ Ambiente web - notificações disponíveis apenas no app nativo");
-        // Registrar Service Worker para web (opcional)
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js');
-        }
-    }
-}
-
-// Função principal para enviar notificações
-window.enviarNotificacaoPush = async function(titulo, mensagem, dados = {}) {
-    console.log("📤 Tentando enviar notificação:", titulo, mensagem);
-    
-    // Método 1: Via API do OneSignal (recomendado para app Median)
-    const ONESIGNAL_APP_ID = "104480cd-3733-41c6-9a00-f89f221e3c52";
-    const ONESIGNAL_API_KEY = "os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i"; // <-- USE A API KEY AQUI
-    
-    try {
-        const response = await fetch('https://onesignal.com/api/v1/notifications', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Basic ${ONESIGNAL_API_KEY}`
-            },
-            body: JSON.stringify({
-                app_id: ONESIGNAL_APP_ID,
-                headings: { en: titulo },
-                contents: { en: mensagem },
-                included_segments: ['Subscribed Users'],
-                url: dados.url || 'https://time-efd5d.web.app',
-                chrome_web_icon: 'https://time-efd5d.web.app/img/logo-nexus.png',
-                data: dados
-            })
-        });
-        
-        const result = await response.json();
-        console.log("✅ Notificação enviada via OneSignal API:", result);
-        return true;
-        
-    } catch (error) {
-        console.error("❌ Erro ao enviar via OneSignal API:", error);
-    }
-    
-    // Método 2: Fallback para web (navegador)
-    if (Notification.permission === 'granted') {
-        new Notification(titulo, { body: mensagem, icon: '/img/logo-nexus.png' });
-        return true;
-    }
-    
-    return false;
-};
-
-// Testar notificação
-window.testarPush = function() {
-    enviarNotificacaoPush("🔔 TESTE NEXUS FC", "Notificações estão funcionando perfeitamente!");
-    mostrarToast("🔔 Teste de notificação enviado!", 'success');
-};
-
-// Solicitar permissão manualmente
-window.pedirPermissaoPush = function() {
-    if (isMedianApp() && median.onesignal) {
-        median.onesignal.promptForPush();
-    } else {
-        Notification.requestPermission().then(perm => {
-            if (perm === 'granted') {
-                alert("✅ Permissão concedida! Você receberá notificações.");
-            } else {
-                alert("❌ Permissão negada. Ative nas configurações do navegador.");
-            }
-        });
-    }
-};
-
-// Inicializar
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        if (getUserName()) setTimeout(initOneSignal, 2000);
-    });
-} else {
-    if (getUserName()) setTimeout(initOneSignal, 2000);
-}
-
-// ==================== FORÇAR PEDIDO DE PERMISSÃO ====================
-function forcarPedidoPermissao() {
-    console.log("🔔 Tentando pedir permissão...");
-    
-    // Verificar se está no app Median
-    if (typeof median !== 'undefined' && median.onesignal) {
-        console.log("✅ OneSignal detectado, pedindo permissão...");
-        median.onesignal.promptForPush();
-    } else {
-        console.log("⚠️ OneSignal não disponível ainda, tentando novamente em 3 segundos...");
-        setTimeout(forcarPedidoPermissao, 3000);
-    }
-}
-
-// Chamar quando o app carregar
-document.addEventListener("DOMContentLoaded", () => {
-    // Seu código existente...
-    
-    // Forçar pedido de permissão após login
-    if (getUserName()) {
-        setTimeout(() => {
-            forcarPedidoPermissao();
-        }, 2000);
-    }
-});
-
-// Diagnóstico mais simples
-window.testarNotificacaoApp = function() {
-    alert("🔍 Testando notificações...");
-    
-    // Verificar se está no Median
-    if (typeof window.median !== 'undefined') {
-        alert("✅ App Median detectado!");
-        
-        // Verificar OneSignal
-        if (window.median.onesignal) {
-            alert("✅ OneSignal plugin encontrado!");
-            
-            // Tentar obter informações
-            window.median.onesignal.getInfo().then(info => {
-                alert(`📱 OneSignal ID: ${info.userId || 'Aguardando...'}`);
-            }).catch(err => {
-                alert("❌ Erro: " + JSON.stringify(err));
-            });
-        } else {
-            alert("❌ OneSignal NÃO encontrado!\n\nPlugin não está ativado no Median.");
-        }
-    } else {
-        alert("❌ Não está no app Median!\n\nEste app não foi gerado pelo Median.");
-    }
-};
-
-// ==================== FORÇAR REGISTRO ONESIGNAL ====================
-function registrarOneSignal() {
-    console.log("🔔 Registrando OneSignal...");
-    
-    if (typeof window.median !== 'undefined' && window.median.onesignal) {
-        // Forçar registro
-        window.median.onesignal.register();
-        
-        // Obter o userId
-        window.median.onesignal.getInfo().then(info => {
-            console.log("📱 OneSignal User ID:", info.userId);
-            if (info.userId) {
-                localStorage.setItem('onesignal_user_id', info.userId);
-                mostrarToast("✅ Notificações ativadas!", 'success');
-            }
-        }).catch(err => {
-            console.log("Aguardando registro...");
-        });
-        
-        // Forçar pedido de permissão
-        setTimeout(() => {
-            window.median.onesignal.promptForPush();
-        }, 1000);
-    }
-}
-
-// Chamar quando o app carregar e o usuário estiver logado
-document.addEventListener("DOMContentLoaded", () => {
-    // ... seu código existente ...
-    
-    if (getUserName()) {
-        setTimeout(() => {
-            registrarOneSignal();
-        }, 3000);
-    }
-});
-
-window.ativarNotificacoesManualmente = function() {
-    console.log("🔔 Tentando ativar notificações...");
-    
-    if (typeof window.median !== 'undefined' && window.median.onesignal) {
-        // Método 1: Registrar manualmente
-        window.median.onesignal.register();
-        
-        // Método 2: Tentar diferentes formas de pedir permissão
-        setTimeout(() => {
-            // Tenta o promptForPush
-            window.median.onesignal.promptForPush().catch(e => {
-                console.log("promptForPush falhou:", e);
-            });
-            
-            // Tenta o método alternativo
-            if (window.median.onesignal.promptLocation) {
-                window.median.onesignal.promptLocation();
-            }
-        }, 500);
-        
-        mostrarToast("🔔 Solicitando permissão para notificações...", 'info');
-        
-        // Verificar se já está registrado
-        setTimeout(() => {
-            window.median.onesignal.getInfo().then(info => {
-                if (info.userId) {
-                    mostrarToast("✅ Notificações já estão ativas!", 'success');
-                } else {
-                    mostrarToast("⚠️ Aguardando permissão. Verifique as configurações do app.", 'info');
-                }
-            });
-        }, 2000);
-        
-    } else {
-        alert("❌ OneSignal não disponível. Certifique-se de que está no app instalado.");
-    }
-};
-
-window.enviarNotificacaoTeste = async function() {
-    const ONESIGNAL_APP_ID = "104480cd-3733-41c6-9a00-f89f221e3c52";
-    const ONESIGNAL_API_KEY = "os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i";
-    
-    mostrarToast("📤 Enviando notificação de teste...", 'info');
-    
-    try {
-        const response = await fetch('https://onesignal.com/api/v1/notifications', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Basic ${ONESIGNAL_API_KEY}`
-            },
-            body: JSON.stringify({
-                app_id: ONESIGNAL_APP_ID,
-                headings: { en: "🔔 TESTE NEXUS FC" },
-                contents: { en: "Se você está vendo isso, as notificações estão funcionando!" },
-                included_segments: ["Subscribed Users"]
-            })
-        });
-        
-        const result = await response.json();
-        console.log("Resultado:", result);
-        
-        if (result.id) {
-            mostrarToast("✅ Notificação enviada! Verifique seu celular.", 'success');
-        } else {
-            mostrarToast("❌ Erro: " + JSON.stringify(result.errors), 'error');
-        }
-    } catch (error) {
-        console.error("Erro:", error);
-        mostrarToast("❌ Erro ao enviar notificação", 'error');
-    }
-};
-
-
 // ==================== INIT ====================
 document.addEventListener("DOMContentLoaded", () => {
   console.log("🚀 Inicializando aplicação...");
@@ -1178,10 +896,11 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarResultados();
   console.log("✅ Aplicação inicializada com sucesso!");
   
+  // Inicializar OneSignal automaticamente se estiver logado
   if (getUserName()) {
     setTimeout(() => {
-      inicializarNotificacoes();
-    }, 2000);
+      initOneSignal();
+    }, 3000);
   }
 });
 
