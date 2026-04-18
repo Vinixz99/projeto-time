@@ -1000,6 +1000,58 @@ if (document.readyState === 'loading') {
     if (getUserName()) setTimeout(initOneSignal, 2000);
 }
 
+// ==================== FORÇAR PEDIDO DE PERMISSÃO ====================
+function forcarPedidoPermissao() {
+    console.log("🔔 Tentando pedir permissão...");
+    
+    // Verificar se está no app Median
+    if (typeof median !== 'undefined' && median.onesignal) {
+        console.log("✅ OneSignal detectado, pedindo permissão...");
+        median.onesignal.promptForPush();
+    } else {
+        console.log("⚠️ OneSignal não disponível ainda, tentando novamente em 3 segundos...");
+        setTimeout(forcarPedidoPermissao, 3000);
+    }
+}
+
+// Chamar quando o app carregar
+document.addEventListener("DOMContentLoaded", () => {
+    // Seu código existente...
+    
+    // Forçar pedido de permissão após login
+    if (getUserName()) {
+        setTimeout(() => {
+            forcarPedidoPermissao();
+        }, 2000);
+    }
+});
+
+window.diagnosticoOneSignal = function() {
+    console.log("=== DIAGNÓSTICO ONESIGNAL ===");
+    
+    if (typeof median !== 'undefined') {
+        console.log("✅ App Median detectado");
+        
+        if (median.onesignal) {
+            console.log("✅ Plugin OneSignal disponível");
+            median.onesignal.getInfo().then(info => {
+                console.log("Info:", info);
+                if (info.userId) {
+                    alert(`✅ Registrado!\nUser ID: ${info.userId}`);
+                } else {
+                    alert("⚠️ Aguardando registro...");
+                }
+            });
+        } else {
+            console.error("❌ Plugin OneSignal NÃO encontrado!");
+            alert("❌ Plugin OneSignal não está ativado no Median!\n\nVerifique nas configurações do seu app no Median.");
+        }
+    } else {
+        console.log("⚠️ Não está no app Median");
+        alert("⚠️ Esta função só funciona no app instalado no celular");
+    }
+};
+
 
 // ==================== INIT ====================
 document.addEventListener("DOMContentLoaded", () => {
