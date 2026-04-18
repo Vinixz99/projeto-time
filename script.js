@@ -136,7 +136,6 @@ window.loginJogador = async function () {
       localStorage.setItem("admin", jogadorEncontrado.admin ? "true" : "false");
       localStorage.setItem("capitao", jogadorEncontrado.capitao === true ? "true" : "false");
       alert(`✅ Bem-vindo ${jogadorEncontrado.nome}!`);
-      
       fecharModal();
       location.reload();
     } else {
@@ -145,38 +144,6 @@ window.loginJogador = async function () {
   } else {
     alert(`❌ Jogador não encontrado!`);
   }
-};
-  
-  if (jogadorEncontrado) {
-    if (jogadorEncontrado.pin == pin) {
-      localStorage.setItem("user", jogadorEncontrado.nome);
-      localStorage.setItem("numero", jogadorEncontrado.numero);
-      localStorage.setItem("admin", jogadorEncontrado.admin ? "true" : "false");
-      localStorage.setItem("capitao", jogadorEncontrado.capitao === true ? "true" : "false");
-      alert(`✅ Bem-vindo ${jogadorEncontrado.nome}!`);
-      
-      fecharModal();
-      location.reload();
-    } else {
-      alert("❌ PIN incorreto!");
-    }
-  } else {
-    alert(`❌ Jogador não encontrado!`);
-  }
-
-  if (jogadorEncontrado) {
-    if (jogadorEncontrado.pin == pin) {
-        localStorage.setItem("user", jogadorEncontrado.nome);
-        // ... resto
-        
-        // Inicializar notificações
-        setTimeout(() => {
-            inicializarNotificacoes();
-        }, 1000);
-        
-        fecharModal();
-        location.reload();
-    }
 };
 
 // ==================== VERIFICAR LOGIN ====================
@@ -184,6 +151,8 @@ function verificarLogin() {
   const user = localStorage.getItem("user");
   const admin = isAdmin();
   const capitao = isCapitao();
+
+  console.log("Verificando login - Admin:", admin, "Capitao:", capitao, "User:", user);
 
   const btnAddJogo = document.getElementById("btnAddJogo");
   if (btnAddJogo) btnAddJogo.style.display = admin ? "block" : "none";
@@ -207,8 +176,8 @@ function verificarLogin() {
   if (areaUsuario) {
     const numero = getUserNumero();
     areaUsuario.innerHTML = user 
-      ? `<span>👤 ${user} #${numero}</span><button onclick="logout()">Sair</button>`
-      : `<button onclick="abrirLogin()">ENTRAR</button>`;
+      ? `<span>👤 ${user} #${numero}</span><button onclick="window.logout()">Sair</button>`
+      : `<button onclick="window.abrirLogin()">ENTRAR</button>`;
   }
   
   carregarNomePerfil();
@@ -261,7 +230,7 @@ function carregarJogos() {
         <div class="card">
           <h3>${jogo.time1} x ${jogo.time2}</h3>
           <p>📅 ${jogo.data} • 📍 ${jogo.local}</p>
-          ${isAdmin() ? `<button onclick="removerJogo('${jogo.id}')" style="background:#c42b2b; margin-top:10px;">🗑️ Remover</button>` : ''}
+          ${isAdmin() ? `<button onclick="window.removerJogo('${jogo.id}')" style="background:#c42b2b; margin-top:10px;">🗑️ Remover</button>` : ''}
         </div>`;
     });
   });
@@ -277,6 +246,11 @@ window.removerJogo = function(id) {
 };
 
 window.addJogo = function() {
+  if (!isAdmin()) {
+    alert("❌ Apenas administradores podem adicionar jogos!");
+    return;
+  }
+  
   const time1 = prompt("Time 1:");
   const time2 = prompt("Time 2:");
   const data = prompt("Data (ex: 15/04, Sábado 19h):");
@@ -287,9 +261,11 @@ window.addJogo = function() {
       time1, time2, data, local,
       criadoEm: new Date().toISOString()
     }).then(() => {
+      // Primeiro a notificação
+      enviarNotificacaoPush("📅 NOVO JOGO!", `${time1} x ${time2}\n📆 ${data}\n📍 ${local}`);
+      // Depois os alerts
       alert("✅ Jogo adicionado!");
-      const mensagem = `${time1} x ${time2}\n📆 ${data}\n📍 ${local}`;
-      mostrarToast("📅 NOVO JOGO! " + mensagem, 'success');
+      mostrarToast(`📅 NOVO JOGO: ${time1} x ${time2}`, 'success');
       carregarJogos();
     });
   }
@@ -376,7 +352,7 @@ function carregarPresencas() {
         <li style="margin-bottom: 10px; padding: 8px; background: #1a1a1a; border-radius: 8px;">
           <strong>👤 ${p.nome} #${p.numero || '?'}</strong><br>
           <small>✅ Confirmou em: ${p.horario}</small>
-          ${isAdmin() ? `<button onclick="removerPresenca('${p.id}')" style="margin-left: 10px; background:#c42b2b; padding: 2px 8px;">❌</button>` : ''}
+          ${isAdmin() ? `<button onclick="window.removerPresenca('${p.id}')" style="margin-left: 10px; background:#c42b2b; padding: 2px 8px;">❌</button>` : ''}
         </li>`;
     });
     
@@ -393,7 +369,10 @@ function carregarPresencas() {
 
 window.removerPresenca = function(id) {
   if (confirm("Remover esta confirmação?")) {
-    remove(ref(db, `presencas/${id}`));
+    remove(ref(db, `presencas/${id}`)).then(() => {
+      alert("✅ Presença removida!");
+      carregarPresencas();
+    });
   }
 };
 
@@ -402,9 +381,9 @@ window.limparPresencas = function() {
     alert("❌ Apenas administradores podem limpar presenças!");
     return;
   }
-  if (confirm("⚠️ Tem certeza?")) {
+  if (confirm("⚠️ ATENÇÃO! Isso vai apagar TODAS as confirmações de presença. Tem certeza?")) {
     remove(ref(db, "presencas")).then(() => {
-      alert("✅ Presenças limpas!");
+      alert("✅ Todas as presenças foram limpas!");
       carregarPresencas();
     });
   }
@@ -430,15 +409,17 @@ window.enviarAviso = function() {
     return;
   }
   
-  const aviso = prompt("Digite o aviso:");
+  const aviso = prompt("Digite o aviso para todos:");
   if (aviso) {
     set(ref(db, "comunicado"), {
       texto: aviso,
       data: new Date().toLocaleString('pt-BR'),
       enviadoPor: getUserName()
     }).then(() => {
+      // Dentro do .then() após enviar o aviso
+enviarNotificacaoPush("📢 NOVO COMUNICADO!", aviso);
       alert("✅ Aviso enviado!");
-      mostrarToast(`📢 ${aviso}`, 'info');
+      mostrarToast(`📢 NOVO COMUNICADO: ${aviso}`, 'info');
       carregarComunicado();
       carregarComunicadoPerfil();
     });
@@ -450,7 +431,7 @@ window.removerComunicadoGlobal = function() {
     alert("❌ Apenas administradores e capitães podem remover comunicados!");
     return;
   }
-  if (confirm("Remover comunicado?")) {
+  if (confirm("⚠️ Tem certeza que deseja remover o comunicado atual?")) {
     remove(ref(db, "comunicado")).then(() => {
       alert("✅ Comunicado removido!");
       carregarComunicado();
@@ -490,6 +471,8 @@ window.definirTreino = function() {
       atualizadoEm: new Date().toLocaleString('pt-BR'),
       atualizadoPor: getUserName()
     }).then(() => {
+      // Dentro do .then() após definir o treino
+enviarNotificacaoPush("⚽ NOVO TREINO!", `📆 ${data} • ${horario}\n📍 ${local}`);
       alert("✅ Treino definido!");
       mostrarToast(`⚽ TREINO MARCADO!\n📆 ${data} • ${horario}\n📍 ${local}`, 'success');
       carregarTreino();
@@ -502,7 +485,7 @@ window.removerTreino = function() {
     alert("❌ Apenas administradores e capitães podem remover treino!");
     return;
   }
-  if (confirm("Remover treino?")) {
+  if (confirm("⚠️ Tem certeza que deseja remover o próximo treino?")) {
     remove(ref(db, "treino")).then(() => {
       alert("✅ Treino removido!");
       carregarTreino();
@@ -514,7 +497,7 @@ window.removerTreino = function() {
 function carregarEquipe() {
   const container = document.getElementById("listaEquipe");
   if (!container) return;
-  container.innerHTML = "<div class='loading'>🔄 Carregando...</div>";
+  container.innerHTML = "<div class='loading'>🔄 Carregando elenco...</div>";
 
   onValue(ref(db, "autorizados"), (snapshot) => {
     container.innerHTML = "";
@@ -546,7 +529,7 @@ function carregarEquipe() {
     
     const contador = document.createElement("div");
     contador.className = "contador-equipe";
-    contador.innerHTML = `📊 Total: <strong>${jogadores.length}</strong>`;
+    contador.innerHTML = `📊 Total de jogadores: <strong>${jogadores.length}</strong>`;
     container.appendChild(contador);
   });
 }
@@ -577,7 +560,6 @@ window.adicionarResultado = function() {
   if (!local) return;
   
   const resultadoId = `resultado_${Date.now()}`;
-  const vitoria = parseInt(gols1) > parseInt(gols2) ? time1 : parseInt(gols2) > parseInt(gols1) ? time2 : "Empate";
   
   set(ref(db, `resultados/${resultadoId}`), {
     data: data,
@@ -589,6 +571,8 @@ window.adicionarResultado = function() {
     criadoEm: new Date().toLocaleString('pt-BR'),
     criadoPor: getUserName()
   }).then(() => {
+    // Dentro do .then() após adicionar o resultado
+enviarNotificacaoPush("🏆 NOVO RESULTADO!", `${time1} ${gols1} x ${gols2} ${time2}`);
     alert("✅ Resultado adicionado com sucesso!");
     mostrarToast(`🏆 RESULTADO: ${time1} ${gols1} x ${gols2} ${time2}`, 'success');
     carregarResultados();
@@ -599,7 +583,11 @@ window.adicionarResultado = function() {
 };
 
 window.removerResultado = function(id) {
-  if (confirm("Remover resultado?")) {
+  if (!isAdmin()) {
+    alert("❌ Apenas administradores podem remover resultados!");
+    return;
+  }
+  if (confirm("Tem certeza que deseja remover este resultado?")) {
     remove(ref(db, `resultados/${id}`)).then(() => {
       alert("✅ Resultado removido!");
       carregarResultados();
@@ -610,7 +598,7 @@ window.removerResultado = function(id) {
 function carregarResultados() {
   const container = document.getElementById("listaResultados");
   if (!container) return;
-  container.innerHTML = "<div class='loading'>🔄 Carregando...</div>";
+  container.innerHTML = "<div class='loading'>🔄 Carregando resultados...</div>";
 
   onValue(ref(db, "resultados"), (snapshot) => {
     container.innerHTML = "";
@@ -649,14 +637,14 @@ function carregarResultados() {
         <div class="resultado-status" style="color: ${corVitoria};">
           ${gols1 > gols2 ? '🏆 VITÓRIA' : gols2 > gols1 ? '❌ DERROTA' : '⚖️ EMPATE'}
         </div>
-        ${isAdmin() ? `<button onclick="removerResultado('${resultado.id}')" style="margin-top: 10px; background: #c42b2b;">🗑️ Remover</button>` : ''}
+        ${isAdmin() ? `<button onclick="window.removerResultado('${resultado.id}')" style="margin-top: 10px; background: #c42b2b;">🗑️ Remover</button>` : ''}
       `;
       container.appendChild(card);
     });
     
     const contador = document.createElement("div");
     contador.className = "contador-resultados";
-    contador.innerHTML = `📊 Total: <strong>${resultados.length}</strong>`;
+    contador.innerHTML = `📊 Total de jogos registrados: <strong>${resultados.length}</strong>`;
     container.appendChild(contador);
   });
 }
@@ -681,12 +669,14 @@ window.definirComunicadoPerfil = function() {
     alert("❌ Apenas administradores e capitães podem criar comunicados!");
     return;
   }
-  const texto = prompt("📢 Digite o comunicado:");
+  const texto = prompt("📢 Digite o comunicado para todos os jogadores:");
   if (texto) {
     set(ref(db, "comunicado"), {
-      texto, data: new Date().toLocaleString('pt-BR'), enviadoPor: getUserName()
+      texto, 
+      data: new Date().toLocaleString('pt-BR'), 
+      enviadoPor: getUserName()
     }).then(() => {
-      alert("✅ Comunicado enviado!");
+      alert("✅ Comunicado enviado com sucesso!");
       carregarComunicadoPerfil();
       carregarComunicado();
     });
@@ -698,9 +688,9 @@ window.removerComunicadoPerfil = function() {
     alert("❌ Apenas administradores e capitães podem remover comunicados!");
     return;
   }
-  if (confirm("Remover comunicado?")) {
+  if (confirm("⚠️ Tem certeza que deseja remover o comunicado atual?")) {
     remove(ref(db, "comunicado")).then(() => {
-      alert("✅ Comunicado removido!");
+      alert("✅ Comunicado removido com sucesso!");
       carregarComunicadoPerfil();
       carregarComunicado();
     });
@@ -714,22 +704,27 @@ window.cadastrarJogador = function() {
     return;
   }
   
-  const nome = prompt("Nome do jogador:");
+  const nome = prompt("Nome do jogador (pode usar acentos):");
   if (!nome) return;
   const numero = prompt("Número da camisa:");
-  const pin = prompt("PIN:");
-  const posicao = prompt("Posição:");
-  const isCapitao = confirm("É capitão?");
-  const isAdminUser = confirm("É administrador?");
+  const pin = prompt("PIN do jogador (ex: 1234):");
+  const posicao = prompt("Posição (Goleiro, Fixo, Ala, Pivô):");
+  const capitaoConfirm = confirm("Este jogador é capitão?");
+  const adminConfirm = confirm("Este jogador é administrador?");
   
   const idNormalizado = normalizarTexto(nome.toLowerCase()).replace(/\s/g, '_');
   
   set(ref(db, `autorizados/${idNormalizado}`), {
-    nome, numero: parseInt(numero), pin, posicao,
-    capitao: isCapitao, admin: isAdminUser, ativo: true,
+    nome, 
+    numero: parseInt(numero), 
+    pin, 
+    posicao,
+    capitao: capitaoConfirm, 
+    admin: adminConfirm, 
+    ativo: true,
     criadoEm: new Date().toLocaleString('pt-BR')
   }).then(() => {
-    alert(`✅ Jogador ${nome} cadastrado!`);
+    alert(`✅ Jogador ${nome} cadastrado com sucesso!`);
     carregarEquipe();
   });
 };
@@ -739,12 +734,12 @@ window.removerJogador = function() {
     alert("❌ Apenas administradores podem remover jogadores!");
     return;
   }
-  const nome = prompt("Nome do jogador:");
+  const nome = prompt("Nome do jogador a ser removido:");
   if (!nome) return;
   const idNormalizado = normalizarTexto(nome.toLowerCase()).replace(/\s/g, '_');
-  if (confirm(`Remover ${nome}?`)) {
+  if (confirm(`Tem certeza que deseja remover o jogador "${nome}"?`)) {
     remove(ref(db, `autorizados/${idNormalizado}`)).then(() => {
-      alert(`✅ ${nome} removido!`);
+      alert(`✅ Jogador ${nome} removido com sucesso!`);
       carregarEquipe();
     });
   }
@@ -755,18 +750,18 @@ window.tornarCapitao = function() {
     alert("❌ Apenas administradores podem definir capitães!");
     return;
   }
-  const nome = prompt("Nome do jogador:");
+  const nome = prompt("Nome do jogador que será capitão:");
   if (!nome) return;
   const idNormalizado = normalizarTexto(nome.toLowerCase()).replace(/\s/g, '_');
   get(ref(db, `autorizados/${idNormalizado}`)).then((snapshot) => {
     if (!snapshot.exists()) {
-      alert("Jogador não encontrado!");
+      alert("❌ Jogador não encontrado!");
       return;
     }
     const jogador = snapshot.val();
-    if (confirm(`Tornar ${jogador.nome} capitão?`)) {
+    if (confirm(`Tem certeza que deseja tornar ${jogador.nome} CAPITÃO?`)) {
       set(ref(db, `autorizados/${idNormalizado}`), { ...jogador, capitao: true }).then(() => {
-        alert(`✅ ${jogador.nome} agora é capitão!`);
+        alert(`✅ ${jogador.nome} agora é CAPITÃO!`);
         carregarEquipe();
         location.reload();
       });
@@ -779,16 +774,16 @@ window.removerCapitao = function() {
     alert("❌ Apenas administradores podem remover capitães!");
     return;
   }
-  const nome = prompt("Nome do jogador:");
+  const nome = prompt("Nome do jogador que não será mais capitão:");
   if (!nome) return;
   const idNormalizado = normalizarTexto(nome.toLowerCase()).replace(/\s/g, '_');
   get(ref(db, `autorizados/${idNormalizado}`)).then((snapshot) => {
     if (!snapshot.exists()) {
-      alert("Jogador não encontrado!");
+      alert("❌ Jogador não encontrado!");
       return;
     }
     const jogador = snapshot.val();
-    if (confirm(`Remover capitão de ${jogador.nome}?`)) {
+    if (confirm(`Tem certeza que deseja remover o cargo de capitão de ${jogador.nome}?`)) {
       set(ref(db, `autorizados/${idNormalizado}`), { ...jogador, capitao: false }).then(() => {
         alert(`✅ ${jogador.nome} não é mais capitão!`);
         carregarEquipe();
@@ -808,14 +803,29 @@ function carregarNomePerfil() {
   }
 }
 
-// ==================== WEB PUSH NOTIFICATIONS ====================
+// ==================== MARCAR PÁGINA ATIVA ====================
+function marcarPaginaAtiva() {
+  const currentPage = window.location.pathname.split('/').pop();
+  document.querySelectorAll('.navbar a').forEach(link => {
+    const href = link.getAttribute('href');
+    link.classList.remove('ativo');
+    if (currentPage === href || (currentPage === '' && href === 'index.html') || (currentPage === '/' && href === 'index.html')) {
+      link.classList.add('ativo');
+    }
+  });
+}
 
-// Verificar suporte
+// ==================== LOGOUT ====================
+window.logout = function() { 
+  localStorage.clear(); 
+  location.reload(); 
+};
+
+// ==================== WEB PUSH NOTIFICATIONS ====================
 function suportaPush() {
     return 'Notification' in window && 'serviceWorker' in navigator;
 }
 
-// Solicitar permissão
 async function ativarNotificacoes() {
     if (!suportaPush()) {
         console.log("Navegador não suporta notificações");
@@ -826,14 +836,13 @@ async function ativarNotificacoes() {
     return permission === 'granted';
 }
 
-// Enviar notificação para o usuário atual
 function notificar(titulo, mensagem, url = '/') {
     if (Notification.permission !== 'granted') return;
     
     const options = {
         body: mensagem,
-        icon: '/img/logo-nexus-192.png',
-        badge: '/img/logo-nexus-96.png',
+        icon: '/img/logo-nexus.png',
+        badge: '/img/logo-nexus.png',
         vibrate: [200, 100, 200],
         data: { url: url }
     };
@@ -847,7 +856,6 @@ function notificar(titulo, mensagem, url = '/') {
     };
 }
 
-// Registrar Service Worker
 async function registrarServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
     
@@ -860,7 +868,6 @@ async function registrarServiceWorker() {
     }
 }
 
-// Inicializar notificações
 async function inicializarNotificacoes() {
     const user = getUserName();
     if (!user) return;
@@ -877,31 +884,127 @@ async function inicializarNotificacoes() {
     }
 }
 
-// Função para testar notificação
 window.testarNotificacao = function() {
     notificar("🔔 Teste Nexus FC", "Notificações funcionando!");
 };
 
-// ==================== MARCAR PÁGINA ATIVA ====================
-function marcarPaginaAtiva() {
-  const currentPage = window.location.pathname.split('/').pop();
-  document.querySelectorAll('.navbar a').forEach(link => {
-    const href = link.getAttribute('href');
-    link.classList.remove('ativo');
-    if (currentPage === href || (currentPage === '' && href === 'index.html') || (currentPage === '/' && href === 'index.html')) {
-      link.classList.add('ativo');
-    }
-  });
+
+// ==================== NOTIFICAÇÕES PUSH VIA ONESIGNAL ====================
+
+// Configuração do OneSignal
+const ONESIGNAL_CONFIG = {
+    APP_ID: "104480cd-3733-41c6-9a00-f89f221e3c52",
+    API_KEY: "" // Deixe vazio por enquanto - só precisa para enviar do backend
+};
+
+// Verificar se está no app Median
+function isMedianApp() {
+    return typeof window.median !== 'undefined';
 }
 
-// ==================== LOGOUT ====================
-window.logout = () => { 
-  localStorage.clear(); 
-  location.reload(); 
+// Inicializar OneSignal
+function initOneSignal() {
+    console.log("🔔 Inicializando OneSignal...");
+    
+    if (isMedianApp()) {
+        console.log("✅ App Median detectado - OneSignal será gerenciado nativamente");
+        
+        // Tentar obter o userId
+        if (window.median && median.onesignal) {
+            median.onesignal.getInfo().then(info => {
+                console.log("📱 OneSignal User ID:", info.userId);
+                localStorage.setItem('onesignal_user_id', info.userId);
+            }).catch(() => {
+                console.log("Aguardando registro do OneSignal...");
+            });
+        }
+    } else {
+        console.log("⚠️ Ambiente web - notificações disponíveis apenas no app nativo");
+        // Registrar Service Worker para web (opcional)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    }
+}
+
+// Função principal para enviar notificações
+window.enviarNotificacaoPush = function(titulo, mensagem, dados = {}) {
+    console.log("📤 Tentando enviar notificação:", titulo, mensagem);
+    
+    // Método 1: Via Median Bridge (dentro do app)
+    if (isMedianApp() && window.median && median.onesignal) {
+        try {
+            median.onesignal.sendNotification({
+                title: titulo,
+                message: mensagem,
+                url: dados.url || '/',
+                icon: dados.icon || '/img/logo-nexus.png'
+            });
+            console.log("✅ Notificação enviada via Median:", titulo);
+            return true;
+        } catch(e) {
+            console.error("Erro ao enviar via Median:", e);
+        }
+    }
+    
+    // Método 2: Notificação web (fallback para teste)
+    if (Notification.permission === 'granted') {
+        const options = {
+            body: mensagem,
+            icon: '/img/logo-nexus.png',
+            badge: '/img/logo-nexus.png',
+            vibrate: [200, 100, 200],
+            data: dados
+        };
+        new Notification(titulo, options);
+        console.log("✅ Notificação enviada via Web API");
+        return true;
+    } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                new Notification(titulo, { body: mensagem, icon: '/img/logo-nexus.png' });
+            }
+        });
+    }
+    
+    console.log("⚠️ Não foi possível enviar notificação");
+    return false;
 };
+
+// Testar notificação
+window.testarPush = function() {
+    enviarNotificacaoPush("🔔 TESTE NEXUS FC", "Notificações estão funcionando perfeitamente!");
+    mostrarToast("🔔 Teste de notificação enviado!", 'success');
+};
+
+// Solicitar permissão manualmente
+window.pedirPermissaoPush = function() {
+    if (isMedianApp() && median.onesignal) {
+        median.onesignal.promptForPush();
+    } else {
+        Notification.requestPermission().then(perm => {
+            if (perm === 'granted') {
+                alert("✅ Permissão concedida! Você receberá notificações.");
+            } else {
+                alert("❌ Permissão negada. Ative nas configurações do navegador.");
+            }
+        });
+    }
+};
+
+// Inicializar
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (getUserName()) setTimeout(initOneSignal, 2000);
+    });
+} else {
+    if (getUserName()) setTimeout(initOneSignal, 2000);
+}
+
 
 // ==================== INIT ====================
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("🚀 Inicializando aplicação...");
   marcarPaginaAtiva();
   verificarLogin();
   carregarProximoJogo();
@@ -912,8 +1015,8 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarTreino();
   carregarEquipe();
   carregarResultados();
+  console.log("✅ Aplicação inicializada com sucesso!");
   
-  // Inicializar notificações se já estiver logado
   if (getUserName()) {
     setTimeout(() => {
       inicializarNotificacoes();
@@ -926,9 +1029,3 @@ window.addEventListener("load", () => {
     lucide.createIcons();
   }
 });
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(regs => {
-    regs.forEach(reg => reg.unregister());
-  });
-}

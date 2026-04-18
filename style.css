@@ -70,7 +70,7 @@ h4 {
   padding: 90px 15px 100px;
 }
 
-/* ==================== NAVBAR ==================== */
+/* ==================== NAVBAR CORRIGIDA E RESPONSIVA ==================== */
 .navbar {
   position: fixed;
   bottom: 0;
@@ -80,72 +80,121 @@ h4 {
   backdrop-filter: blur(10px);
   display: flex;
   justify-content: space-around;
-  padding: 12px 0;
+  align-items: center;
+  padding: 8px 0;
   border-top: 1px solid #222;
   z-index: 1000;
 }
 
 .navbar a {
-  color: #aaa;
-  text-decoration: none;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 11px;
-  transition: all 0.25s ease;
+  justify-content: center;
+  text-decoration: none;
+  color: #aaa;
+  transition: all 0.3s ease;
+  padding: 10px 5px;
+  border-radius: 12px;
+  cursor: pointer;
+  gap: 4px;
+  text-align: center;
   position: relative;
 }
 
 .navbar a i {
-  margin-bottom: 4px;
-  transition: 0.25s;
+  font-size: 22px;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.navbar a span {
+  font-size: 11px;
+  transition: all 0.3s ease;
+  pointer-events: none;
 }
 
 .navbar a:hover {
-  color: #00ff88;
-  transform: translateY(-2px);
+  color: #ff6b00;
+  background: rgba(255, 107, 0, 0.15);
+  transform: translateY(-3px);
+}
+
+.navbar a:hover i {
+  color: #ff6b00;
+  transform: scale(1.1);
 }
 
 .navbar a:active {
-  transform: scale(0.9);
+  transform: scale(0.95);
 }
 
 .navbar a.ativo {
-  color: #00ff88;
+  color: #ff6b00;
+}
+
+.navbar a.ativo i {
+  color: #ff6b00;
+  transform: scale(1.15);
 }
 
 .navbar a.ativo::after {
   content: "";
   position: absolute;
-  bottom: -6px;
-  width: 20px;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 25px;
   height: 3px;
-  background: #00ff88;
+  background: #ff6b00;
   border-radius: 10px;
+  animation: fadeIn 0.3s ease;
 }
 
-.navbar a.ativo i {
-  transform: scale(1.2);
+@keyframes fadeIn {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 25px;
+    opacity: 1;
+  }
 }
 
-/* Garantir que o último elemento não fique atrás da navbar */
-.container > :last-child {
-  margin-bottom: 20px;
+/* ==================== RESPONSIVIDADE DA NAVBAR ==================== */
+@media (max-width: 600px) {
+  .navbar {
+    padding: 5px 0;
+  }
+  
+  .navbar a {
+    padding: 6px 4px;
+  }
+  
+  .navbar a i {
+    font-size: 18px;
+  }
+  
+  .navbar a span {
+    font-size: 9px;
+  }
+  
+  .navbar a.ativo::after {
+    width: 18px;
+    bottom: -3px;
+  }
 }
 
-/* Ajuste específico para a página de agenda */
-#listaJogos {
-  padding-bottom: 20px;
-}
-
-/* Ajuste para a página de resultados */
-#listaResultados {
-  padding-bottom: 30px;
-}
-
-/* Ajuste para o botão de confirmar presença na agenda */
-.btn-confirmar {
-  margin-bottom: 20px;
+@media (max-width: 450px) {
+  .navbar a span {
+    font-size: 8px;
+  }
+  
+  .navbar a i {
+    font-size: 16px;
+  }
 }
 
 /* ==================== HERO ==================== */
@@ -168,6 +217,9 @@ h4 {
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .buttons {
@@ -187,6 +239,10 @@ h4 {
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn-primary:hover {
@@ -207,6 +263,10 @@ h4 {
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn-outline:hover {
@@ -272,6 +332,10 @@ h4 {
   color: #ff6b00;
   margin-bottom: 20px;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .modal input {
@@ -295,6 +359,10 @@ h4 {
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .modal button:hover {
@@ -322,6 +390,9 @@ h4 {
   color: #fff;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 #areaUsuario button:hover {
@@ -334,6 +405,9 @@ h4 {
   padding: 8px 15px;
   border-radius: 20px;
   font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 /* ==================== BOTÕES GERAIS ==================== */
@@ -348,6 +422,10 @@ button {
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 button:active {
@@ -471,53 +549,6 @@ button:active {
   margin: 0 5px;
 }
 
-/* ==================== PÁGINA DE PERFIL ==================== */
-.perfil-card {
-  padding: 25px;
-  height: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.titulo-perfil {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.titulo-perfil h2 {
-  color: #ff6b00;
-  font-size: 24px;
-}
-
-.info-dupla {
-  display: flex;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.info-box {
-  flex: 1;
-  background: #1a1a1a;
-  border-radius: 15px;
-  padding: 18px;
-  min-height: 110px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  transition: all 0.3s ease;
-}
-
-.info-box:hover {
-  transform: scale(1.03);
-}
-
-.info-box h4 {
-  font-size: 13px;
-  margin-bottom: 5px;
-  opacity: 0.7;
-}
-
 /* ==================== PÁGINA DE RESULTADOS ==================== */
 .resultado-card {
   margin-bottom: 20px;
@@ -614,6 +645,77 @@ button:active {
   opacity: 0.8;
 }
 
+/* ==================== RESULTADOS - CORREÇÃO TOTAL PARA CELULAR ==================== */
+@media (max-width: 600px) {
+  .resultado-placar {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .time-casa {
+    justify-content: center;
+    width: 100%;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .time-visitante {
+    justify-content: center;
+    width: 100%;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 10px;
+  }
+  
+  .placar-x {
+    display: block;
+    text-align: center;
+    font-size: 18px;
+    margin: 5px 0;
+  }
+  
+  .time-nome {
+    font-size: 16px;
+    text-align: center;
+    order: 1;
+  }
+  
+  .time-gols {
+    font-size: 36px;
+    text-align: center;
+    order: 2;
+  }
+  
+  .time-casa .time-gols {
+    color: #ff6b00;
+  }
+  
+  .time-visitante .time-gols {
+    color: #ff6b00;
+  }
+  
+  .resultado-status {
+    font-size: 14px;
+    margin-top: 10px;
+  }
+}
+
+/* Para telas muito pequenas */
+@media (max-width: 400px) {
+  .time-gols {
+    font-size: 28px;
+  }
+  
+  .time-nome {
+    font-size: 14px;
+  }
+  
+  .resultado-card {
+    padding: 15px;
+  }
+}
+
 /* ==================== LISTA DE PRESENÇAS ==================== */
 #listaAdmin {
   list-style: none;
@@ -669,6 +771,29 @@ button:active {
   border-radius: 8px;
   color: #fff;
   font-weight: bold;
+}
+
+/* ==================== AJUSTES GLOBAIS ==================== */
+.container > :last-child {
+  margin-bottom: 20px;
+}
+
+#listaJogos {
+  padding-bottom: 20px;
+}
+
+#listaResultados {
+  padding-bottom: 30px;
+}
+
+.btn-confirmar {
+  margin-bottom: 20px;
+  background: #00ff88;
+  color: #000;
+}
+
+.btn-confirmar:hover {
+  background: #00cc6a;
 }
 
 /* ==================== ANIMAÇÕES ==================== */
@@ -750,123 +875,52 @@ button:active {
   }
 }
 
-/* ==================== NAVBAR COM EFEITO LARANJA ==================== */
-
-/* Efeito hover laranja para todos os links da navbar */
-.navbar a {
-  color: #aaa;
-  text-decoration: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 11px;
-  transition: all 0.3s ease;
-  position: relative;
-  padding: 5px 10px;
-  border-radius: 10px;
-}
-
-/* Hover effect - LARANJA */
-.navbar a:hover {
-  color: #ff6b00 !important;
-  transform: translateY(-3px);
-}
-
-.navbar a:hover i {
-  color: #ff6b00;
-  transform: scale(1.1);
-}
-
-/* Ícone dentro do link */
-.navbar a i {
-  margin-bottom: 4px;
-  transition: all 0.3s ease;
-  font-size: 20px;
-}
-
-/* Link ativo (página atual) - LARANJA */
-.navbar a.ativo {
-  color: #ff6b00;
-}
-
-.navbar a.ativo i {
-  color: #ff6b00;
-  transform: scale(1.15);
-}
-
-/* Linha indicadora embaixo do link ativo */
-.navbar a.ativo::after {
-  content: "";
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 25px;
-  height: 3px;
-  background: #ff6b00;
-  border-radius: 10px;
-  animation: fadeIn 0.3s ease;
-}
-
-/* Animação da linha */
-@keyframes fadeIn {
-  from {
-    width: 0;
-    opacity: 0;
-  }
-  to {
-    width: 25px;
-    opacity: 1;
-  }
-}
-
-/* Efeito de clique */
-.navbar a:active {
-  transform: scale(0.95);
-}
-
-/* Responsivo para mobile */
-@media (max-width: 600px) {
-  .navbar a {
-    padding: 5px 8px;
-  }
-  
-  .navbar a i {
-    font-size: 18px;
-  }
-  
-  .navbar a span {
-    font-size: 10px;
-  }
-}
-
-/* Alinhamento de ícones */
-.btn-primary i, .btn-outline i, button i, .navbar a i {
-  margin-right: 5px;
-  vertical-align: middle;
-}
-
-.btn-primary, .btn-outline, button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.navbar a {
-  gap: 4px;
-}
-
-h2 i, h3 i, h4 i {
-  margin-right: 8px;
-  vertical-align: middle;
-}
-
-.local i {
-  margin-right: 5px;
-  vertical-align: middle;
-}
-
-.presencas {
+/* ==================== SKELETON LOADING ==================== */
+.skeleton-card {
+  background: #1a1a1a;
+  border-radius: 20px;
+  padding: 20px;
   margin-top: 20px;
+}
+
+.skeleton-title {
+  width: 60%;
+  height: 24px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-dupla {
+  display: flex;
+  gap: 15px;
+}
+
+.skeleton-box {
+  flex: 1;
+  height: 100px;
+  background: #2a2a2a;
+  border-radius: 12px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* ==================== CORREÇÃO DO PERFIL ==================== */
+.navbar a[href="perfil.html"] {
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.navbar a[href="perfil.html"] i,
+.navbar a[href="perfil.html"] span {
+  pointer-events: none;
 }
