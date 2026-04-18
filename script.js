@@ -894,7 +894,7 @@ window.testarNotificacao = function() {
 // Configuração do OneSignal
 const ONESIGNAL_CONFIG = {
     APP_ID: "104480cd-3733-41c6-9a00-f89f221e3c52",
-    API_KEY: "" // Deixe vazio por enquanto - só precisa para enviar do backend
+    API_KEY: "os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i" // ✅ JÁ TEM A API KEY!
 };
 
 // Verificar se está no app Median
@@ -928,46 +928,45 @@ function initOneSignal() {
 }
 
 // Função principal para enviar notificações
-window.enviarNotificacaoPush = function(titulo, mensagem, dados = {}) {
+window.enviarNotificacaoPush = async function(titulo, mensagem, dados = {}) {
     console.log("📤 Tentando enviar notificação:", titulo, mensagem);
     
-    // Método 1: Via Median Bridge (dentro do app)
-    if (isMedianApp() && window.median && median.onesignal) {
-        try {
-            median.onesignal.sendNotification({
-                title: titulo,
-                message: mensagem,
-                url: dados.url || '/',
-                icon: dados.icon || '/img/logo-nexus.png'
-            });
-            console.log("✅ Notificação enviada via Median:", titulo);
-            return true;
-        } catch(e) {
-            console.error("Erro ao enviar via Median:", e);
-        }
-    }
+    // Método 1: Via API do OneSignal (recomendado para app Median)
+    const ONESIGNAL_APP_ID = "104480cd-3733-41c6-9a00-f89f221e3c52";
+    const ONESIGNAL_API_KEY = "os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i"; // <-- USE A API KEY AQUI
     
-    // Método 2: Notificação web (fallback para teste)
-    if (Notification.permission === 'granted') {
-        const options = {
-            body: mensagem,
-            icon: '/img/logo-nexus.png',
-            badge: '/img/logo-nexus.png',
-            vibrate: [200, 100, 200],
-            data: dados
-        };
-        new Notification(titulo, options);
-        console.log("✅ Notificação enviada via Web API");
-        return true;
-    } else if (Notification.permission !== 'denied') {
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                new Notification(titulo, { body: mensagem, icon: '/img/logo-nexus.png' });
-            }
+    try {
+        const response = await fetch('https://onesignal.com/api/v1/notifications', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Basic ${ONESIGNAL_API_KEY}`
+            },
+            body: JSON.stringify({
+                app_id: ONESIGNAL_APP_ID,
+                headings: { en: titulo },
+                contents: { en: mensagem },
+                included_segments: ['Subscribed Users'],
+                url: dados.url || 'https://time-efd5d.web.app',
+                chrome_web_icon: 'https://time-efd5d.web.app/img/logo-nexus.png',
+                data: dados
+            })
         });
+        
+        const result = await response.json();
+        console.log("✅ Notificação enviada via OneSignal API:", result);
+        return true;
+        
+    } catch (error) {
+        console.error("❌ Erro ao enviar via OneSignal API:", error);
     }
     
-    console.log("⚠️ Não foi possível enviar notificação");
+    // Método 2: Fallback para web (navegador)
+    if (Notification.permission === 'granted') {
+        new Notification(titulo, { body: mensagem, icon: '/img/logo-nexus.png' });
+        return true;
+    }
+    
     return false;
 };
 
