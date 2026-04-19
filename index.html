@@ -11,6 +11,15 @@
 <script defer src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app-compat.js"></script>
 <script defer src="https://www.gstatic.com/firebasejs/11.1.0/firebase-messaging-compat.js"></script>
 <link rel="manifest" href="manifest.json">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "104480cd-3733-41c6-9a00-f89f221e3c52",
+    });
+  });
+</script>
 </head>
 
 <body>
