@@ -909,3 +909,7 @@ window.addEventListener("load", () => {
     lucide.createIcons();
   }
 });
+
+OneSignalDeferred.push(async function (OneSignal) {
+  await OneSignal.showSlidedownPrompt();
+});
