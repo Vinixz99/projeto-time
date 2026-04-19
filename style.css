@@ -924,3 +924,132 @@ button:active {
 .navbar a[href="perfil.html"] span {
   pointer-events: none;
 }
+
+/* ==================== PÁGINA DE PERFIL ==================== */
+
+/* Card principal do perfil */
+.perfil-card {
+  background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+  border-radius: 24px;
+  padding: 25px;
+  margin-bottom: 20px;
+  border: 1px solid #2a2a2a;
+}
+
+/* Título do perfil */
+.titulo-perfil {
+  text-align: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.titulo-perfil h2 {
+  color: #ff6b00;
+  font-size: 24px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.titulo-perfil p {
+  color: #888;
+  font-size: 13px;
+}
+
+/* Container dos cards de informação */
+.info-dupla {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+/* Cards individuais de informação */
+.info-box {
+  flex: 1;
+  background: #1a1a1a;
+  border-radius: 16px;
+  padding: 18px 15px;
+  transition: all 0.3s ease;
+  border: 1px solid #2a2a2a;
+  text-align: center;
+}
+
+.info-box:hover {
+  transform: translateY(-5px);
+  border-color: #ff6b00;
+  background: #222;
+}
+
+.info-box h4 {
+  font-size: 13px;
+  color: #ff6b00;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.info-box p {
+  font-size: 14px;
+  color: #fff;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+/* Área do ADMIN no perfil */
+#areaAdminPerfil {
+  background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+  border: 1px solid #ff6b00;
+}
+
+#areaAdminPerfil h3 {
+  color: #ff6b00;
+  font-size: 18px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#areaAdminPerfil button {
+  background: #2a2a2a;
+  color: #fff;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+}
+
+#areaAdminPerfil button:hover {
+  background: #ff6b00;
+  transform: translateY(-2px);
+}
+
+/* Responsivo para mobile */
+@media (max-width: 600px) {
+  .info-dupla {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .info-box {
+    padding: 15px;
+  }
+  
+  .info-box h4 {
+    font-size: 12px;
+  }
+  
+  .info-box p {
+    font-size: 13px;
+  }
+  
+  .titulo-perfil h2 {
+    font-size: 20px;
+  }
+}
