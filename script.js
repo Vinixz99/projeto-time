@@ -51,6 +51,25 @@ function mostrarToast(msg, tipo = "info") {
   setTimeout(() => el.remove(), 4000);
 }
 
+// ================= ABRIR/FECHAR MODAL =================
+window.abrirLogin = function() {
+  console.log("🔓 Abrindo modal de login");
+  const modal = document.getElementById("modalLogin");
+  if (modal) {
+    modal.style.display = "flex";
+  } else {
+    console.error("❌ Modal não encontrado");
+  }
+};
+
+window.fecharModal = function() {
+  console.log("🔒 Fechando modal");
+  const modal = document.getElementById("modalLogin");
+  if (modal) {
+    modal.style.display = "none";
+  }
+};
+
 // ================= NOTIFICAÇÃO PUSH VIA ONESIGNAL =================
 window.enviarNotificacaoPush = async function(titulo, mensagem) {
     console.log("🔔 Enviando notificação:", titulo);
@@ -104,7 +123,7 @@ window.loginAdmin = function () {
     localStorage.setItem("capitao", "false");
     localStorage.setItem("numero", "00");
     alert("✅ Bem-vindo ADM 👑");
-    fecharModal();
+    window.fecharModal();
     location.reload();
   } else {
     alert("❌ Login inválido");
@@ -150,7 +169,7 @@ window.loginJogador = async function () {
       localStorage.setItem("admin", jogadorEncontrado.admin ? "true" : "false");
       localStorage.setItem("capitao", jogadorEncontrado.capitao === true ? "true" : "false");
       alert(`✅ Bem-vindo ${jogadorEncontrado.nome}!`);
-      fecharModal();
+      window.fecharModal();
       location.reload();
     } else {
       alert("❌ PIN incorreto!");
@@ -295,7 +314,7 @@ window.addJogo = async function () {
   });
 
   mostrarToast("✅ Jogo criado!", "success");
-  enviarNotificacaoPush("⚽ Novo jogo marcado!", `${time1} x ${time2} - ${data}`);
+  window.enviarNotificacaoPush("⚽ Novo jogo marcado!", `${time1} x ${time2} - ${data}`);
   carregarJogos();
 };
 
@@ -514,7 +533,7 @@ window.enviarAviso = async function () {
   });
 
   mostrarToast("✅ Aviso enviado!");
-  enviarNotificacaoPush("📢 NOVO COMUNICADO!", texto);
+  window.enviarNotificacaoPush("📢 NOVO COMUNICADO!", texto);
   carregarComunicado();
 };
 
@@ -564,7 +583,7 @@ window.definirTreino = async function () {
   });
 
   mostrarToast("✅ Treino marcado!", "success");
-  enviarNotificacaoPush("⚽ NOVO TREINO!", `${data} - ${horario} - ${local}`);
+  window.enviarNotificacaoPush("⚽ NOVO TREINO!", `${data} - ${horario} - ${local}`);
   carregarTreino();
 };
 
@@ -647,7 +666,7 @@ window.adicionarResultado = async function () {
   });
 
   mostrarToast("✅ Resultado adicionado!", "success");
-  enviarNotificacaoPush("🏆 NOVO RESULTADO!", `${time1} ${gols1} x ${gols2} ${time2}`);
+  window.enviarNotificacaoPush("🏆 NOVO RESULTADO!", `${time1} ${gols1} x ${gols2} ${time2}`);
   carregarResultados();
 };
 
