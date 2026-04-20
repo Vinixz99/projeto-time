@@ -70,25 +70,36 @@ window.fecharModal = function() {
   }
 };
 
-// ================= NOTIFICAÇÃO PUSH VIA MEDIAN (NATIVA) =================
+// ================= NOTIFICAÇÃO PUSH VIA ONESIGNAL (MEDIAN) =================
 window.enviarNotificacaoPush = function(titulo, mensagem) {
-    console.log("🔔 Enviando notificação via Median:", titulo);
+    console.log("🔔 Enviando notificação:", titulo);
     
-    if (window.median && window.median.onesignal) {
-        window.median.onesignal.sendNotification({
+    // Método 1: Tentar via OneSignal SDK (se disponível)
+    if (window.OneSignal) {
+        window.OneSignal.sendNotification({
             title: titulo,
             message: mensagem,
-            url: "/",
-            icon: "/img/logo-nexus.png"
+            url: "/"
         });
-        console.log("✅ Notificação enviada com sucesso!");
+        console.log("✅ Enviado via OneSignal SDK");
         mostrarToast("🔔 Notificação enviada!", "success");
         return true;
-    } else {
-        console.error("❌ Plugin OneSignal não disponível");
-        mostrarToast("❌ Plugin não disponível", "error");
-        return false;
     }
+    
+    // Método 2: Tentar via median.notification
+    if (window.median && window.median.notification) {
+        window.median.notification.send({
+            title: titulo,
+            body: mensagem
+        });
+        console.log("✅ Enviado via median.notification");
+        mostrarToast("🔔 Notificação enviada!", "success");
+        return true;
+    }
+    
+    console.error("❌ Nenhum método de notificação disponível");
+    mostrarToast("❌ Notificações não disponíveis", "error");
+    return false;
 };
 
 // ================= LOGIN ADMIN =================
