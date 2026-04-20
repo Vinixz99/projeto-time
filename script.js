@@ -51,17 +51,48 @@ function mostrarToast(msg, tipo = "info") {
   setTimeout(() => el.remove(), 4000);
 }
 
-// ================= NOTIFICAÇÃO PUSH =================
+// ================= NOTIFICAÇÃO PUSH (VERSÃO ÚNICA) =================
 async function enviarNotificacaoPush(titulo, mensagem) {
+  console.log("🔔 Enviando notificação:", titulo);
+  
+  // Método 1: Tentar via OneSignal API (funciona em qualquer lugar)
+  const ONESIGNAL_APP_ID = "104480cd-3733-41c6-9a00-f89f221e3c52";
+  const ONESIGNAL_API_KEY = "os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i";
+  
+  try {
+    const response = await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${ONESIGNAL_API_KEY}`
+      },
+      body: JSON.stringify({
+        app_id: ONESIGNAL_APP_ID,
+        headings: { en: titulo },
+        contents: { en: mensagem },
+        included_segments: ['Subscribed Users'],
+        url: 'https://time-efd5d.web.app',
+        chrome_web_icon: 'https://time-efd5d.web.app/img/logo-nexus.png'
+      })
+    });
+    
+    const result = await response.json();
+    console.log("✅ Notificação enviada via API:", result);
+    return;
+  } catch (error) {
+    console.error("❌ Erro na API:", error);
+  }
+  
+  // Método 2: Fallback para Pipedream (apenas log)
   try {
     await fetch("https://eo94jjdq9xjlt3a.m.pipedream.net", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ titulo, mensagem })
     });
-    console.log("🔔 Notificação enviada:", titulo);
+    console.log("📝 Log registrado no Pipedream");
   } catch (e) {
-    console.error("Erro push:", e);
+    console.error("Erro no fallback:", e);
   }
 }
 
@@ -157,31 +188,24 @@ function verificarLogin() {
 
   console.log("Verificando login - Admin:", admin, "Capitao:", capitao, "User:", user);
 
-  // Botões e áreas que só aparecem para ADM
   const btnAddJogo = document.getElementById("btnAddJogo");
   if (btnAddJogo) btnAddJogo.style.display = admin ? "block" : "none";
 
-  // Botões de comunicado (ADM ou Capitão)
   const botoesComunicado = document.getElementById("botoesComunicado");
   if (botoesComunicado) botoesComunicado.style.display = (admin || capitao) ? "flex" : "none";
 
-  // Área do capitão
   const areaCapitao = document.getElementById("areaCapitao");
   if (areaCapitao) areaCapitao.style.display = (admin || capitao) ? "block" : "none";
 
-  // Área do ADMIN (painel completo)
   const adminArea = document.getElementById("adminArea");
   if (adminArea) adminArea.style.display = admin ? "block" : "none";
 
-  // Área de resultados para ADM
   const adminResultadosArea = document.getElementById("adminResultadosArea");
   if (adminResultadosArea) adminResultadosArea.style.display = admin ? "block" : "none";
 
-  // Área do admin no perfil
   const areaAdminPerfil = document.getElementById("areaAdminPerfil");
   if (areaAdminPerfil) areaAdminPerfil.style.display = admin ? "block" : "none";
 
-  // Área do usuário (canto superior direito)
   const areaUsuario = document.getElementById("areaUsuario");
   if (areaUsuario) {
     const numero = getUserNumero();
@@ -751,25 +775,35 @@ window.removerComunicadoPerfil = function() {
   }
 };
 
-// ================= NOTIFICAÇÕES VIA MEDIAN =================
-// O Median já gerencia automaticamente o registro e permissão
-
-function enviarNotificacaoPush(titulo, mensagem) {
-  console.log("🔔 Enviando notificação:", titulo);
+// ================= DIAGNÓSTICO =================
+window.diagnosticoPush = function() {
+  console.log("=== DIAGNÓSTICO PUSH ===");
+  alert("🔍 Verificando OneSignal... Verifique o console para detalhes");
   
-  // O Median envia via OneSignal nativamente
-  if (typeof window.median !== 'undefined' && window.median.onesignal) {
-    window.median.onesignal.sendNotification({
-      title: titulo,
-      message: mensagem,
-      url: '/',
-      icon: '/img/logo-nexus.png'
-    });
-    console.log("✅ Notificação enviada");
+  if (typeof window.median !== 'undefined') {
+    console.log("✅ Median detectado");
+    
+    if (window.median.onesignal) {
+      console.log("✅ OneSignal plugin disponível");
+      
+      window.median.onesignal.getInfo().then(info => {
+        console.log("📱 Info:", info);
+        if (info.userId) {
+          alert(`✅ Registrado!\nUser ID: ${info.userId}`);
+        } else {
+          alert("❌ NÃO registrado!\nUsuário não está no OneSignal");
+        }
+      }).catch(err => {
+        console.error("Erro:", err);
+        alert("❌ Erro ao obter info: " + JSON.stringify(err));
+      });
+    } else {
+      alert("❌ OneSignal NÃO disponível!\nPlugin não ativado no Median");
+    }
   } else {
-    console.log("⚠️ Fora do app Median");
+    alert("❌ Median NÃO detectado!\nNão está no app nativo");
   }
-}
+};
 
 // ================= MARCAR PÁGINA ATIVA =================
 function marcarPaginaAtiva() {
