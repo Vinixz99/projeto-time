@@ -751,6 +751,26 @@ window.removerComunicadoPerfil = function() {
   }
 };
 
+// ================= NOTIFICAÇÕES VIA MEDIAN =================
+// O Median já gerencia automaticamente o registro e permissão
+
+function enviarNotificacaoPush(titulo, mensagem) {
+  console.log("🔔 Enviando notificação:", titulo);
+  
+  // O Median envia via OneSignal nativamente
+  if (typeof window.median !== 'undefined' && window.median.onesignal) {
+    window.median.onesignal.sendNotification({
+      title: titulo,
+      message: mensagem,
+      url: '/',
+      icon: '/img/logo-nexus.png'
+    });
+    console.log("✅ Notificação enviada");
+  } else {
+    console.log("⚠️ Fora do app Median");
+  }
+}
+
 // ================= MARCAR PÁGINA ATIVA =================
 function marcarPaginaAtiva() {
   const currentPage = window.location.pathname.split('/').pop();
