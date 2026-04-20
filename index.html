@@ -150,6 +150,15 @@
   lucide.createIcons();
 </script>
 
-
+<!-- Pushwoosh SDK -->
+<script src="https://cdn.pushwoosh.com/web/v5/pushwoosh-web.js"></script>
+<script>
+  var pushwoosh = Pushwoosh.getInstance();
+  pushwoosh.init({
+    appId: "	time-efd5d", // Cole o App ID aqui
+    projectNumber: "SEU_SENDER_ID_FCM" // O Sender ID do Firebase
+  });
+  pushwoosh.registerDevice();
+</script>
 </body>
 </html>

@@ -51,57 +51,47 @@ function mostrarToast(msg, tipo = "info") {
   setTimeout(() => el.remove(), 4000);
 }
 
-// ================= NOTIFICAÇÃO PUSH VIA API (FUNCIONA SEMPRE) =================
-const ONESIGNAL_APP_ID = "104480cd-3733-41c6-9a00-f89f221e3c52";
-const ONESIGNAL_API_KEY = "os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i";
+// ================= NOTIFICAÇÃO PUSH VIA PUSHWOOSH =================
+const PUSHWOOSH_APP_ID = "E13B9-17B8C";
+const PUSHWOOSH_API_TOKEN = "qwYnpZlr3DI5XbRcC6GvyjwmGL1MGMkSrmglIi3I1ZYt6KSBIdRRyVSQSv6fW5EqdUyDhM4eS5RjiJCn4w54";
 
 async function enviarNotificacaoPush(titulo, mensagem) {
-  console.log("🔔 Enviando notificação:", titulo, mensagem);
-  
-  try {
-    const response = await fetch('https://onesignal.com/api/v1/notifications', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Basic ${ONESIGNAL_API_KEY}`
-      },
-      body: JSON.stringify({
-        app_id: ONESIGNAL_APP_ID,
-        headings: { en: titulo },
-        contents: { en: mensagem },
-        included_segments: ['Subscribed Users'],
-        url: 'https://time-efd5d.web.app',
-        chrome_web_icon: 'https://time-efd5d.web.app/img/logo-nexus.png',
-        data: { timestamp: new Date().toISOString() }
-      })
-    });
+    console.log("🔔 Enviando notificação:", titulo);
     
-    const result = await response.json();
-    console.log("📬 Resposta da API:", result);
-    
-    if (result.id) {
-      console.log("✅ Notificação enviada com sucesso! ID:", result.id);
-      mostrarToast("🔔 Notificação enviada!", "success");
-    } else {
-      console.error("❌ Erro na API:", result.errors);
-      mostrarToast("❌ Erro ao enviar notificação", "error");
+    try {
+        const response = await fetch('https://cp.pushwoosh.com/json/1.3/createMessage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                request: {
+                    application: PUSHWOOSH_APP_ID,
+                    auth: PUSHWOOSH_API_TOKEN,
+                    notifications: [{
+                        send_date: "now",
+                        content: { 
+                            en: titulo,
+                            body: mensagem
+                        },
+                        devices: ["ALL"]
+                    }]
+                }
+            })
+        });
+        
+        const result = await response.json();
+        console.log("📬 Resposta Pushwoosh:", result);
+        
+        if (result.status_code === 200) {
+            console.log("✅ Notificação enviada com sucesso!");
+            mostrarToast("🔔 Notificação enviada!", "success");
+        } else {
+            console.error("❌ Erro:", result.status_message);
+            mostrarToast("❌ Erro ao enviar", "error");
+        }
+    } catch (error) {
+        console.error("❌ Erro de rede:", error);
     }
-  } catch (error) {
-    console.error("❌ Erro de rede:", error);
-    mostrarToast("❌ Erro de conexão", "error");
-  }
 }
-
-// ================= DIAGNÓSTICO SIMPLES =================
-window.diagnosticoPush = function() {
-  console.log("=== DIAGNÓSTICO PUSH ===");
-  console.log("App ID:", ONESIGNAL_APP_ID);
-  console.log("API Key configurada:", ONESIGNAL_API_KEY ? "✅ Sim" : "❌ Não");
-  alert("🔍 Diagnóstico no console (F12)");
-  
-  // Testar envio manual
-  enviarNotificacaoPush("🔔 TESTE MANUAL", "Esta é uma notificação de teste do Nexus FC!");
-};
 
 // ================= ABRIR/FECHAR MODAL =================
 window.abrirLogin = () => {
@@ -779,36 +769,6 @@ window.removerComunicadoPerfil = function() {
       carregarComunicadoPerfil();
       carregarComunicado();
     });
-  }
-};
-
-// ================= DIAGNÓSTICO =================
-window.diagnosticoPush = function() {
-  console.log("=== DIAGNÓSTICO PUSH ===");
-  alert("🔍 Verificando OneSignal... Verifique o console para detalhes");
-  
-  if (typeof window.median !== 'undefined') {
-    console.log("✅ Median detectado");
-    
-    if (window.median.onesignal) {
-      console.log("✅ OneSignal plugin disponível");
-      
-      window.median.onesignal.getInfo().then(info => {
-        console.log("📱 Info:", info);
-        if (info.userId) {
-          alert(`✅ Registrado!\nUser ID: ${info.userId}`);
-        } else {
-          alert("❌ NÃO registrado!\nUsuário não está no OneSignal");
-        }
-      }).catch(err => {
-        console.error("Erro:", err);
-        alert("❌ Erro ao obter info: " + JSON.stringify(err));
-      });
-    } else {
-      alert("❌ OneSignal NÃO disponível!\nPlugin não ativado no Median");
-    }
-  } else {
-    alert("❌ Median NÃO detectado!\nNão está no app nativo");
   }
 };
 
