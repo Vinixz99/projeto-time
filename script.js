@@ -54,17 +54,19 @@ function mostrarToast(msg, tipo = "info") {
 // ================= NOTIFICAÇÃO PUSH VIA ONESIGNAL =================
 window.enviarNotificacaoPush = async function(titulo, mensagem) {
     console.log("🔔 Enviando notificação:", titulo);
-    console.log("📝 Mensagem:", mensagem);
+    
+    const ONESIGNAL_APP_ID = "104480cd-3733-41c6-9a00-f89f221e3c52";
+    const ONESIGNAL_API_KEY = "os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i";
     
     try {
         const response = await fetch('https://onesignal.com/api/v1/notifications', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Basic os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i`
+                'Authorization': `Basic ${ONESIGNAL_API_KEY}`
             },
             body: JSON.stringify({
-                app_id: '104480cd-3733-41c6-9a00-f89f221e3c52',
+                app_id: ONESIGNAL_APP_ID,
                 headings: { en: titulo },
                 contents: { en: mensagem },
                 included_segments: ['Subscribed Users'],
@@ -72,17 +74,22 @@ window.enviarNotificacaoPush = async function(titulo, mensagem) {
             })
         });
         
-        const result = await response.json();
-        console.log("📬 Resposta:", result);
+        const data = await response.json();
+        console.log("📬 Resposta:", data);
         
-        if (result.id) {
-            console.log("✅✅✅ NOTIFICAÇÃO ENVIADA COM SUCESSO! ID:", result.id);
+        if (data.id) {
+            console.log("✅ NOTIFICAÇÃO ENVIADA!");
             mostrarToast("🔔 Notificação enviada!", "success");
+            return true;
         } else {
-            console.error("❌ Erro:", result.errors);
+            console.error("❌ Erro:", data.errors);
+            mostrarToast("❌ Erro: " + JSON.stringify(data.errors), "error");
+            return false;
         }
     } catch (error) {
         console.error("❌ Erro:", error);
+        mostrarToast("❌ Erro ao enviar", "error");
+        return false;
     }
 };
 
