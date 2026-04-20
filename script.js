@@ -56,9 +56,7 @@ async function enviarNotificacaoPush(titulo, mensagem) {
   try {
     await fetch("https://eo94jjdq9xjlt3a.m.pipedream.net", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ titulo, mensagem })
     });
     console.log("🔔 Notificação enviada:", titulo);
@@ -159,21 +157,31 @@ function verificarLogin() {
 
   console.log("Verificando login - Admin:", admin, "Capitao:", capitao, "User:", user);
 
+  // Botões e áreas que só aparecem para ADM
   const btnAddJogo = document.getElementById("btnAddJogo");
   if (btnAddJogo) btnAddJogo.style.display = admin ? "block" : "none";
 
+  // Botões de comunicado (ADM ou Capitão)
   const botoesComunicado = document.getElementById("botoesComunicado");
   if (botoesComunicado) botoesComunicado.style.display = (admin || capitao) ? "flex" : "none";
 
+  // Área do capitão
   const areaCapitao = document.getElementById("areaCapitao");
   if (areaCapitao) areaCapitao.style.display = (admin || capitao) ? "block" : "none";
 
+  // Área do ADMIN (painel completo)
   const adminArea = document.getElementById("adminArea");
   if (adminArea) adminArea.style.display = admin ? "block" : "none";
 
+  // Área de resultados para ADM
   const adminResultadosArea = document.getElementById("adminResultadosArea");
   if (adminResultadosArea) adminResultadosArea.style.display = admin ? "block" : "none";
 
+  // Área do admin no perfil
+  const areaAdminPerfil = document.getElementById("areaAdminPerfil");
+  if (areaAdminPerfil) areaAdminPerfil.style.display = admin ? "block" : "none";
+
+  // Área do usuário (canto superior direito)
   const areaUsuario = document.getElementById("areaUsuario");
   if (areaUsuario) {
     const numero = getUserNumero();
@@ -279,6 +287,105 @@ window.addJogo = async function () {
   mostrarToast("✅ Jogo criado!", "success");
   enviarNotificacaoPush("⚽ Novo jogo marcado!", `${time1} x ${time2} - ${data}`);
   carregarJogos();
+};
+
+// ================= CADASTRAR JOGADOR =================
+window.cadastrarJogador = function() {
+  if (!isAdmin()) {
+    alert("❌ Apenas administradores podem cadastrar jogadores!");
+    return;
+  }
+
+  const nome = prompt("Nome do jogador (pode usar acentos):");
+  if (!nome) return;
+  const numero = prompt("Número da camisa:");
+  const pin = prompt("PIN do jogador (ex: 1234):");
+  const posicao = prompt("Posição (Goleiro, Fixo, Ala, Pivô):");
+  const capitaoConfirm = confirm("Este jogador é capitão?");
+  const adminConfirm = confirm("Este jogador é administrador?");
+
+  const idNormalizado = normalizarTexto(nome.toLowerCase()).replace(/\s/g, '_');
+
+  set(ref(db, `autorizados/${idNormalizado}`), {
+    nome,
+    numero: parseInt(numero),
+    pin,
+    posicao,
+    capitao: capitaoConfirm,
+    admin: adminConfirm,
+    ativo: true,
+    criadoEm: new Date().toLocaleString('pt-BR')
+  }).then(() => {
+    alert(`✅ Jogador ${nome} cadastrado com sucesso!`);
+    carregarEquipe();
+  });
+};
+
+// ================= REMOVER JOGADOR =================
+window.removerJogador = function() {
+  if (!isAdmin()) {
+    alert("❌ Apenas administradores podem remover jogadores!");
+    return;
+  }
+  const nome = prompt("Nome do jogador a ser removido:");
+  if (!nome) return;
+  const idNormalizado = normalizarTexto(nome.toLowerCase()).replace(/\s/g, '_');
+  if (confirm(`Tem certeza que deseja remover o jogador "${nome}"?`)) {
+    remove(ref(db, `autorizados/${idNormalizado}`)).then(() => {
+      alert(`✅ Jogador ${nome} removido com sucesso!`);
+      carregarEquipe();
+    });
+  }
+};
+
+// ================= TORNAR CAPITÃO =================
+window.tornarCapitao = function() {
+  if (!isAdmin()) {
+    alert("❌ Apenas administradores podem definir capitães!");
+    return;
+  }
+  const nome = prompt("Nome do jogador que será capitão:");
+  if (!nome) return;
+  const idNormalizado = normalizarTexto(nome.toLowerCase()).replace(/\s/g, '_');
+  get(ref(db, `autorizados/${idNormalizado}`)).then((snapshot) => {
+    if (!snapshot.exists()) {
+      alert("❌ Jogador não encontrado!");
+      return;
+    }
+    const jogador = snapshot.val();
+    if (confirm(`Tem certeza que deseja tornar ${jogador.nome} CAPITÃO?`)) {
+      set(ref(db, `autorizados/${idNormalizado}`), { ...jogador, capitao: true }).then(() => {
+        alert(`✅ ${jogador.nome} agora é CAPITÃO!`);
+        carregarEquipe();
+        location.reload();
+      });
+    }
+  });
+};
+
+// ================= REMOVER CAPITÃO =================
+window.removerCapitao = function() {
+  if (!isAdmin()) {
+    alert("❌ Apenas administradores podem remover capitães!");
+    return;
+  }
+  const nome = prompt("Nome do jogador que não será mais capitão:");
+  if (!nome) return;
+  const idNormalizado = normalizarTexto(nome.toLowerCase()).replace(/\s/g, '_');
+  get(ref(db, `autorizados/${idNormalizado}`)).then((snapshot) => {
+    if (!snapshot.exists()) {
+      alert("❌ Jogador não encontrado!");
+      return;
+    }
+    const jogador = snapshot.val();
+    if (confirm(`Tem certeza que deseja remover o cargo de capitão de ${jogador.nome}?`)) {
+      set(ref(db, `autorizados/${idNormalizado}`), { ...jogador, capitao: false }).then(() => {
+        alert(`✅ ${jogador.nome} não é mais capitão!`);
+        carregarEquipe();
+        location.reload();
+      });
+    }
+  });
 };
 
 // ================= CONFIRMAR PRESENÇA =================
@@ -509,21 +616,21 @@ function carregarEquipe() {
 window.adicionarResultado = async function () {
   if (!isAdmin()) return alert("❌ Apenas ADM");
 
+  const data = prompt("📅 Data do jogo:");
   const time1 = prompt("Time da casa:");
-  const gols1 = prompt("Gols:");
+  const gols1 = prompt(`Gols do ${time1}:`);
   const time2 = prompt("Time visitante:");
-  const gols2 = prompt("Gols:");
-  const data = prompt("Data do jogo:");
-  const local = prompt("Local:");
+  const gols2 = prompt(`Gols do ${time2}:`);
+  const local = prompt("📍 Local:");
 
   if (!time1 || !time2) return;
 
   await push(ref(db, "resultados"), {
+    data,
     time1,
     gols1: parseInt(gols1),
     time2,
     gols2: parseInt(gols2),
-    data,
     local,
     criadoEm: new Date().toLocaleString(),
     criadoPor: getUserName()
@@ -596,6 +703,54 @@ function carregarResultados() {
   });
 }
 
+// ================= COMUNICADO PERFIL =================
+function carregarComunicadoPerfil() {
+  const comunicadoEl = document.getElementById("comunicadoPerfil");
+  if (!comunicadoEl) return;
+
+  onValue(ref(db, "comunicado"), (snapshot) => {
+    if (snapshot.exists()) {
+      const comunicado = snapshot.val();
+      comunicadoEl.innerHTML = `${comunicado.texto}<br><small>📅 ${comunicado.data || ''} • 👤 ${comunicado.enviadoPor || 'ADM'}</small>`;
+    } else {
+      comunicadoEl.innerHTML = "Nenhum comunicado no momento.";
+    }
+  });
+}
+
+window.definirComunicadoPerfil = function() {
+  if (!isAdmin() && !isCapitao()) {
+    alert("❌ Apenas administradores e capitães podem criar comunicados!");
+    return;
+  }
+  const texto = prompt("📢 Digite o comunicado:");
+  if (texto) {
+    set(ref(db, "comunicado"), {
+      texto,
+      data: new Date().toLocaleString(),
+      enviadoPor: getUserName()
+    }).then(() => {
+      alert("✅ Comunicado enviado!");
+      carregarComunicadoPerfil();
+      carregarComunicado();
+    });
+  }
+};
+
+window.removerComunicadoPerfil = function() {
+  if (!isAdmin() && !isCapitao()) {
+    alert("❌ Apenas administradores e capitães podem remover comunicados!");
+    return;
+  }
+  if (confirm("Remover comunicado?")) {
+    remove(ref(db, "comunicado")).then(() => {
+      alert("✅ Comunicado removido!");
+      carregarComunicadoPerfil();
+      carregarComunicado();
+    });
+  }
+};
+
 // ================= MARCAR PÁGINA ATIVA =================
 function marcarPaginaAtiva() {
   const currentPage = window.location.pathname.split('/').pop();
@@ -617,6 +772,7 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarJogos();
   carregarPresencas();
   carregarComunicado();
+  carregarComunicadoPerfil();
   carregarTreino();
   carregarEquipe();
   carregarResultados();
