@@ -51,13 +51,12 @@ function mostrarToast(msg, tipo = "info") {
   setTimeout(() => el.remove(), 4000);
 }
 
-// ================= NOTIFICAÇÃO PUSH (VERSÃO ÚNICA) =================
+// ================= NOTIFICAÇÃO PUSH VIA API (FUNCIONA SEMPRE) =================
+const ONESIGNAL_APP_ID = "104480cd-3733-41c6-9a00-f89f221e3c52";
+const ONESIGNAL_API_KEY = "os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i";
+
 async function enviarNotificacaoPush(titulo, mensagem) {
-  console.log("🔔 Enviando notificação:", titulo);
-  
-  // Método 1: Tentar via OneSignal API (funciona em qualquer lugar)
-  const ONESIGNAL_APP_ID = "104480cd-3733-41c6-9a00-f89f221e3c52";
-  const ONESIGNAL_API_KEY = "os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i";
+  console.log("🔔 Enviando notificação:", titulo, mensagem);
   
   try {
     const response = await fetch('https://onesignal.com/api/v1/notifications', {
@@ -72,29 +71,37 @@ async function enviarNotificacaoPush(titulo, mensagem) {
         contents: { en: mensagem },
         included_segments: ['Subscribed Users'],
         url: 'https://time-efd5d.web.app',
-        chrome_web_icon: 'https://time-efd5d.web.app/img/logo-nexus.png'
+        chrome_web_icon: 'https://time-efd5d.web.app/img/logo-nexus.png',
+        data: { timestamp: new Date().toISOString() }
       })
     });
     
     const result = await response.json();
-    console.log("✅ Notificação enviada via API:", result);
-    return;
+    console.log("📬 Resposta da API:", result);
+    
+    if (result.id) {
+      console.log("✅ Notificação enviada com sucesso! ID:", result.id);
+      mostrarToast("🔔 Notificação enviada!", "success");
+    } else {
+      console.error("❌ Erro na API:", result.errors);
+      mostrarToast("❌ Erro ao enviar notificação", "error");
+    }
   } catch (error) {
-    console.error("❌ Erro na API:", error);
-  }
-  
-  // Método 2: Fallback para Pipedream (apenas log)
-  try {
-    await fetch("https://eo94jjdq9xjlt3a.m.pipedream.net", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ titulo, mensagem })
-    });
-    console.log("📝 Log registrado no Pipedream");
-  } catch (e) {
-    console.error("Erro no fallback:", e);
+    console.error("❌ Erro de rede:", error);
+    mostrarToast("❌ Erro de conexão", "error");
   }
 }
+
+// ================= DIAGNÓSTICO SIMPLES =================
+window.diagnosticoPush = function() {
+  console.log("=== DIAGNÓSTICO PUSH ===");
+  console.log("App ID:", ONESIGNAL_APP_ID);
+  console.log("API Key configurada:", ONESIGNAL_API_KEY ? "✅ Sim" : "❌ Não");
+  alert("🔍 Diagnóstico no console (F12)");
+  
+  // Testar envio manual
+  enviarNotificacaoPush("🔔 TESTE MANUAL", "Esta é uma notificação de teste do Nexus FC!");
+};
 
 // ================= ABRIR/FECHAR MODAL =================
 window.abrirLogin = () => {
