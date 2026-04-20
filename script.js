@@ -72,42 +72,37 @@ window.fecharModal = function() {
 
 // ================= NOTIFICAÇÃO PUSH VIA ONESIGNAL =================
 window.enviarNotificacaoPush = async function(titulo, mensagem) {
-    console.log("🔔 Enviando notificação:", titulo);
-    
-    const ONESIGNAL_APP_ID = "104480cd-3733-41c6-9a00-f89f221e3c52";
-    const ONESIGNAL_API_KEY = "os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i";
+    console.log("Enviando:", titulo);
     
     try {
-        const response = await fetch('https://onesignal.com/api/v1/notifications', {
+        const resposta = await fetch('https://onesignal.com/api/v1/notifications', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Basic ${ONESIGNAL_API_KEY}`
+                'Authorization': 'Basic os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i'
             },
             body: JSON.stringify({
-                app_id: ONESIGNAL_APP_ID,
+                app_id: '104480cd-3733-41c6-9a00-f89f221e3c52',
                 headings: { en: titulo },
                 contents: { en: mensagem },
-                included_segments: ['Subscribed Users'],
-                url: 'https://time-efd5d.web.app'
+                included_segments: ['Subscribed Users']
             })
         });
         
-        const data = await response.json();
-        console.log("📬 Resposta:", data);
+        const dados = await resposta.json();
+        console.log("Resposta:", dados);
         
-        if (data.id) {
-            console.log("✅ NOTIFICAÇÃO ENVIADA!");
-            mostrarToast("🔔 Notificação enviada!", "success");
+        if (dados.id) {
+            alert("Notificacao enviada com sucesso!");
             return true;
         } else {
-            console.error("❌ Erro:", data.errors);
-            mostrarToast("❌ Erro: " + JSON.stringify(data.errors), "error");
+            console.error("Erro:", dados.errors);
+            alert("Erro: " + JSON.stringify(dados.errors));
             return false;
         }
-    } catch (error) {
-        console.error("❌ Erro:", error);
-        mostrarToast("❌ Erro ao enviar", "error");
+    } catch (erro) {
+        console.error("Erro:", erro);
+        alert("Erro: " + erro.message);
         return false;
     }
 };
