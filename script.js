@@ -70,40 +70,22 @@ window.fecharModal = function() {
   }
 };
 
-// ================= NOTIFICAÇÃO PUSH VIA ONESIGNAL =================
-window.enviarNotificacaoPush = async function(titulo, mensagem) {
-    console.log("Enviando:", titulo);
+// ================= NOTIFICAÇÃO PUSH VIA MEDIAN =================
+window.enviarNotificacaoPush = function(titulo, mensagem) {
+    console.log("🔔 Notificação:", titulo);
     
-    try {
-        const resposta = await fetch('https://onesignal.com/api/v1/notifications', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Basic os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i'
-            },
-            body: JSON.stringify({
-                app_id: '104480cd-3733-41c6-9a00-f89f221e3c52',
-                headings: { en: titulo },
-                contents: { en: mensagem },
-                included_segments: ['Subscribed Users']
-            })
+    // Usar o plugin nativo do Median
+    if (window.median && window.median.onesignal) {
+        window.median.onesignal.sendNotification({
+            title: titulo,
+            message: mensagem,
+            url: "/"
         });
-        
-        const dados = await resposta.json();
-        console.log("Resposta:", dados);
-        
-        if (dados.id) {
-            alert("Notificacao enviada com sucesso!");
-            return true;
-        } else {
-            console.error("Erro:", dados.errors);
-            alert("Erro: " + JSON.stringify(dados.errors));
-            return false;
-        }
-    } catch (erro) {
-        console.error("Erro:", erro);
-        alert("Erro: " + erro.message);
-        return false;
+        console.log("✅ Enviado via plugin Median");
+        mostrarToast("🔔 Notificação enviada!", "success");
+    } else {
+        console.log("⚠️ Plugin não disponível");
+        mostrarToast("⚠️ Plugin OneSignal não disponível", "error");
     }
 };
 
