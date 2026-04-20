@@ -70,22 +70,24 @@ window.fecharModal = function() {
   }
 };
 
-// ================= NOTIFICAÇÃO PUSH VIA MEDIAN =================
+// ================= NOTIFICAÇÃO PUSH VIA MEDIAN (NATIVA) =================
 window.enviarNotificacaoPush = function(titulo, mensagem) {
-    console.log("🔔 Notificação:", titulo);
+    console.log("🔔 Enviando notificação via Median:", titulo);
     
-    // Usar o plugin nativo do Median
     if (window.median && window.median.onesignal) {
         window.median.onesignal.sendNotification({
             title: titulo,
             message: mensagem,
-            url: "/"
+            url: "/",
+            icon: "/img/logo-nexus.png"
         });
-        console.log("✅ Enviado via plugin Median");
+        console.log("✅ Notificação enviada com sucesso!");
         mostrarToast("🔔 Notificação enviada!", "success");
+        return true;
     } else {
-        console.log("⚠️ Plugin não disponível");
-        mostrarToast("⚠️ Plugin OneSignal não disponível", "error");
+        console.error("❌ Plugin OneSignal não disponível");
+        mostrarToast("❌ Plugin não disponível", "error");
+        return false;
     }
 };
 
