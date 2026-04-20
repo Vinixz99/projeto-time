@@ -11,9 +11,9 @@ import {
   get
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// ================= FIREBASE =================
+// ================= CONFIGURAÇÃO FIREBASE =================
 const app = initializeApp({
-  apiKey: "SUA_API_KEY",
+  apiKey: "AIzaSyCu4_fFpODAZYGzf8cH6FYzoAczO08obUg",
   authDomain: "time-efd5d.firebaseapp.com",
   databaseURL: "https://time-efd5d-default-rtdb.firebaseio.com",
   projectId: "time-efd5d"
@@ -51,7 +51,7 @@ function mostrarToast(msg, tipo = "info") {
   setTimeout(() => el.remove(), 4000);
 }
 
-// ================= NOTIFICAÇÃO =================
+// ================= NOTIFICAÇÃO PUSH =================
 async function enviarNotificacaoPush(titulo, mensagem) {
   try {
     await fetch("https://eo94jjdq9xjlt3a.m.pipedream.net", {
@@ -61,31 +61,205 @@ async function enviarNotificacaoPush(titulo, mensagem) {
       },
       body: JSON.stringify({ titulo, mensagem })
     });
-    console.log("🔔 Notificação enviada");
+    console.log("🔔 Notificação enviada:", titulo);
   } catch (e) {
     console.error("Erro push:", e);
   }
 }
 
-// ================= LOGIN =================
+// ================= ABRIR/FECHAR MODAL =================
+window.abrirLogin = () => {
+  const modal = document.getElementById("modalLogin");
+  if (modal) modal.style.display = "flex";
+};
+
+window.fecharModal = () => {
+  const modal = document.getElementById("modalLogin");
+  if (modal) modal.style.display = "none";
+};
+
+// ================= LOGIN ADMIN =================
 window.loginAdmin = function () {
-  const nome = document.getElementById("nomeAdmin").value;
-  const senha = document.getElementById("senhaAdmin").value;
+  const nome = document.getElementById("nomeAdmin").value.trim().toLowerCase();
+  const senha = document.getElementById("senhaAdmin").value.trim();
 
   if (nome === "vini" && senha === "2310") {
     localStorage.setItem("user", "ADM");
     localStorage.setItem("admin", "true");
     localStorage.setItem("capitao", "false");
     localStorage.setItem("numero", "00");
+    alert("✅ Bem-vindo ADM 👑");
+    fecharModal();
     location.reload();
   } else {
-    alert("Login inválido");
+    alert("❌ Login inválido");
   }
 };
 
-// ================= JOGOS =================
+// ================= LOGIN JOGADOR =================
+window.loginJogador = async function () {
+  const nomeDigitado = document.getElementById("nomeLogin").value.trim();
+  const numero = document.getElementById("numeroLogin").value.trim();
+  const pin = document.getElementById("pinLogin").value.trim();
+
+  if (!nomeDigitado || !numero || !pin) {
+    alert("❌ Preencha todos os campos!");
+    return;
+  }
+
+  const autorizadosRef = ref(db, "autorizados");
+  const snapshot = await get(autorizadosRef);
+
+  if (!snapshot.exists()) {
+    alert("⚠️ Nenhum jogador cadastrado!");
+    return;
+  }
+
+  let jogadorEncontrado = null;
+
+  snapshot.forEach(child => {
+    const jogador = child.val();
+    const nomeFirebase = jogador.nome;
+    const nomeFirebaseNormalizado = normalizarTexto(nomeFirebase.toLowerCase());
+    const nomeDigitadoNormalizado = normalizarTexto(nomeDigitado.toLowerCase());
+
+    if (nomeFirebaseNormalizado === nomeDigitadoNormalizado && jogador.numero == numero) {
+      jogadorEncontrado = jogador;
+    }
+  });
+
+  if (jogadorEncontrado) {
+    if (jogadorEncontrado.pin == pin) {
+      localStorage.setItem("user", jogadorEncontrado.nome);
+      localStorage.setItem("numero", jogadorEncontrado.numero);
+      localStorage.setItem("admin", jogadorEncontrado.admin ? "true" : "false");
+      localStorage.setItem("capitao", jogadorEncontrado.capitao === true ? "true" : "false");
+      alert(`✅ Bem-vindo ${jogadorEncontrado.nome}!`);
+      fecharModal();
+      location.reload();
+    } else {
+      alert("❌ PIN incorreto!");
+    }
+  } else {
+    alert(`❌ Jogador não encontrado!`);
+  }
+};
+
+// ================= LOGOUT =================
+window.logout = function() {
+  localStorage.clear();
+  location.reload();
+};
+
+// ================= VERIFICAR LOGIN =================
+function verificarLogin() {
+  const user = getUserName();
+  const admin = isAdmin();
+  const capitao = isCapitao();
+
+  console.log("Verificando login - Admin:", admin, "Capitao:", capitao, "User:", user);
+
+  const btnAddJogo = document.getElementById("btnAddJogo");
+  if (btnAddJogo) btnAddJogo.style.display = admin ? "block" : "none";
+
+  const botoesComunicado = document.getElementById("botoesComunicado");
+  if (botoesComunicado) botoesComunicado.style.display = (admin || capitao) ? "flex" : "none";
+
+  const areaCapitao = document.getElementById("areaCapitao");
+  if (areaCapitao) areaCapitao.style.display = (admin || capitao) ? "block" : "none";
+
+  const adminArea = document.getElementById("adminArea");
+  if (adminArea) adminArea.style.display = admin ? "block" : "none";
+
+  const adminResultadosArea = document.getElementById("adminResultadosArea");
+  if (adminResultadosArea) adminResultadosArea.style.display = admin ? "block" : "none";
+
+  const areaUsuario = document.getElementById("areaUsuario");
+  if (areaUsuario) {
+    const numero = getUserNumero();
+    areaUsuario.innerHTML = user 
+      ? `<span>👤 ${user} #${numero}</span><button onclick="window.logout()">Sair</button>`
+      : `<button onclick="window.abrirLogin()">ENTRAR</button>`;
+  }
+
+  carregarNomePerfil();
+}
+
+// ================= NOME DO PERFIL =================
+function carregarNomePerfil() {
+  const nomeEl = document.getElementById("nomePerfil");
+  const user = getUserName();
+  const numero = getUserNumero();
+  if (nomeEl) {
+    nomeEl.innerHTML = user ? `Olá, ${user} #${numero}! ${isAdmin() ? '👑' : isCapitao() ? '🅲' : '⚽'}` : "Bem-vindo!";
+  }
+}
+
+// ================= PRÓXIMO JOGO =================
+function carregarProximoJogo() {
+  const infoJogo = document.getElementById("infoJogo");
+  const time1El = document.getElementById("time1");
+  const time2El = document.getElementById("time2");
+  if (!infoJogo) return;
+
+  onValue(ref(db, "jogos"), (snapshot) => {
+    if (!snapshot.exists()) {
+      infoJogo.textContent = "Nenhum jogo cadastrado";
+      time1El.textContent = "...";
+      time2El.textContent = "...";
+      return;
+    }
+    let ultimo = null;
+    snapshot.forEach(child => ultimo = child.val());
+    if (ultimo) {
+      infoJogo.textContent = `${ultimo.data} • ${ultimo.local}`;
+      time1El.textContent = ultimo.time1;
+      time2El.textContent = ultimo.time2;
+    }
+  });
+}
+
+// ================= JOGOS - AGENDA =================
+function carregarJogos() {
+  const container = document.getElementById("listaJogos");
+  if (!container) return;
+  container.innerHTML = "<p>🔄 Carregando...</p>";
+
+  onValue(ref(db, "jogos"), (snapshot) => {
+    container.innerHTML = "";
+    if (!snapshot.exists()) {
+      container.innerHTML = "<p>Nenhum jogo cadastrado ainda.</p>";
+      return;
+    }
+    const jogosArray = [];
+    snapshot.forEach(child => {
+      jogosArray.push({ id: child.key, ...child.val() });
+    });
+    jogosArray.reverse();
+
+    jogosArray.forEach(jogo => {
+      container.innerHTML += `
+        <div class="card">
+          <h3>${jogo.time1} x ${jogo.time2}</h3>
+          <p>📅 ${jogo.data} • 📍 ${jogo.local}</p>
+          ${isAdmin() ? `<button onclick="window.removerJogo('${jogo.id}')" style="background:#c42b2b; margin-top:10px;">🗑️ Remover</button>` : ''}
+        </div>`;
+    });
+  });
+}
+
+window.removerJogo = function(id) {
+  if (confirm("Tem certeza que deseja remover este jogo?")) {
+    remove(ref(db, `jogos/${id}`)).then(() => {
+      alert("✅ Jogo removido!");
+      carregarJogos();
+    });
+  }
+};
+
+// ================= ADICIONAR JOGO =================
 window.addJogo = async function () {
-  if (!isAdmin()) return alert("Apenas ADM");
+  if (!isAdmin()) return alert("❌ Apenas ADM");
 
   const time1 = prompt("Time 1:");
   const time2 = prompt("Time 2:");
@@ -98,42 +272,43 @@ window.addJogo = async function () {
     time1,
     time2,
     data,
-    local
+    local,
+    criadoEm: new Date().toISOString()
   });
 
-  mostrarToast("Jogo criado!", "success");
-
-  enviarNotificacaoPush(
-  "⚽ Novo jogo marcado!",
-  `${time1} x ${time2} - ${data}`
-);
+  mostrarToast("✅ Jogo criado!", "success");
+  enviarNotificacaoPush("⚽ Novo jogo marcado!", `${time1} x ${time2} - ${data}`);
+  carregarJogos();
 };
 
-// ================= LISTAR JOGOS =================
-function carregarJogos() {
-  const el = document.getElementById("listaJogos");
-  if (!el) return;
-
-  onValue(ref(db, "jogos"), snap => {
-    el.innerHTML = "";
-
-    snap.forEach(c => {
-      const j = c.val();
-
-      el.innerHTML += `
-        <div class="card">
-          <h3>${j.time1} x ${j.time2}</h3>
-          <p>${j.data} - ${j.local}</p>
-        </div>
-      `;
-    });
-  });
-}
-
-// ================= PRESENÇA =================
+// ================= CONFIRMAR PRESENÇA =================
 window.confirmarPresenca = async function () {
   const user = getUserName();
-  if (!user) return alert("Faça login");
+  if (!user) return alert("❌ Faça login primeiro!");
+
+  const jogosRef = ref(db, "jogos");
+  const jogosSnapshot = await get(jogosRef);
+
+  if (!jogosSnapshot.exists()) {
+    alert("⚠️ Nenhum jogo cadastrado!");
+    return;
+  }
+
+  let ultimoJogo = null;
+  jogosSnapshot.forEach(child => { ultimoJogo = child.val(); });
+
+  const confirmar = confirm(
+    `📋 CONFIRMAÇÃO DE PRESENÇA\n\n` +
+    `🎮 Jogo: ${ultimoJogo.time1} x ${ultimoJogo.time2}\n` +
+    `📅 Data: ${ultimoJogo.data}\n` +
+    `📍 Local: ${ultimoJogo.local}\n\n` +
+    `👍 Deseja confirmar sua presença?`
+  );
+
+  if (!confirmar) {
+    alert("❌ Confirmação cancelada!");
+    return;
+  }
 
   await push(ref(db, "presencas"), {
     nome: user,
@@ -141,92 +316,315 @@ window.confirmarPresenca = async function () {
     data: new Date().toLocaleString()
   });
 
-  mostrarToast("Presença confirmada!", "success");
+  mostrarToast(`✅ Presença confirmada! ${user}`, "success");
+};
+
+// ================= CARREGAR PRESENÇAS =================
+function carregarPresencas() {
+  const listaAdmin = document.getElementById("listaAdmin");
+  if (!listaAdmin) return;
+
+  onValue(ref(db, "presencas"), (snapshot) => {
+    listaAdmin.innerHTML = "";
+    if (!snapshot.exists()) {
+      listaAdmin.innerHTML = "<li>Nenhuma presença confirmada.</li>";
+      return;
+    }
+
+    const presencas = [];
+    snapshot.forEach(child => {
+      presencas.push({ id: child.key, ...child.val() });
+    });
+    presencas.reverse();
+
+    presencas.forEach(p => {
+      listaAdmin.innerHTML += `
+        <li style="margin-bottom: 10px; padding: 8px; background: #1a1a1a; border-radius: 8px;">
+          <strong>👤 ${p.nome} #${p.numero || '?'}</strong><br>
+          <small>✅ Confirmou em: ${p.data || p.horario}</small>
+          ${isAdmin() ? `<button onclick="window.removerPresenca('${p.id}')" style="margin-left: 10px; background:#c42b2b; padding: 2px 8px;">❌</button>` : ''}
+        </li>`;
+    });
+  });
+}
+
+window.removerPresenca = function(id) {
+  if (confirm("Remover esta confirmação?")) {
+    remove(ref(db, `presencas/${id}`)).then(() => {
+      alert("✅ Presença removida!");
+      carregarPresencas();
+    });
+  }
+};
+
+window.limparPresencas = function() {
+  if (!isAdmin()) {
+    alert("❌ Apenas administradores podem limpar presenças!");
+    return;
+  }
+  if (confirm("⚠️ ATENÇÃO! Isso vai apagar TODAS as confirmações. Tem certeza?")) {
+    remove(ref(db, "presencas")).then(() => {
+      alert("✅ Todas as presenças foram limpas!");
+      carregarPresencas();
+    });
+  }
 };
 
 // ================= COMUNICADO =================
-window.enviarAviso = async function () {
-  if (!isAdmin() && !isCapitao()) return alert("Sem permissão");
+function carregarComunicado() {
+  const comunicadoEl = document.getElementById("comunicado");
+  if (!comunicadoEl) return;
 
-  const texto = prompt("Aviso:");
+  onValue(ref(db, "comunicado"), (snapshot) => {
+    if (snapshot.exists()) {
+      comunicadoEl.textContent = snapshot.val().texto;
+    } else {
+      comunicadoEl.textContent = "Nenhum aviso no momento.";
+    }
+  });
+}
+
+window.enviarAviso = async function () {
+  if (!isAdmin() && !isCapitao()) return alert("❌ Sem permissão");
+
+  const texto = prompt("Digite o aviso:");
   if (!texto) return;
 
   await set(ref(db, "comunicado"), {
     texto,
-    por: getUserName()
+    data: new Date().toLocaleString(),
+    enviadoPor: getUserName()
   });
 
-  mostrarToast("Aviso enviado!");
-
-  enviarNotificacaoPush(
-  "📢 Capitão enviou aviso!",
-  texto
-);
+  mostrarToast("✅ Aviso enviado!");
+  enviarNotificacaoPush("📢 NOVO COMUNICADO!", texto);
+  carregarComunicado();
 };
 
-// ================= RESULTADO =================
-window.adicionarResultado = async function () {
-  if (!isAdmin()) return alert("Apenas ADM");
+window.removerComunicadoGlobal = function() {
+  if (!isAdmin() && !isCapitao()) {
+    alert("❌ Apenas administradores e capitães podem remover comunicados!");
+    return;
+  }
+  if (confirm("⚠️ Tem certeza que deseja remover o comunicado atual?")) {
+    remove(ref(db, "comunicado")).then(() => {
+      alert("✅ Comunicado removido!");
+      carregarComunicado();
+    });
+  }
+};
 
-  const t1 = prompt("Time 1:");
-  const g1 = prompt("Gols:");
-  const t2 = prompt("Time 2:");
-  const g2 = prompt("Gols:");
+// ================= TREINO =================
+function carregarTreino() {
+  const treinoEl = document.getElementById("proximoTreino");
+  if (!treinoEl) return;
 
-  await push(ref(db, "resultados"), {
-    t1,
-    g1,
-    t2,
-    g2
+  onValue(ref(db, "treino"), (snapshot) => {
+    if (snapshot.exists()) {
+      const treino = snapshot.val();
+      treinoEl.innerHTML = `${treino.data} • ${treino.horario || ''} • ${treino.local}`;
+    } else {
+      treinoEl.innerHTML = "Nenhum treino agendado";
+    }
   });
-
-enviarNotificacaoPush(
-  "🏆 Resultado adicionado!",
-  `${t1} ${g1} x ${g2} ${t2}`
-);
-};
+}
 
 window.definirTreino = async function () {
-  if (!isAdmin() && !isCapitao()) return alert("Sem permissão");
+  if (!isAdmin() && !isCapitao()) return alert("❌ Sem permissão");
 
-  const data = prompt("Data do treino:");
-  const horario = prompt("Horário:");
-  const local = prompt("Local:");
+  const data = prompt("📅 Data do treino:");
+  const horario = prompt("⏰ Horário:");
+  const local = prompt("📍 Local:");
 
   if (!data || !horario || !local) return;
 
   await set(ref(db, "treino"), {
     data,
     horario,
-    local
+    local,
+    atualizadoEm: new Date().toLocaleString(),
+    atualizadoPor: getUserName()
   });
 
-  mostrarToast("Treino marcado!", "success");
-
-  enviarNotificacaoPush(
-    "⚽ Novo treino!",
-    `${data} - ${horario} - ${local}`
-  );
+  mostrarToast("✅ Treino marcado!", "success");
+  enviarNotificacaoPush("⚽ NOVO TREINO!", `${data} - ${horario} - ${local}`);
+  carregarTreino();
 };
 
-// ================= AUTO UPDATE =================
-function autoUpdates() {
-  let ultimo = null;
-
-  onValue(ref(db, "jogos"), snap => {
-    snap.forEach(c => {
-      if (c.key !== ultimo) {
-        ultimo = c.key;
-        const j = c.val();
-
-        mostrarToast(`Novo jogo: ${j.time1} x ${j.time2}`, "success");
-      }
+window.removerTreino = function() {
+  if (!isAdmin() && !isCapitao()) {
+    alert("❌ Apenas administradores e capitães podem remover treino!");
+    return;
+  }
+  if (confirm("⚠️ Tem certeza que deseja remover o próximo treino?")) {
+    remove(ref(db, "treino")).then(() => {
+      alert("✅ Treino removido!");
+      carregarTreino();
     });
+  }
+};
+
+// ================= CARREGAR EQUIPE =================
+function carregarEquipe() {
+  const container = document.getElementById("listaEquipe");
+  if (!container) return;
+  container.innerHTML = "<div class='loading'>🔄 Carregando elenco...</div>";
+
+  onValue(ref(db, "autorizados"), (snapshot) => {
+    container.innerHTML = "";
+    if (!snapshot.exists()) {
+      container.innerHTML = "<div class='card'>Nenhum jogador cadastrado.</div>";
+      return;
+    }
+
+    const jogadores = [];
+    snapshot.forEach(child => {
+      jogadores.push({ id: child.key, ...child.val() });
+    });
+    jogadores.sort((a, b) => a.numero - b.numero);
+
+    jogadores.forEach(jogador => {
+      const card = document.createElement("div");
+      card.className = "card jogador-card";
+      card.innerHTML = `
+        <div class="jogador-numero">#${jogador.numero}</div>
+        <div class="jogador-nome">${jogador.nome}</div>
+        <div class="jogador-posicao">📍 ${jogador.posicao || 'Posição não definida'}</div>
+        <div class="jogador-status">
+          ${jogador.capitao ? '<span class="capitao-badge">🅲 Capitão</span>' : ''}
+          ${jogador.admin ? '<span class="admin-badge">👑 ADM</span>' : ''}
+        </div>
+      `;
+      container.appendChild(card);
+    });
+
+    const contador = document.createElement("div");
+    contador.className = "contador-equipe";
+    contador.innerHTML = `📊 Total de jogadores: <strong>${jogadores.length}</strong>`;
+    container.appendChild(contador);
+  });
+}
+
+// ================= RESULTADOS =================
+window.adicionarResultado = async function () {
+  if (!isAdmin()) return alert("❌ Apenas ADM");
+
+  const time1 = prompt("Time da casa:");
+  const gols1 = prompt("Gols:");
+  const time2 = prompt("Time visitante:");
+  const gols2 = prompt("Gols:");
+  const data = prompt("Data do jogo:");
+  const local = prompt("Local:");
+
+  if (!time1 || !time2) return;
+
+  await push(ref(db, "resultados"), {
+    time1,
+    gols1: parseInt(gols1),
+    time2,
+    gols2: parseInt(gols2),
+    data,
+    local,
+    criadoEm: new Date().toLocaleString(),
+    criadoPor: getUserName()
+  });
+
+  mostrarToast("✅ Resultado adicionado!", "success");
+  enviarNotificacaoPush("🏆 NOVO RESULTADO!", `${time1} ${gols1} x ${gols2} ${time2}`);
+  carregarResultados();
+};
+
+window.removerResultado = function(id) {
+  if (!isAdmin()) {
+    alert("❌ Apenas administradores podem remover resultados!");
+    return;
+  }
+  if (confirm("Remover este resultado?")) {
+    remove(ref(db, `resultados/${id}`)).then(() => {
+      alert("✅ Resultado removido!");
+      carregarResultados();
+    });
+  }
+};
+
+function carregarResultados() {
+  const container = document.getElementById("listaResultados");
+  if (!container) return;
+  container.innerHTML = "<div class='loading'>🔄 Carregando resultados...</div>";
+
+  onValue(ref(db, "resultados"), (snapshot) => {
+    container.innerHTML = "";
+    if (!snapshot.exists()) {
+      container.innerHTML = "<div class='card'>Nenhum resultado cadastrado.</div>";
+      return;
+    }
+
+    const resultados = [];
+    snapshot.forEach(child => {
+      resultados.push({ id: child.key, ...child.val() });
+    });
+    resultados.reverse();
+
+    resultados.forEach(resultado => {
+      const gols1 = resultado.gols1 || 0;
+      const gols2 = resultado.gols2 || 0;
+      const corVitoria = gols1 > gols2 ? "#4CAF50" : gols2 > gols1 ? "#f44336" : "#ff9800";
+
+      const card = document.createElement("div");
+      card.className = "card resultado-card";
+      card.innerHTML = `
+        <div class="resultado-data">📅 ${resultado.data || 'Data não informada'}</div>
+        <div class="resultado-placar">
+          <div class="time-casa">
+            <span class="time-nome">${resultado.time1}</span>
+            <span class="time-gols">${gols1}</span>
+          </div>
+          <div class="placar-x">X</div>
+          <div class="time-visitante">
+            <span class="time-gols">${gols2}</span>
+            <span class="time-nome">${resultado.time2}</span>
+          </div>
+        </div>
+        <div class="resultado-local">📍 ${resultado.local || 'Local não informado'}</div>
+        <div class="resultado-status" style="color: ${corVitoria};">
+          ${gols1 > gols2 ? '🏆 VITÓRIA' : gols2 > gols1 ? '❌ DERROTA' : '⚖️ EMPATE'}
+        </div>
+        ${isAdmin() ? `<button onclick="window.removerResultado('${resultado.id}')" style="margin-top: 10px; background: #c42b2b;">🗑️ Remover</button>` : ''}
+      `;
+      container.appendChild(card);
+    });
+  });
+}
+
+// ================= MARCAR PÁGINA ATIVA =================
+function marcarPaginaAtiva() {
+  const currentPage = window.location.pathname.split('/').pop();
+  document.querySelectorAll('.navbar a').forEach(link => {
+    const href = link.getAttribute('href');
+    link.classList.remove('ativo');
+    if (currentPage === href || (currentPage === '' && href === 'index.html') || (currentPage === '/' && href === 'index.html')) {
+      link.classList.add('ativo');
+    }
   });
 }
 
 // ================= INIT =================
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("🚀 Inicializando aplicação...");
+  marcarPaginaAtiva();
+  verificarLogin();
+  carregarProximoJogo();
   carregarJogos();
-  autoUpdates();
+  carregarPresencas();
+  carregarComunicado();
+  carregarTreino();
+  carregarEquipe();
+  carregarResultados();
+  console.log("✅ Aplicação inicializada com sucesso!");
+});
+
+window.addEventListener("load", () => {
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
 });
