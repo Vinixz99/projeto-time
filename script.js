@@ -74,7 +74,6 @@ window.fecharModal = function() {
 function prepararNotificacao(tipo, dados) {
     let titulo = "";
     let mensagem = "";
-    let url = "https://onesignal.com";
     
     switch(tipo) {
         case "jogo":
@@ -95,16 +94,55 @@ function prepararNotificacao(tipo, dados) {
             break;
     }
     
-    // Copiar para área de transferência
-    const textoNotificacao = `${titulo}\n\n${mensagem}\n\n🔗 Abra o dashboard: ${url}`;
+    // Criar popup customizado com botão de copiar
+    const popup = document.createElement('div');
+    popup.style.position = 'fixed';
+    popup.style.top = '50%';
+    popup.style.left = '50%';
+    popup.style.transform = 'translate(-50%, -50%)';
+    popup.style.backgroundColor = '#1a1a1a';
+    popup.style.border = '2px solid #ff6b00';
+    popup.style.borderRadius = '16px';
+    popup.style.padding = '20px';
+    popup.style.zIndex = '10000';
+    popup.style.maxWidth = '90%';
+    popup.style.width = '320px';
+    popup.style.boxShadow = '0 4px 20px rgba(0,0,0,0.5)';
     
-    // Tentar copiar
-    navigator.clipboard.writeText(mensagem).then(() => {
-        mostrarToast(`✅ Texto copiado! Cole no dashboard do OneSignal`, "success");
-        alert(`📋 NOTIFICAÇÃO PRONTA!\n\nTítulo: ${titulo}\nMensagem: ${mensagem}\n\n📌 O texto da mensagem foi copiado!\n\n👉 Acesse: ${url}`);
-    }).catch(() => {
-        alert(`📋 NOTIFICAÇÃO PRONTA!\n\nTítulo: ${titulo}\nMensagem: ${mensagem}\n\n👉 Acesse: ${url}`);
-    });
+    popup.innerHTML = `
+        <div style="text-align: center; margin-bottom: 15px;">
+            <h3 style="color: #ff6b00; margin: 0;">📋 NOTIFICAÇÃO PRONTA!</h3>
+        </div>
+        <div style="background: #2a2a2a; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+            <div style="color: #888; font-size: 12px;">Título:</div>
+            <div style="color: white; font-weight: bold; margin-bottom: 10px;" id="popupTitulo">${titulo}</div>
+            <div style="color: #888; font-size: 12px;">Mensagem:</div>
+            <div style="color: white; white-space: pre-wrap;" id="popupMensagem">${mensagem}</div>
+        </div>
+        <button id="copiarNotificacao" style="background: #ff6b00; width: 100%; margin-bottom: 10px; padding: 10px;">
+            📋 Copiar Mensagem
+        </button>
+        <button id="fecharPopupNotificacao" style="background: #555; width: 100%; padding: 10px;">
+            Fechar
+        </button>
+    `;
+    
+    document.body.appendChild(popup);
+    
+    // Função para copiar
+    document.getElementById('copiarNotificacao').onclick = () => {
+        const textoParaCopiar = mensagem;
+        navigator.clipboard.writeText(textoParaCopiar).then(() => {
+            mostrarToast("✅ Mensagem copiada! Cole no dashboard do OneSignal", "success");
+        }).catch(() => {
+            alert("📋 Copie manualmente:\n\n" + textoParaCopiar);
+        });
+    };
+    
+    // Fechar popup
+    document.getElementById('fecharPopupNotificacao').onclick = () => {
+        popup.remove();
+    };
 }
 
 // ================= LOGIN ADMIN =================
@@ -549,10 +587,10 @@ window.removerComunicadoGlobal = function() {
 
 // ================= ABRIR DASHBOARD ONESIGNAL =================
 window.abrirOneSignal = function() {
-    // Abre direto na página de criar nova notificação
-    const url = "https://onesignal.com/apps/104480cd-3733-41c6-9a00-f89f221e3c52/messages/new";
+    // Link direto para o dashboard
+    const url = "https://app.onesignal.com/apps/104480cd-3733-41c6-9a00-f89f221e3c52";
     window.open(url, '_blank');
-    mostrarToast("📢 Dashboard aberto! Cole o texto copiado.", "success");
+    mostrarToast("📢 Dashboard aberto! Clique em 'New Push'", "success");
 };
 
 // ================= TREINO =================
