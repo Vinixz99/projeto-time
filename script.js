@@ -585,14 +585,6 @@ window.removerComunicadoGlobal = function() {
   }
 };
 
-// ================= ABRIR DASHBOARD ONESIGNAL =================
-window.abrirOneSignal = function() {
-    // Link direto para o dashboard
-    const url = "https://app.onesignal.com/apps/104480cd-3733-41c6-9a00-f89f221e3c52";
-    window.open(url, '_blank');
-    mostrarToast("📢 Dashboard aberto! Clique em 'New Push'", "success");
-};
-
 // ================= TREINO =================
 function carregarTreino() {
   const treinoEl = document.getElementById("proximoTreino");
