@@ -145,24 +145,6 @@ function prepararNotificacao(tipo, dados) {
     };
 }
 
-// ================= LOGIN ADMIN =================
-window.loginAdmin = function () {
-  const nome = document.getElementById("nomeAdmin").value.trim().toLowerCase();
-  const senha = document.getElementById("senhaAdmin").value.trim();
-
-  if (nome === "vini" && senha === "2310") {
-    localStorage.setItem("user", "ADM");
-    localStorage.setItem("admin", "true");
-    localStorage.setItem("capitao", "false");
-    localStorage.setItem("numero", "00");
-    alert("✅ Bem-vindo ADM 👑");
-    window.fecharModal();
-    location.reload();
-  } else {
-    alert("❌ Login inválido");
-  }
-};
-
 // ================= LOGIN JOGADOR =================
 window.loginJogador = async function () {
   const nomeDigitado = document.getElementById("nomeLogin").value.trim();
