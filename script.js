@@ -70,40 +70,24 @@ window.fecharModal = function() {
   }
 };
 
-// ================= NOTIFICAÇÃO PUSH AUTOMÁTICA =================
+// ================= NOTIFICAÇÃO VIA PIPEDREAM =================
+const WEBHOOK_URL = "https://eog4u6huexafwdo.m.pipedream.net"; // Cole a URL completa
+
 window.enviarNotificacaoPush = async function(titulo, mensagem) {
     console.log("🔔 Enviando:", titulo);
     
-    const ONESIGNAL_APP_ID = "104480cd-3733-41c6-9a00-f89f221e3c52";
-    const ONESIGNAL_API_KEY = "os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i";
-    
     try {
-        const resposta = await fetch('https://onesignal.com/api/v1/notifications', {
+        const resposta = await fetch(WEBHOOK_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Basic ' + ONESIGNAL_API_KEY
-            },
-            body: JSON.stringify({
-                app_id: ONESIGNAL_APP_ID,
-                headings: { pt: titulo, en: titulo },
-                contents: { pt: mensagem, en: mensagem },
-                included_segments: ['Subscribed Users']
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ titulo, mensagem })
         });
-        
-        const dados = await resposta.json();
-        console.log("📬 Resposta:", dados);
-        
-        if (dados.id) {
-            console.log("✅ NOTIFICAÇÃO ENVIADA!");
-            return true;
-        } else {
-            console.error("❌ Erro:", dados.errors);
-            return false;
-        }
+        console.log("✅ Notificação enviada com sucesso!");
+        mostrarToast("🔔 Notificação enviada!", "success");
+        return true;
     } catch (erro) {
         console.error("❌ Erro:", erro);
+        mostrarToast("❌ Erro ao enviar", "error");
         return false;
     }
 };
