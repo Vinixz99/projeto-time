@@ -70,27 +70,42 @@ window.fecharModal = function() {
   }
 };
 
-// ================= NOTIFICAÇÃO VIA PIPEDREAM =================
-const WEBHOOK_URL = "https://eog4u6huexafwdo.m.pipedream.net"; // Cole a URL completa
-
-window.enviarNotificacaoPush = async function(titulo, mensagem) {
-    console.log("🔔 Enviando:", titulo);
+// ================= PREPARAR NOTIFICAÇÃO PARA O DASHBOARD =================
+function prepararNotificacao(tipo, dados) {
+    let titulo = "";
+    let mensagem = "";
+    let url = "https://onesignal.com";
     
-    try {
-        const resposta = await fetch(WEBHOOK_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ titulo, mensagem })
-        });
-        console.log("✅ Notificação enviada com sucesso!");
-        mostrarToast("🔔 Notificação enviada!", "success");
-        return true;
-    } catch (erro) {
-        console.error("❌ Erro:", erro);
-        mostrarToast("❌ Erro ao enviar", "error");
-        return false;
+    switch(tipo) {
+        case "jogo":
+            titulo = "⚽ NOVO JOGO!";
+            mensagem = `${dados.time1} x ${dados.time2}\n📅 ${dados.data}\n📍 ${dados.local}`;
+            break;
+        case "resultado":
+            titulo = "🏆 NOVO RESULTADO!";
+            mensagem = `${dados.time1} ${dados.gols1} x ${dados.gols2} ${dados.time2}`;
+            break;
+        case "treino":
+            titulo = "⚽ NOVO TREINO!";
+            mensagem = `📅 ${dados.data}\n⏰ ${dados.horario}\n📍 ${dados.local}`;
+            break;
+        case "comunicado":
+            titulo = "📢 NOVO COMUNICADO!";
+            mensagem = dados.texto;
+            break;
     }
-};
+    
+    // Copiar para área de transferência
+    const textoNotificacao = `${titulo}\n\n${mensagem}\n\n🔗 Abra o dashboard: ${url}`;
+    
+    // Tentar copiar
+    navigator.clipboard.writeText(mensagem).then(() => {
+        mostrarToast(`✅ Texto copiado! Cole no dashboard do OneSignal`, "success");
+        alert(`📋 NOTIFICAÇÃO PRONTA!\n\nTítulo: ${titulo}\nMensagem: ${mensagem}\n\n📌 O texto da mensagem foi copiado!\n\n👉 Acesse: ${url}`);
+    }).catch(() => {
+        alert(`📋 NOTIFICAÇÃO PRONTA!\n\nTítulo: ${titulo}\nMensagem: ${mensagem}\n\n👉 Acesse: ${url}`);
+    });
+}
 
 // ================= LOGIN ADMIN =================
 window.loginAdmin = function () {
@@ -276,26 +291,26 @@ window.removerJogo = function(id) {
 
 // ================= ADICIONAR JOGO =================
 window.addJogo = async function () {
-  if (!isAdmin()) return alert("❌ Apenas ADM");
-
-  const time1 = prompt("Time 1:");
-  const time2 = prompt("Time 2:");
-  const data = prompt("Data:");
-  const local = prompt("Local:");
-
-  if (!time1 || !time2) return;
-
-  await push(ref(db, "jogos"), {
-    time1,
-    time2,
-    data,
-    local,
-    criadoEm: new Date().toISOString()
-  });
-
-  mostrarToast("✅ Jogo criado!", "success");
-  window.enviarNotificacaoPush("⚽ Novo jogo marcado!", `${time1} x ${time2} - ${data}`);
-  carregarJogos();
+    if (!isAdmin()) return alert("❌ Apenas ADM");
+    
+    const time1 = prompt("Time 1:");
+    const time2 = prompt("Time 2:");
+    const data = prompt("Data:");
+    const local = prompt("Local:");
+    
+    if (!time1 || !time2) return;
+    
+    await push(ref(db, "jogos"), {
+        time1, time2, data, local,
+        criadoEm: new Date().toISOString()
+    });
+    
+    mostrarToast("✅ Jogo criado!", "success");
+    
+    // Preparar notificação para o dashboard
+    prepararNotificacao("jogo", { time1, time2, data, local });
+    
+    carregarJogos();
 };
 
 // ================= CADASTRAR JOGADOR =================
@@ -501,20 +516,22 @@ function carregarComunicado() {
 }
 
 window.enviarAviso = async function () {
-  if (!isAdmin() && !isCapitao()) return alert("❌ Sem permissão");
-
-  const texto = prompt("Digite o aviso:");
-  if (!texto) return;
-
-  await set(ref(db, "comunicado"), {
-    texto,
-    data: new Date().toLocaleString(),
-    enviadoPor: getUserName()
-  });
-
-  mostrarToast("✅ Aviso enviado!");
-  window.enviarNotificacaoPush("📢 NOVO COMUNICADO!", texto);
-  carregarComunicado();
+    if (!isAdmin() && !isCapitao()) return alert("❌ Sem permissão");
+    
+    const texto = prompt("Digite o aviso:");
+    if (!texto) return;
+    
+    await set(ref(db, "comunicado"), {
+        texto, data: new Date().toLocaleString(), enviadoPor: getUserName()
+    });
+    
+    mostrarToast("✅ Aviso enviado!", "success");
+    
+    // Preparar notificação para o dashboard
+    prepararNotificacao("comunicado", { texto });
+    
+    carregarComunicado();
+    carregarComunicadoPerfil();
 };
 
 window.removerComunicadoGlobal = function() {
@@ -528,6 +545,14 @@ window.removerComunicadoGlobal = function() {
       carregarComunicado();
     });
   }
+};
+
+// ================= ABRIR DASHBOARD ONESIGNAL =================
+window.abrirOneSignal = function() {
+    // Abre direto na página de criar nova notificação
+    const url = "https://onesignal.com/apps/104480cd-3733-41c6-9a00-f89f221e3c52/messages/new";
+    window.open(url, '_blank');
+    mostrarToast("📢 Dashboard aberto! Cole o texto copiado.", "success");
 };
 
 // ================= TREINO =================
@@ -546,25 +571,26 @@ function carregarTreino() {
 }
 
 window.definirTreino = async function () {
-  if (!isAdmin() && !isCapitao()) return alert("❌ Sem permissão");
-
-  const data = prompt("📅 Data do treino:");
-  const horario = prompt("⏰ Horário:");
-  const local = prompt("📍 Local:");
-
-  if (!data || !horario || !local) return;
-
-  await set(ref(db, "treino"), {
-    data,
-    horario,
-    local,
-    atualizadoEm: new Date().toLocaleString(),
-    atualizadoPor: getUserName()
-  });
-
-  mostrarToast("✅ Treino marcado!", "success");
-  window.enviarNotificacaoPush("⚽ NOVO TREINO!", `${data} - ${horario} - ${local}`);
-  carregarTreino();
+    if (!isAdmin() && !isCapitao()) return alert("❌ Sem permissão");
+    
+    const data = prompt("📅 Data do treino:");
+    const horario = prompt("⏰ Horário:");
+    const local = prompt("📍 Local:");
+    
+    if (!data || !horario || !local) return;
+    
+    await set(ref(db, "treino"), {
+        data, horario, local,
+        atualizadoEm: new Date().toLocaleString(),
+        atualizadoPor: getUserName()
+    });
+    
+    mostrarToast("✅ Treino marcado!", "success");
+    
+    // Preparar notificação para o dashboard
+    prepararNotificacao("treino", { data, horario, local });
+    
+    carregarTreino();
 };
 
 window.removerTreino = function() {
@@ -623,33 +649,30 @@ function carregarEquipe() {
 
 // ================= RESULTADOS =================
 window.adicionarResultado = async function () {
-  if (!isAdmin()) return alert("❌ Apenas ADM");
-
-  const data = prompt("📅 Data do jogo:");
-  const time1 = prompt("Time da casa:");
-  const gols1 = prompt(`Gols do ${time1}:`);
-  const time2 = prompt("Time visitante:");
-  const gols2 = prompt(`Gols do ${time2}:`);
-  const local = prompt("📍 Local:");
-
-  if (!time1 || !time2) return;
-
-  await push(ref(db, "resultados"), {
-    data,
-    time1,
-    gols1: parseInt(gols1),
-    time2,
-    gols2: parseInt(gols2),
-    local,
-    criadoEm: new Date().toLocaleString(),
-    criadoPor: getUserName()
-  });
-
-  mostrarToast("✅ Resultado adicionado!", "success");
-  window.enviarNotificacaoPush("🏆 NOVO RESULTADO!", `${time1} ${gols1} x ${gols2} ${time2}`);
-  carregarResultados();
+    if (!isAdmin()) return alert("❌ Apenas ADM");
+    
+    const data = prompt("📅 Data do jogo:");
+    const time1 = prompt("Time da casa:");
+    const gols1 = prompt(`Gols do ${time1}:`);
+    const time2 = prompt("Time visitante:");
+    const gols2 = prompt(`Gols do ${time2}:`);
+    const local = prompt("📍 Local:");
+    
+    if (!time1 || !time2) return;
+    
+    await push(ref(db, "resultados"), {
+        data, time1, gols1: parseInt(gols1), time2, gols2: parseInt(gols2), local,
+        criadoEm: new Date().toLocaleString(),
+        criadoPor: getUserName()
+    });
+    
+    mostrarToast("✅ Resultado adicionado!", "success");
+    
+    // Preparar notificação para o dashboard
+    prepararNotificacao("resultado", { time1, gols1, time2, gols2 });
+    
+    carregarResultados();
 };
-
 window.removerResultado = function(id) {
   if (!isAdmin()) {
     alert("❌ Apenas administradores podem remover resultados!");
