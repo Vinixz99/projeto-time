@@ -70,36 +70,42 @@ window.fecharModal = function() {
   }
 };
 
-// ================= NOTIFICAÇÃO PUSH VIA ONESIGNAL (MEDIAN) =================
-window.enviarNotificacaoPush = function(titulo, mensagem) {
-    console.log("🔔 Enviando notificação:", titulo);
+// ================= NOTIFICAÇÃO PUSH AUTOMÁTICA =================
+window.enviarNotificacaoPush = async function(titulo, mensagem) {
+    console.log("🔔 Enviando:", titulo);
     
-    // Método 1: Tentar via OneSignal SDK (se disponível)
-    if (window.OneSignal) {
-        window.OneSignal.sendNotification({
-            title: titulo,
-            message: mensagem,
-            url: "/"
+    const ONESIGNAL_APP_ID = "104480cd-3733-41c6-9a00-f89f221e3c52";
+    const ONESIGNAL_API_KEY = "os_v2_app_cbcibtjxgna4ngqa7cpsehr4klwd5gn546veum5kyrphzoztsp76v7e4kyznqnmloymddr7ghvm4s5ccqj4anup3lqfiifd22t2ml7i";
+    
+    try {
+        const resposta = await fetch('https://onesignal.com/api/v1/notifications', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Basic ' + ONESIGNAL_API_KEY
+            },
+            body: JSON.stringify({
+                app_id: ONESIGNAL_APP_ID,
+                headings: { pt: titulo, en: titulo },
+                contents: { pt: mensagem, en: mensagem },
+                included_segments: ['Subscribed Users']
+            })
         });
-        console.log("✅ Enviado via OneSignal SDK");
-        mostrarToast("🔔 Notificação enviada!", "success");
-        return true;
+        
+        const dados = await resposta.json();
+        console.log("📬 Resposta:", dados);
+        
+        if (dados.id) {
+            console.log("✅ NOTIFICAÇÃO ENVIADA!");
+            return true;
+        } else {
+            console.error("❌ Erro:", dados.errors);
+            return false;
+        }
+    } catch (erro) {
+        console.error("❌ Erro:", erro);
+        return false;
     }
-    
-    // Método 2: Tentar via median.notification
-    if (window.median && window.median.notification) {
-        window.median.notification.send({
-            title: titulo,
-            body: mensagem
-        });
-        console.log("✅ Enviado via median.notification");
-        mostrarToast("🔔 Notificação enviada!", "success");
-        return true;
-    }
-    
-    console.error("❌ Nenhum método de notificação disponível");
-    mostrarToast("❌ Notificações não disponíveis", "error");
-    return false;
 };
 
 // ================= LOGIN ADMIN =================
