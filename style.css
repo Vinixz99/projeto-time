@@ -925,131 +925,332 @@ button:active {
   pointer-events: none;
 }
 
+
 /* ==================== PÁGINA DE PERFIL ==================== */
+
+/* Container do perfil - GARANTE ESPAÇAMENTO */
+.perfil-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 90px 15px 100px;
+}
 
 /* Card principal do perfil */
 .perfil-card {
-  background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
-  border-radius: 24px;
-  padding: 25px;
-  margin-bottom: 20px;
-  border: 1px solid #2a2a2a;
+    background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+    border-radius: 24px;
+    padding: 25px;
+    border: 1px solid #2a2a2a;
 }
 
 /* Título do perfil */
 .titulo-perfil {
-  text-align: center;
-  margin-bottom: 25px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #2a2a2a;
+    text-align: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #2a2a2a;
 }
 
 .titulo-perfil h2 {
-  color: #ff6b00;
-  font-size: 24px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 5px;
+    color: #ff6b00;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 5px;
 }
 
 .titulo-perfil p {
-  color: #888;
-  font-size: 13px;
+    color: #888;
+    font-size: 13px;
 }
 
 /* Container dos cards de informação */
 .info-dupla {
-  display: flex;
-  gap: 15px;
-  margin-top: 10px;
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
 }
 
 /* Cards individuais de informação */
 .info-box {
-  flex: 1;
-  background: #1a1a1a;
-  border-radius: 16px;
-  padding: 18px 15px;
-  transition: all 0.3s ease;
-  border: 1px solid #2a2a2a;
-  text-align: center;
+    flex: 1;
+    background: #1a1a1a;
+    border-radius: 16px;
+    padding: 18px 15px;
+    transition: all 0.3s ease;
+    border: 1px solid #2a2a2a;
+    text-align: center;
 }
 
 .info-box:hover {
-  transform: translateY(-5px);
-  border-color: #ff6b00;
-  background: #222;
+    transform: translateY(-5px);
+    border-color: #ff6b00;
+    background: #222;
 }
 
 .info-box h4 {
-  font-size: 13px;
-  color: #ff6b00;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+    font-size: 13px;
+    color: #ff6b00;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .info-box p {
-  font-size: 14px;
-  color: #fff;
-  line-height: 1.4;
-  word-break: break-word;
+    font-size: 14px;
+    color: #fff;
+    line-height: 1.4;
+    word-break: break-word;
+    margin-bottom: 12px;
+}
+
+/* Botão de confirmar treino */
+.btn-confirmar-treino {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #00ff88;
+    color: #000;
+    font-size: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.btn-confirmar-treino:hover {
+    transform: scale(1.02);
+    background: #00cc6a;
+}
+
+/* Total de confirmados no treino */
+.total-confirmados {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00ff88;
+    margin-top: 8px;
 }
 
 /* Área do ADMIN no perfil */
 #areaAdminPerfil {
-  background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
-  border: 1px solid #ff6b00;
+    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+    border: 1px solid #ff6b00;
+    margin-top: 20px;
 }
 
 #areaAdminPerfil h3 {
-  color: #ff6b00;
-  font-size: 18px;
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+    color: #ff6b00;
+    font-size: 18px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 #areaAdminPerfil button {
-  background: #2a2a2a;
-  color: #fff;
-  margin-bottom: 10px;
-  transition: all 0.3s ease;
+    background: #2a2a2a;
+    color: #fff;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
 }
 
 #areaAdminPerfil button:hover {
-  background: #ff6b00;
-  transform: translateY(-2px);
+    background: #ff6b00;
+    transform: translateY(-2px);
 }
 
 /* Responsivo para mobile */
 @media (max-width: 600px) {
-  .info-dupla {
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .info-box {
-    padding: 15px;
-  }
-  
-  .info-box h4 {
+    .perfil-container {
+        padding: 90px 15px 100px;
+    }
+    
+    .info-dupla {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .info-box {
+        padding: 15px;
+    }
+    
+    .info-box h4 {
+        font-size: 12px;
+    }
+    
+    .info-box p {
+        font-size: 13px;
+    }
+    
+    .titulo-perfil h2 {
+        font-size: 20px;
+    }
+}
+
+/* ==================== PRESENÇAS NO TREINO ==================== */
+.card h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ff6b00;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+#listaPresencasTreino {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#listaPresencasTreino li {
+    margin-bottom: 12px;
+    padding: 12px 15px;
+    background: #1a1a1a;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+#listaPresencasTreino li:hover {
+    transform: translateX(5px);
+    background: #222;
+}
+
+#listaPresencasTreino li strong {
+    color: #fff;
+    font-size: 15px;
+}
+
+#listaPresencasTreino li small {
+    color: #888;
+    font-size: 11px;
+}
+
+#listaPresencasTreino li button {
+    width: auto;
+    padding: 5px 12px;
+    margin: 0;
+    background: #c42b2b;
     font-size: 12px;
-  }
-  
-  .info-box p {
-    font-size: 13px;
-  }
-  
-  .titulo-perfil h2 {
-    font-size: 20px;
-  }
+    border-radius: 8px;
+}
+
+#listaPresencasTreino li button:hover {
+    background: #ff3333;
+}
+
+/* Mensagem quando não tem presenças */
+#listaPresencasTreino li:first-child {
+    color: #888;
+    justify-content: center;
+    font-style: italic;
+}
+
+/* Botão de limpar presenças do treino */
+#btnLimparPresencasTreino {
+    margin-top: 15px;
+    background: #c42b2b;
+    transition: all 0.3s ease;
+}
+
+#btnLimparPresencasTreino:hover {
+    background: #ff3333;
+    transform: translateY(-2px);
+}
+
+/* Contador dentro da lista */
+#listaPresencasTreino .contador-presencas {
+    margin-top: 15px;
+    padding: 10px;
+    background: #2a2a2a;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    color: #fff;
+}
+
+#listaPresencasTreino .contador-presencas strong {
+    color: #ff6b00;
+    font-size: 16px;
+}
+
+/* ==================== LISTA DE PRESENÇAS ESTILIZADA ==================== */
+.presencas {
+    background: #111;
+    border-radius: 20px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.presencas h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    color: #ff6b00;
+    font-size: 16px;
+}
+
+#listaAdmin {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#listaAdmin li {
+    margin-bottom: 12px;
+    padding: 12px 15px;
+    background: #1a1a1a;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+#listaAdmin li:hover {
+    transform: translateX(5px);
+    background: #222;
+}
+
+#listaAdmin li div strong {
+    color: #fff;
+    font-size: 15px;
+}
+
+#listaAdmin li div small {
+    color: #888;
+    font-size: 11px;
+}
+
+#listaAdmin li button {
+    width: auto;
+    padding: 5px 12px;
+    margin: 0;
+    background: #c42b2b;
+    font-size: 12px;
+    border-radius: 8px;
+}
+
+#listaAdmin li button:hover {
+    background: #ff3333;
+}
+
+/* Mensagem quando não tem presenças */
+#listaAdmin li:first-child {
+    justify-content: center;
+    font-style: italic;
+    color: #888;
 }

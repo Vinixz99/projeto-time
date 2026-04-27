@@ -53,24 +53,16 @@ function mostrarToast(msg, tipo = "info") {
 
 // ================= ABRIR/FECHAR MODAL =================
 window.abrirLogin = function() {
-  console.log("🔓 Abrindo modal de login");
-  const modal = document.getElementById("modalLogin");
-  if (modal) {
-    modal.style.display = "flex";
-  } else {
-    console.error("❌ Modal não encontrado");
-  }
+    const modal = document.getElementById("modalLogin");
+    if (modal) modal.style.display = "flex";
 };
 
 window.fecharModal = function() {
-  console.log("🔒 Fechando modal");
-  const modal = document.getElementById("modalLogin");
-  if (modal) {
-    modal.style.display = "none";
-  }
+    const modal = document.getElementById("modalLogin");
+    if (modal) modal.style.display = "none";
 };
 
-// ================= PREPARAR NOTIFICAÇÃO PARA O DASHBOARD =================
+// ================= PREPARAR NOTIFICAÇÃO =================
 function prepararNotificacao(tipo, dados) {
     let titulo = "";
     let mensagem = "";
@@ -94,55 +86,34 @@ function prepararNotificacao(tipo, dados) {
             break;
     }
     
-    // Criar popup customizado com botão de copiar
     const popup = document.createElement('div');
-    popup.style.position = 'fixed';
-    popup.style.top = '50%';
-    popup.style.left = '50%';
-    popup.style.transform = 'translate(-50%, -50%)';
-    popup.style.backgroundColor = '#1a1a1a';
-    popup.style.border = '2px solid #ff6b00';
-    popup.style.borderRadius = '16px';
-    popup.style.padding = '20px';
-    popup.style.zIndex = '10000';
-    popup.style.maxWidth = '90%';
-    popup.style.width = '320px';
-    popup.style.boxShadow = '0 4px 20px rgba(0,0,0,0.5)';
-    
-    popup.innerHTML = `
-        <div style="text-align: center; margin-bottom: 15px;">
-            <h3 style="color: #ff6b00; margin: 0;">📋 NOTIFICAÇÃO PRONTA!</h3>
-        </div>
-        <div style="background: #2a2a2a; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
-            <div style="color: #888; font-size: 12px;">Título:</div>
-            <div style="color: white; font-weight: bold; margin-bottom: 10px;" id="popupTitulo">${titulo}</div>
-            <div style="color: #888; font-size: 12px;">Mensagem:</div>
-            <div style="color: white; white-space: pre-wrap;" id="popupMensagem">${mensagem}</div>
-        </div>
-        <button id="copiarNotificacao" style="background: #ff6b00; width: 100%; margin-bottom: 10px; padding: 10px;">
-            📋 Copiar Mensagem
-        </button>
-        <button id="fecharPopupNotificacao" style="background: #555; width: 100%; padding: 10px;">
-            Fechar
-        </button>
+    popup.style.cssText = `
+        position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+        background:#1a1a1a; border:2px solid #ff6b00; border-radius:16px;
+        padding:20px; z-index:10000; max-width:90%; width:320px;
     `;
-    
+    popup.innerHTML = `
+        <div style="text-align:center; margin-bottom:15px;">
+            <h3 style="color:#ff6b00;">📋 NOTIFICAÇÃO PRONTA!</h3>
+        </div>
+        <div style="background:#2a2a2a; padding:12px; border-radius:8px; margin-bottom:15px;">
+            <div style="color:#888; font-size:12px;">Título:</div>
+            <div style="color:white; font-weight:bold;">${titulo}</div>
+            <div style="color:#888; font-size:12px; margin-top:10px;">Mensagem:</div>
+            <div style="color:white; white-space:pre-wrap;">${mensagem}</div>
+        </div>
+        <button id="copiarNotificacao" style="background:#ff6b00; width:100%; margin-bottom:10px; padding:10px;">📋 Copiar Mensagem</button>
+        <button id="fecharPopupNotificacao" style="background:#555; width:100%; padding:10px;">Fechar</button>
+    `;
     document.body.appendChild(popup);
     
-    // Função para copiar
     document.getElementById('copiarNotificacao').onclick = () => {
-        const textoParaCopiar = mensagem;
-        navigator.clipboard.writeText(textoParaCopiar).then(() => {
-            mostrarToast("✅ Mensagem copiada! Cole no dashboard do OneSignal", "success");
-        }).catch(() => {
-            alert("📋 Copie manualmente:\n\n" + textoParaCopiar);
+        navigator.clipboard.writeText(mensagem).then(() => {
+            mostrarToast("✅ Mensagem copiada!", "success");
+            popup.remove();
         });
     };
-    
-    // Fechar popup
-    document.getElementById('fecharPopupNotificacao').onclick = () => {
-        popup.remove();
-    };
+    document.getElementById('fecharPopupNotificacao').onclick = () => popup.remove();
 }
 
 // ================= LOGIN JOGADOR =================
@@ -168,10 +139,8 @@ window.loginJogador = async function () {
 
   snapshot.forEach(child => {
     const jogador = child.val();
-    const nomeFirebase = jogador.nome;
-    const nomeFirebaseNormalizado = normalizarTexto(nomeFirebase.toLowerCase());
+    const nomeFirebaseNormalizado = normalizarTexto(jogador.nome.toLowerCase());
     const nomeDigitadoNormalizado = normalizarTexto(nomeDigitado.toLowerCase());
-
     if (nomeFirebaseNormalizado === nomeDigitadoNormalizado && jogador.numero == numero) {
       jogadorEncontrado = jogador;
     }
@@ -205,8 +174,6 @@ function verificarLogin() {
   const user = getUserName();
   const admin = isAdmin();
   const capitao = isCapitao();
-
-  console.log("Verificando login - Admin:", admin, "Capitao:", capitao, "User:", user);
 
   const btnAddJogo = document.getElementById("btnAddJogo");
   if (btnAddJogo) btnAddJogo.style.display = admin ? "block" : "none";
@@ -271,7 +238,7 @@ function carregarProximoJogo() {
   });
 }
 
-// ================= JOGOS - AGENDA =================
+// ================= JOGOS =================
 function carregarJogos() {
   const container = document.getElementById("listaJogos");
   if (!container) return;
@@ -309,7 +276,6 @@ window.removerJogo = function(id) {
   }
 };
 
-// ================= ADICIONAR JOGO =================
 window.addJogo = async function () {
     if (!isAdmin()) return alert("❌ Apenas ADM");
     
@@ -320,86 +286,60 @@ window.addJogo = async function () {
     
     if (!time1 || !time2) return;
     
-    await push(ref(db, "jogos"), {
-        time1, time2, data, local,
-        criadoEm: new Date().toISOString()
-    });
-    
+    await push(ref(db, "jogos"), { time1, time2, data, local, criadoEm: new Date().toISOString() });
     mostrarToast("✅ Jogo criado!", "success");
-    
-    // Preparar notificação para o dashboard
     prepararNotificacao("jogo", { time1, time2, data, local });
-    
     carregarJogos();
 };
 
 // ================= CADASTRAR JOGADOR =================
 window.cadastrarJogador = function() {
-  if (!isAdmin()) {
-    alert("❌ Apenas administradores podem cadastrar jogadores!");
-    return;
-  }
+  if (!isAdmin()) return alert("❌ Apenas administradores podem cadastrar jogadores!");
 
-  const nome = prompt("Nome do jogador (pode usar acentos):");
+  const nome = prompt("Nome do jogador:");
   if (!nome) return;
   const numero = prompt("Número da camisa:");
-  const pin = prompt("PIN do jogador (ex: 1234):");
-  const posicao = prompt("Posição (Goleiro, Fixo, Ala, Pivô):");
+  const pin = prompt("PIN do jogador:");
+  const posicao = prompt("Posição:");
   const capitaoConfirm = confirm("Este jogador é capitão?");
   const adminConfirm = confirm("Este jogador é administrador?");
 
   const idNormalizado = normalizarTexto(nome.toLowerCase()).replace(/\s/g, '_');
 
   set(ref(db, `autorizados/${idNormalizado}`), {
-    nome,
-    numero: parseInt(numero),
-    pin,
-    posicao,
-    capitao: capitaoConfirm,
-    admin: adminConfirm,
-    ativo: true,
+    nome, numero: parseInt(numero), pin, posicao,
+    capitao: capitaoConfirm, admin: adminConfirm, ativo: true,
     criadoEm: new Date().toLocaleString('pt-BR')
   }).then(() => {
-    alert(`✅ Jogador ${nome} cadastrado com sucesso!`);
+    alert(`✅ Jogador ${nome} cadastrado!`);
     carregarEquipe();
   });
 };
 
-// ================= REMOVER JOGADOR =================
 window.removerJogador = function() {
-  if (!isAdmin()) {
-    alert("❌ Apenas administradores podem remover jogadores!");
-    return;
-  }
+  if (!isAdmin()) return alert("❌ Apenas administradores podem remover jogadores!");
   const nome = prompt("Nome do jogador a ser removido:");
   if (!nome) return;
   const idNormalizado = normalizarTexto(nome.toLowerCase()).replace(/\s/g, '_');
-  if (confirm(`Tem certeza que deseja remover o jogador "${nome}"?`)) {
+  if (confirm(`Remover "${nome}"?`)) {
     remove(ref(db, `autorizados/${idNormalizado}`)).then(() => {
-      alert(`✅ Jogador ${nome} removido com sucesso!`);
+      alert(`✅ ${nome} removido!`);
       carregarEquipe();
     });
   }
 };
 
-// ================= TORNAR CAPITÃO =================
 window.tornarCapitao = function() {
-  if (!isAdmin()) {
-    alert("❌ Apenas administradores podem definir capitães!");
-    return;
-  }
-  const nome = prompt("Nome do jogador que será capitão:");
+  if (!isAdmin()) return alert("❌ Apenas administradores podem definir capitães!");
+  const nome = prompt("Nome do jogador:");
   if (!nome) return;
   const idNormalizado = normalizarTexto(nome.toLowerCase()).replace(/\s/g, '_');
   get(ref(db, `autorizados/${idNormalizado}`)).then((snapshot) => {
-    if (!snapshot.exists()) {
-      alert("❌ Jogador não encontrado!");
-      return;
-    }
+    if (!snapshot.exists()) return alert("Jogador não encontrado!");
     const jogador = snapshot.val();
-    if (confirm(`Tem certeza que deseja tornar ${jogador.nome} CAPITÃO?`)) {
+    if (confirm(`Tornar ${jogador.nome} capitão?`)) {
       set(ref(db, `autorizados/${idNormalizado}`), { ...jogador, capitao: true }).then(() => {
-        alert(`✅ ${jogador.nome} agora é CAPITÃO!`);
+        alert(`✅ ${jogador.nome} agora é capitão!`);
         carregarEquipe();
         location.reload();
       });
@@ -407,22 +347,15 @@ window.tornarCapitao = function() {
   });
 };
 
-// ================= REMOVER CAPITÃO =================
 window.removerCapitao = function() {
-  if (!isAdmin()) {
-    alert("❌ Apenas administradores podem remover capitães!");
-    return;
-  }
-  const nome = prompt("Nome do jogador que não será mais capitão:");
+  if (!isAdmin()) return alert("❌ Apenas administradores podem remover capitães!");
+  const nome = prompt("Nome do jogador:");
   if (!nome) return;
   const idNormalizado = normalizarTexto(nome.toLowerCase()).replace(/\s/g, '_');
   get(ref(db, `autorizados/${idNormalizado}`)).then((snapshot) => {
-    if (!snapshot.exists()) {
-      alert("❌ Jogador não encontrado!");
-      return;
-    }
+    if (!snapshot.exists()) return alert("Jogador não encontrado!");
     const jogador = snapshot.val();
-    if (confirm(`Tem certeza que deseja remover o cargo de capitão de ${jogador.nome}?`)) {
+    if (confirm(`Remover capitão de ${jogador.nome}?`)) {
       set(ref(db, `autorizados/${idNormalizado}`), { ...jogador, capitao: false }).then(() => {
         alert(`✅ ${jogador.nome} não é mais capitão!`);
         carregarEquipe();
@@ -439,38 +372,18 @@ window.confirmarPresenca = async function () {
 
   const jogosRef = ref(db, "jogos");
   const jogosSnapshot = await get(jogosRef);
-
-  if (!jogosSnapshot.exists()) {
-    alert("⚠️ Nenhum jogo cadastrado!");
-    return;
-  }
+  if (!jogosSnapshot.exists()) return alert("⚠️ Nenhum jogo cadastrado!");
 
   let ultimoJogo = null;
   jogosSnapshot.forEach(child => { ultimoJogo = child.val(); });
 
-  const confirmar = confirm(
-    `📋 CONFIRMAÇÃO DE PRESENÇA\n\n` +
-    `🎮 Jogo: ${ultimoJogo.time1} x ${ultimoJogo.time2}\n` +
-    `📅 Data: ${ultimoJogo.data}\n` +
-    `📍 Local: ${ultimoJogo.local}\n\n` +
-    `👍 Deseja confirmar sua presença?`
-  );
+  if (!confirm(`Confirmar presença para ${ultimoJogo.time1} x ${ultimoJogo.time2}?`)) return;
 
-  if (!confirmar) {
-    alert("❌ Confirmação cancelada!");
-    return;
-  }
-
-  await push(ref(db, "presencas"), {
-    nome: user,
-    numero: getUserNumero(),
-    data: new Date().toLocaleString()
-  });
-
+  await push(ref(db, "presencas"), { nome: user, numero: getUserNumero(), data: new Date().toLocaleString() });
   mostrarToast(`✅ Presença confirmada! ${user}`, "success");
 };
 
-// ================= CARREGAR PRESENÇAS =================
+// ================= PRESENÇAS =================
 function carregarPresencas() {
   const listaAdmin = document.getElementById("listaAdmin");
   if (!listaAdmin) return;
@@ -481,19 +394,14 @@ function carregarPresencas() {
       listaAdmin.innerHTML = "<li>Nenhuma presença confirmada.</li>";
       return;
     }
-
     const presencas = [];
-    snapshot.forEach(child => {
-      presencas.push({ id: child.key, ...child.val() });
-    });
+    snapshot.forEach(child => { presencas.push({ id: child.key, ...child.val() }); });
     presencas.reverse();
-
     presencas.forEach(p => {
       listaAdmin.innerHTML += `
-        <li style="margin-bottom: 10px; padding: 8px; background: #1a1a1a; border-radius: 8px;">
-          <strong>👤 ${p.nome} #${p.numero || '?'}</strong><br>
-          <small>✅ Confirmou em: ${p.data || p.horario}</small>
-          ${isAdmin() ? `<button onclick="window.removerPresenca('${p.id}')" style="margin-left: 10px; background:#c42b2b; padding: 2px 8px;">❌</button>` : ''}
+        <li style="margin-bottom:10px; padding:12px; background:#1a1a1a; border-radius:8px; display:flex; justify-content:space-between;">
+          <div><strong>👤 ${p.nome} #${p.numero || '?'}</strong><br><small>✅ Confirmou em: ${p.data}</small></div>
+          ${isAdmin() ? `<button onclick="window.removerPresenca('${p.id}')" style="background:#c42b2b; padding:5px 10px; width:auto;">❌</button>` : ''}
         </li>`;
     });
   });
@@ -501,69 +409,122 @@ function carregarPresencas() {
 
 window.removerPresenca = function(id) {
   if (confirm("Remover esta confirmação?")) {
-    remove(ref(db, `presencas/${id}`)).then(() => {
-      alert("✅ Presença removida!");
+    remove(ref(db, `presencas/${id}`)).then(() => carregarPresencas());
+  }
+};
+
+window.limparPresencas = function() {
+  if (!isAdmin()) return alert("❌ Apenas administradores podem limpar presenças!");
+  if (confirm("⚠️ ATENÇÃO! Apagar TODAS as presenças?")) {
+    remove(ref(db, "presencas")).then(() => {
+      alert("✅ Presenças limpas!");
       carregarPresencas();
     });
   }
 };
 
-window.limparPresencas = function() {
-  if (!isAdmin()) {
-    alert("❌ Apenas administradores podem limpar presenças!");
-    return;
-  }
-  if (confirm("⚠️ ATENÇÃO! Isso vai apagar TODAS as confirmações. Tem certeza?")) {
-    remove(ref(db, "presencas")).then(() => {
-      alert("✅ Todas as presenças foram limpas!");
-      carregarPresencas();
+// ================= PRESENÇAS NO TREINO =================
+window.confirmarPresencaTreino = async function () {
+    const user = getUserName();
+    if (!user) return alert("❌ Faça login primeiro!");
+
+    const treinoRef = ref(db, "treino");
+    const treinoSnapshot = await get(treinoRef);
+    if (!treinoSnapshot.exists()) return alert("⚠️ Nenhum treino agendado!");
+
+    const treino = treinoSnapshot.val();
+    if (!confirm(`Confirmar presença no treino ${treino.data}?`)) return;
+
+    const presencasTreinoRef = ref(db, "presencasTreino");
+    const snapshot = await get(presencasTreinoRef);
+    let jaConfirmou = false;
+    if (snapshot.exists()) {
+        snapshot.forEach(child => { if (child.val().nome === user) jaConfirmou = true; });
+    }
+    if (jaConfirmou) return alert(`⚠️ ${user}, você já confirmou presença!`);
+
+    await push(presencasTreinoRef, {
+        nome: user, numero: getUserNumero(), dataTreino: treino.data, horario: treino.horario, confirmadoEm: new Date().toLocaleString()
     });
-  }
+    alert(`✅ PRESENÇA NO TREINO CONFIRMADA!`);
+    carregarPresencasTreino();
 };
+
+function carregarPresencasTreino() {
+    const listaEl = document.getElementById("listaPresencasTreino");
+    if (!listaEl) return;
+    
+    const presencasTreinoRef = ref(db, "presencasTreino");
+    onValue(presencasTreinoRef, (snapshot) => {
+        listaEl.innerHTML = "";
+        if (!snapshot.exists()) {
+            listaEl.innerHTML = '<li style="justify-content:center; color:#888;">⚽ Nenhuma presença confirmada no treino</li>';
+            return;
+        }
+        const presencas = [];
+        snapshot.forEach(child => { presencas.push({ id: child.key, ...child.val() }); });
+        presencas.reverse();
+        presencas.forEach(p => {
+            listaEl.innerHTML += `
+                <li style="margin-bottom:10px; padding:12px; background:#1a1a1a; border-radius:8px; display:flex; justify-content:space-between;">
+                    <div><strong>👤 ${p.nome} #${p.numero || '?'}</strong><br><small>✅ Confirmou em: ${p.confirmadoEm}</small></div>
+                    ${isAdmin() ? `<button onclick="window.removerPresencaTreino('${p.id}')" style="background:#c42b2b; padding:5px 10px; width:auto;">❌</button>` : ''}
+                </li>`;
+        });
+        const btnLimpar = document.getElementById("btnLimparPresencasTreino");
+        if (btnLimpar) btnLimpar.style.display = isAdmin() && presencas.length > 0 ? "block" : "none";
+    });
+}
+
+window.removerPresencaTreino = function(id) {
+    if (!isAdmin()) return alert("❌ Apenas administradores podem remover presenças!");
+    if (confirm("Remover esta confirmação do treino?")) {
+        remove(ref(db, `presencasTreino/${id}`)).then(() => carregarPresencasTreino());
+    }
+};
+
+window.limparPresencasTreino = function() {
+    if (!isAdmin()) return alert("❌ Apenas administradores podem limpar presenças!");
+    if (confirm("⚠️ ATENÇÃO! Apagar TODAS as presenças do treino?")) {
+        remove(ref(db, "presencasTreino")).then(() => {
+            alert("✅ Presenças do treino limpas!");
+            carregarPresencasTreino();
+        });
+    }
+};
+
+function carregarTotalConfirmadosTreino() {
+    const totalEl = document.getElementById("totalConfirmadosTreino");
+    if (!totalEl) return;
+    onValue(ref(db, "presencasTreino"), (snapshot) => {
+        const total = snapshot.size;
+        totalEl.innerHTML = `${total} jogador${total !== 1 ? 'es' : ''} confirmado${total !== 1 ? 's' : ''}`;
+    });
+}
 
 // ================= COMUNICADO =================
 function carregarComunicado() {
   const comunicadoEl = document.getElementById("comunicado");
   if (!comunicadoEl) return;
-
   onValue(ref(db, "comunicado"), (snapshot) => {
-    if (snapshot.exists()) {
-      comunicadoEl.textContent = snapshot.val().texto;
-    } else {
-      comunicadoEl.textContent = "Nenhum aviso no momento.";
-    }
+    comunicadoEl.textContent = snapshot.exists() ? snapshot.val().texto : "Nenhum aviso no momento.";
   });
 }
 
 window.enviarAviso = async function () {
     if (!isAdmin() && !isCapitao()) return alert("❌ Sem permissão");
-    
     const texto = prompt("Digite o aviso:");
     if (!texto) return;
-    
-    await set(ref(db, "comunicado"), {
-        texto, data: new Date().toLocaleString(), enviadoPor: getUserName()
-    });
-    
+    await set(ref(db, "comunicado"), { texto, data: new Date().toLocaleString(), enviadoPor: getUserName() });
     mostrarToast("✅ Aviso enviado!", "success");
-    
-    // Preparar notificação para o dashboard
     prepararNotificacao("comunicado", { texto });
-    
     carregarComunicado();
-    carregarComunicadoPerfil();
 };
 
 window.removerComunicadoGlobal = function() {
-  if (!isAdmin() && !isCapitao()) {
-    alert("❌ Apenas administradores e capitães podem remover comunicados!");
-    return;
-  }
-  if (confirm("⚠️ Tem certeza que deseja remover o comunicado atual?")) {
-    remove(ref(db, "comunicado")).then(() => {
-      alert("✅ Comunicado removido!");
-      carregarComunicado();
-    });
+  if (!isAdmin() && !isCapitao()) return alert("❌ Sem permissão");
+  if (confirm("Remover comunicado?")) {
+    remove(ref(db, "comunicado")).then(() => carregarComunicado());
   }
 };
 
@@ -571,7 +532,6 @@ window.removerComunicadoGlobal = function() {
 function carregarTreino() {
   const treinoEl = document.getElementById("proximoTreino");
   if (!treinoEl) return;
-
   onValue(ref(db, "treino"), (snapshot) => {
     if (snapshot.exists()) {
       const treino = snapshot.val();
@@ -584,45 +544,28 @@ function carregarTreino() {
 
 window.definirTreino = async function () {
     if (!isAdmin() && !isCapitao()) return alert("❌ Sem permissão");
-    
     const data = prompt("📅 Data do treino:");
     const horario = prompt("⏰ Horário:");
     const local = prompt("📍 Local:");
-    
     if (!data || !horario || !local) return;
-    
-    await set(ref(db, "treino"), {
-        data, horario, local,
-        atualizadoEm: new Date().toLocaleString(),
-        atualizadoPor: getUserName()
-    });
-    
+    await set(ref(db, "treino"), { data, horario, local, atualizadoEm: new Date().toLocaleString(), atualizadoPor: getUserName() });
     mostrarToast("✅ Treino marcado!", "success");
-    
-    // Preparar notificação para o dashboard
     prepararNotificacao("treino", { data, horario, local });
-    
     carregarTreino();
 };
 
 window.removerTreino = function() {
-  if (!isAdmin() && !isCapitao()) {
-    alert("❌ Apenas administradores e capitães podem remover treino!");
-    return;
-  }
-  if (confirm("⚠️ Tem certeza que deseja remover o próximo treino?")) {
-    remove(ref(db, "treino")).then(() => {
-      alert("✅ Treino removido!");
-      carregarTreino();
-    });
+  if (!isAdmin() && !isCapitao()) return alert("❌ Sem permissão");
+  if (confirm("Remover treino?")) {
+    remove(ref(db, "treino")).then(() => carregarTreino());
   }
 };
 
-// ================= CARREGAR EQUIPE =================
+// ================= EQUIPE =================
 function carregarEquipe() {
   const container = document.getElementById("listaEquipe");
   if (!container) return;
-  container.innerHTML = "<div class='loading'>🔄 Carregando elenco...</div>";
+  container.innerHTML = "<div class='loading'>🔄 Carregando...</div>";
 
   onValue(ref(db, "autorizados"), (snapshot) => {
     container.innerHTML = "";
@@ -630,71 +573,45 @@ function carregarEquipe() {
       container.innerHTML = "<div class='card'>Nenhum jogador cadastrado.</div>";
       return;
     }
-
     const jogadores = [];
-    snapshot.forEach(child => {
-      jogadores.push({ id: child.key, ...child.val() });
-    });
+    snapshot.forEach(child => { jogadores.push({ id: child.key, ...child.val() }); });
     jogadores.sort((a, b) => a.numero - b.numero);
-
     jogadores.forEach(jogador => {
-      const card = document.createElement("div");
-      card.className = "card jogador-card";
-      card.innerHTML = `
-        <div class="jogador-numero">#${jogador.numero}</div>
-        <div class="jogador-nome">${jogador.nome}</div>
-        <div class="jogador-posicao">📍 ${jogador.posicao || 'Posição não definida'}</div>
-        <div class="jogador-status">
-          ${jogador.capitao ? '<span class="capitao-badge">🅲 Capitão</span>' : ''}
-          ${jogador.admin ? '<span class="admin-badge">👑 ADM</span>' : ''}
-        </div>
-      `;
-      container.appendChild(card);
+      container.innerHTML += `
+        <div class="card jogador-card">
+          <div class="jogador-numero">#${jogador.numero}</div>
+          <div class="jogador-nome">${jogador.nome}</div>
+          <div class="jogador-posicao">📍 ${jogador.posicao || 'Posição não definida'}</div>
+          <div class="jogador-status">
+            ${jogador.capitao ? '<span class="capitao-badge">🅲 Capitão</span>' : ''}
+            ${jogador.admin ? '<span class="admin-badge">👑 ADM</span>' : ''}
+          </div>
+        </div>`;
     });
-
-    const contador = document.createElement("div");
-    contador.className = "contador-equipe";
-    contador.innerHTML = `📊 Total de jogadores: <strong>${jogadores.length}</strong>`;
-    container.appendChild(contador);
+    container.innerHTML += `<div class="contador-equipe">📊 Total de jogadores: <strong>${jogadores.length}</strong></div>`;
   });
 }
 
 // ================= RESULTADOS =================
 window.adicionarResultado = async function () {
     if (!isAdmin()) return alert("❌ Apenas ADM");
-    
     const data = prompt("📅 Data do jogo:");
     const time1 = prompt("Time da casa:");
     const gols1 = prompt(`Gols do ${time1}:`);
     const time2 = prompt("Time visitante:");
     const gols2 = prompt(`Gols do ${time2}:`);
     const local = prompt("📍 Local:");
-    
     if (!time1 || !time2) return;
-    
-    await push(ref(db, "resultados"), {
-        data, time1, gols1: parseInt(gols1), time2, gols2: parseInt(gols2), local,
-        criadoEm: new Date().toLocaleString(),
-        criadoPor: getUserName()
-    });
-    
+    await push(ref(db, "resultados"), { data, time1, gols1: parseInt(gols1), time2, gols2: parseInt(gols2), local, criadoEm: new Date().toLocaleString(), criadoPor: getUserName() });
     mostrarToast("✅ Resultado adicionado!", "success");
-    
-    // Preparar notificação para o dashboard
     prepararNotificacao("resultado", { time1, gols1, time2, gols2 });
-    
     carregarResultados();
 };
+
 window.removerResultado = function(id) {
-  if (!isAdmin()) {
-    alert("❌ Apenas administradores podem remover resultados!");
-    return;
-  }
-  if (confirm("Remover este resultado?")) {
-    remove(ref(db, `resultados/${id}`)).then(() => {
-      alert("✅ Resultado removido!");
-      carregarResultados();
-    });
+  if (!isAdmin()) return alert("❌ Apenas administradores podem remover resultados!");
+  if (confirm("Remover resultado?")) {
+    remove(ref(db, `resultados/${id}`)).then(() => carregarResultados());
   }
 };
 
@@ -709,40 +626,25 @@ function carregarResultados() {
       container.innerHTML = "<div class='card'>Nenhum resultado cadastrado.</div>";
       return;
     }
-
     const resultados = [];
-    snapshot.forEach(child => {
-      resultados.push({ id: child.key, ...child.val() });
-    });
+    snapshot.forEach(child => { resultados.push({ id: child.key, ...child.val() }); });
     resultados.reverse();
-
     resultados.forEach(resultado => {
       const gols1 = resultado.gols1 || 0;
       const gols2 = resultado.gols2 || 0;
       const corVitoria = gols1 > gols2 ? "#4CAF50" : gols2 > gols1 ? "#f44336" : "#ff9800";
-
-      const card = document.createElement("div");
-      card.className = "card resultado-card";
-      card.innerHTML = `
-        <div class="resultado-data">📅 ${resultado.data || 'Data não informada'}</div>
-        <div class="resultado-placar">
-          <div class="time-casa">
-            <span class="time-nome">${resultado.time1}</span>
-            <span class="time-gols">${gols1}</span>
+      container.innerHTML += `
+        <div class="card resultado-card">
+          <div class="resultado-data">📅 ${resultado.data || 'Data não informada'}</div>
+          <div class="resultado-placar">
+            <div class="time-casa"><span class="time-nome">${resultado.time1}</span><span class="time-gols">${gols1}</span></div>
+            <div class="placar-x">X</div>
+            <div class="time-visitante"><span class="time-gols">${gols2}</span><span class="time-nome">${resultado.time2}</span></div>
           </div>
-          <div class="placar-x">X</div>
-          <div class="time-visitante">
-            <span class="time-gols">${gols2}</span>
-            <span class="time-nome">${resultado.time2}</span>
-          </div>
-        </div>
-        <div class="resultado-local">📍 ${resultado.local || 'Local não informado'}</div>
-        <div class="resultado-status" style="color: ${corVitoria};">
-          ${gols1 > gols2 ? '🏆 VITÓRIA' : gols2 > gols1 ? '❌ DERROTA' : '⚖️ EMPATE'}
-        </div>
-        ${isAdmin() ? `<button onclick="window.removerResultado('${resultado.id}')" style="margin-top: 10px; background: #c42b2b;">🗑️ Remover</button>` : ''}
-      `;
-      container.appendChild(card);
+          <div class="resultado-local">📍 ${resultado.local || 'Local não informado'}</div>
+          <div class="resultado-status" style="color:${corVitoria};">${gols1 > gols2 ? '🏆 VITÓRIA' : gols2 > gols1 ? '❌ DERROTA' : '⚖️ EMPATE'}</div>
+          ${isAdmin() ? `<button onclick="window.removerResultado('${resultado.id}')" style="margin-top:10px; background:#c42b2b;">🗑️ Remover</button>` : ''}
+        </div>`;
     });
   });
 }
@@ -751,7 +653,6 @@ function carregarResultados() {
 function carregarComunicadoPerfil() {
   const comunicadoEl = document.getElementById("comunicadoPerfil");
   if (!comunicadoEl) return;
-
   onValue(ref(db, "comunicado"), (snapshot) => {
     if (snapshot.exists()) {
       const comunicado = snapshot.val();
@@ -763,17 +664,10 @@ function carregarComunicadoPerfil() {
 }
 
 window.definirComunicadoPerfil = function() {
-  if (!isAdmin() && !isCapitao()) {
-    alert("❌ Apenas administradores e capitães podem criar comunicados!");
-    return;
-  }
+  if (!isAdmin() && !isCapitao()) return alert("❌ Sem permissão");
   const texto = prompt("📢 Digite o comunicado:");
   if (texto) {
-    set(ref(db, "comunicado"), {
-      texto,
-      data: new Date().toLocaleString(),
-      enviadoPor: getUserName()
-    }).then(() => {
+    set(ref(db, "comunicado"), { texto, data: new Date().toLocaleString(), enviadoPor: getUserName() }).then(() => {
       alert("✅ Comunicado enviado!");
       carregarComunicadoPerfil();
       carregarComunicado();
@@ -782,10 +676,7 @@ window.definirComunicadoPerfil = function() {
 };
 
 window.removerComunicadoPerfil = function() {
-  if (!isAdmin() && !isCapitao()) {
-    alert("❌ Apenas administradores e capitães podem remover comunicados!");
-    return;
-  }
+  if (!isAdmin() && !isCapitao()) return alert("❌ Sem permissão");
   if (confirm("Remover comunicado?")) {
     remove(ref(db, "comunicado")).then(() => {
       alert("✅ Comunicado removido!");
@@ -820,11 +711,11 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarTreino();
   carregarEquipe();
   carregarResultados();
+  carregarPresencasTreino();
+  carregarTotalConfirmadosTreino();
   console.log("✅ Aplicação inicializada com sucesso!");
 });
 
 window.addEventListener("load", () => {
-  if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
-  }
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 });

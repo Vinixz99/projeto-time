@@ -14,7 +14,7 @@
   <h2><i data-lucide="user-circle"></i> Perfil</h2>
 </header>
 
-<main class="container">
+<main class="perfil-container">
 
   <!-- CARD PRINCIPAL -->
   <div class="card perfil-card">
@@ -28,14 +28,26 @@
       <div class="info-box">
         <h4><i data-lucide="calendar"></i> Próximo treino</h4>
         <p id="proximoTreino">Carregando...</p>
+        <button class="btn-confirmar-treino" onclick="confirmarPresencaTreino()">
+          <i data-lucide="check-circle"></i> Confirmar presença no treino
+        </button>
       </div>
 
       <!-- COMUNICADO -->
       <div class="info-box">
         <h4><i data-lucide="megaphone"></i> Comunicados</h4>
-        <p id="comunicadoPerfil">Nenhum comunicado</p>
+        <p id="comunicadoPerfil">Nenhum comunicado no momento.</p>
       </div>
     </div>
+  </div>
+
+  <!-- LISTA DE PRESENÇAS NO TREINO -->
+  <div class="card">
+    <h3><i data-lucide="users"></i> Presenças no Treino</h3>
+    <ul id="listaPresencasTreino"></ul>
+    <button id="btnLimparPresencasTreino" onclick="limparPresencasTreino()" style="background: #c42b2b; display: none;">
+      <i data-lucide="trash-2"></i> Limpar todas as presenças do treino
+    </button>
   </div>
 
   <!-- ADMIN -->
