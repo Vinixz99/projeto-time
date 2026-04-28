@@ -1,0 +1,1256 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #000;
+  color: #fff;
+  font-family: 'Segoe UI', sans-serif;
+  padding-bottom: 70px;
+}
+
+h4 {
+  margin-bottom: 10px;
+}
+
+/* ==================== HEADER ==================== */
+.header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  padding: 12px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #000;
+  z-index: 1000;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-circle img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.logo-area h2 {
+  font-size: 16px;
+}
+
+.logo-area span {
+  font-size: 10px;
+  color: #aaa;
+}
+
+.btn-login {
+  background: #fff;
+  color: #000;
+  padding: 10px 18px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-login:hover {
+  transform: scale(1.05);
+  background: #ff6b00;
+  color: #fff;
+}
+
+/* ==================== CONTAINER ==================== */
+.container {
+  padding: 90px 15px 100px;
+}
+
+/* ==================== NAVBAR CORRIGIDA E RESPONSIVA ==================== */
+.navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(13, 13, 13, 0.95);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid #222;
+  z-index: 1000;
+}
+
+.navbar a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #aaa;
+  transition: all 0.3s ease;
+  padding: 10px 5px;
+  border-radius: 12px;
+  cursor: pointer;
+  gap: 4px;
+  text-align: center;
+  position: relative;
+}
+
+.navbar a i {
+  font-size: 22px;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.navbar a span {
+  font-size: 11px;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.navbar a:hover {
+  color: #ff6b00;
+  background: rgba(255, 107, 0, 0.15);
+  transform: translateY(-3px);
+}
+
+.navbar a:hover i {
+  color: #ff6b00;
+  transform: scale(1.1);
+}
+
+.navbar a:active {
+  transform: scale(0.95);
+}
+
+.navbar a.ativo {
+  color: #ff6b00;
+}
+
+.navbar a.ativo i {
+  color: #ff6b00;
+  transform: scale(1.15);
+}
+
+.navbar a.ativo::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 25px;
+  height: 3px;
+  background: #ff6b00;
+  border-radius: 10px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 25px;
+    opacity: 1;
+  }
+}
+
+/* ==================== RESPONSIVIDADE DA NAVBAR ==================== */
+@media (max-width: 600px) {
+  .navbar {
+    padding: 5px 0;
+  }
+  
+  .navbar a {
+    padding: 6px 4px;
+  }
+  
+  .navbar a i {
+    font-size: 18px;
+  }
+  
+  .navbar a span {
+    font-size: 9px;
+  }
+  
+  .navbar a.ativo::after {
+    width: 18px;
+    bottom: -3px;
+  }
+}
+
+@media (max-width: 450px) {
+  .navbar a span {
+    font-size: 8px;
+  }
+  
+  .navbar a i {
+    font-size: 16px;
+  }
+}
+
+/* ==================== HERO ==================== */
+.hero {
+  padding-top: 30px;
+}
+
+.hero h1 {
+  font-size: 48px;
+  margin: 20px 0;
+}
+
+.hero p {
+  color: #ccc;
+  margin-bottom: 20px;
+}
+
+.local {
+  background: #111;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-primary {
+  flex: 1;
+  padding: 14px;
+  border-radius: 15px;
+  border: none;
+  background: #fff;
+  color: #000;
+  font-weight: bold;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  background: #ff6b00;
+  color: #fff;
+  transform: scale(1.02);
+}
+
+.btn-outline {
+  flex: 1;
+  padding: 14px;
+  border-radius: 15px;
+  border: 1px solid #fff;
+  background: transparent;
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-outline:hover {
+  background: #fff;
+  color: #000;
+  transform: scale(1.02);
+}
+
+/* ==================== CARDS ==================== */
+.card {
+  background: #111;
+  padding: 20px;
+  border-radius: 20px;
+  margin-top: 20px;
+  animation: fadeUp 0.6s ease forwards;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.tag {
+  color: #00ff88;
+  font-size: 12px;
+}
+
+.times {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  font-size: 18px;
+}
+
+.vs {
+  opacity: 0.5;
+}
+
+/* ==================== MODAL ==================== */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.9);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-box {
+  background: #111;
+  padding: 30px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 400px;
+  border: 1px solid #333;
+}
+
+.modal-box h4 {
+  color: #ff6b00;
+  margin-bottom: 20px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.modal input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: 1px solid #333;
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.modal button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #ff6b00;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.modal button:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.modal hr {
+  margin: 20px 0;
+  border-color: #333;
+}
+
+/* ==================== ÁREA DO USUÁRIO ==================== */
+#areaUsuario {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#areaUsuario button {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  background: #ff6b00;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+#areaUsuario button:hover {
+  transform: scale(1.05);
+  background: #ff9f00;
+}
+
+#areaUsuario span {
+  background: #1a1a1a;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ==================== BOTÕES GERAIS ==================== */
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 10px;
+  border: none;
+  background: #ff6b00;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+/* ==================== PÁGINA DE EQUIPE ==================== */
+.grid-equipe {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 20px 0 30px 0;
+}
+
+.jogador-card {
+  background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+  border-radius: 20px;
+  padding: 25px 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid #2a2a2a;
+  position: relative;
+  overflow: hidden;
+}
+
+.jogador-card:hover {
+  transform: translateY(-8px);
+  border-color: #ff6b00;
+  box-shadow: 0 10px 30px rgba(255, 107, 0, 0.2);
+}
+
+.jogador-numero {
+  font-size: 60px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ff6b00, #ff9f00);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 10px;
+  text-shadow: 0 0 20px rgba(255, 107, 0, 0.3);
+  position: relative;
+  display: inline-block;
+}
+
+.jogador-numero::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 107, 0, 0.1);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.jogador-nome {
+  font-size: 22px;
+  font-weight: bold;
+  color: white;
+  margin: 15px 0 8px 0;
+  letter-spacing: 1px;
+}
+
+.jogador-posicao {
+  display: inline-block;
+  background: #2a2a2a;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #ff9f00;
+  margin: 10px 0;
+  font-weight: 500;
+}
+
+.jogador-status {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.capitao-badge {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #000;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-badge {
+  background: linear-gradient(135deg, #ff6b00, #ff9f00);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.contador-equipe {
+  text-align: center;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #1a1a1a, #111);
+  border-radius: 15px;
+  margin-top: 30px;
+  border: 1px solid #2a2a2a;
+  font-size: 16px;
+}
+
+.contador-equipe strong {
+  color: #ff6b00;
+  font-size: 20px;
+  margin: 0 5px;
+}
+
+/* ==================== PÁGINA DE RESULTADOS ==================== */
+.resultado-card {
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+.resultado-data {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.resultado-placar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  gap: 20px;
+}
+
+.time-casa, .time-visitante {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.time-casa {
+  justify-content: flex-end;
+}
+
+.time-visitante {
+  justify-content: flex-start;
+}
+
+.time-nome {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.time-gols {
+  font-size: 32px;
+  font-weight: bold;
+  color: #ff6b00;
+}
+
+.placar-x {
+  font-size: 24px;
+  font-weight: bold;
+  color: #888;
+}
+
+.resultado-local {
+  text-align: center;
+  color: #888;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.resultado-status {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.resultado-criado {
+  font-size: 11px;
+  color: #555;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.contador-resultados {
+  text-align: center;
+  padding: 15px;
+  background: #1a1a1a;
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.btn-remover-resultado {
+  cursor: pointer;
+  transition: opacity 0.3s;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  background: #c42b2b;
+}
+
+.btn-remover-resultado:hover {
+  opacity: 0.8;
+}
+
+/* ==================== RESULTADOS - CORREÇÃO TOTAL PARA CELULAR ==================== */
+@media (max-width: 600px) {
+  .resultado-placar {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .time-casa {
+    justify-content: center;
+    width: 100%;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .time-visitante {
+    justify-content: center;
+    width: 100%;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 10px;
+  }
+  
+  .placar-x {
+    display: block;
+    text-align: center;
+    font-size: 18px;
+    margin: 5px 0;
+  }
+  
+  .time-nome {
+    font-size: 16px;
+    text-align: center;
+    order: 1;
+  }
+  
+  .time-gols {
+    font-size: 36px;
+    text-align: center;
+    order: 2;
+  }
+  
+  .time-casa .time-gols {
+    color: #ff6b00;
+  }
+  
+  .time-visitante .time-gols {
+    color: #ff6b00;
+  }
+  
+  .resultado-status {
+    font-size: 14px;
+    margin-top: 10px;
+  }
+}
+
+/* Para telas muito pequenas */
+@media (max-width: 400px) {
+  .time-gols {
+    font-size: 28px;
+  }
+  
+  .time-nome {
+    font-size: 14px;
+  }
+  
+  .resultado-card {
+    padding: 15px;
+  }
+}
+
+/* ==================== LISTA DE PRESENÇAS ==================== */
+#listaAdmin {
+  list-style: none;
+  margin-top: 10px;
+}
+
+#listaAdmin li {
+  margin-bottom: 10px;
+  padding: 12px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#listaAdmin li button {
+  width: auto;
+  padding: 5px 10px;
+  margin: 0;
+  background: #c42b2b;
+}
+
+/* ==================== POPUP ==================== */
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.popup-box {
+  background: #1a1a1a;
+  padding: 25px;
+  border-radius: 16px;
+  text-align: center;
+  width: 280px;
+  border: 1px solid #333;
+}
+
+.popup-box button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  border: none;
+  background: #ff6b00;
+  cursor: pointer;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* ==================== AJUSTES GLOBAIS ==================== */
+.container > :last-child {
+  margin-bottom: 20px;
+}
+
+#listaJogos {
+  padding-bottom: 20px;
+}
+
+#listaResultados {
+  padding-bottom: 30px;
+}
+
+.btn-confirmar {
+  margin-bottom: 20px;
+  background: #00ff88;
+  color: #000;
+}
+
+.btn-confirmar:hover {
+  background: #00cc6a;
+}
+
+/* ==================== ANIMAÇÕES ==================== */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #888;
+}
+
+.loading::after {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ff6b00;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+/* ==================== RESPONSIVIDADE ==================== */
+@media (max-width: 600px) {
+  .hero h1 {
+    font-size: 36px;
+  }
+  
+  .grid-equipe {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .jogador-numero {
+    font-size: 48px;
+  }
+  
+  .jogador-numero::before {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .jogador-nome {
+    font-size: 18px;
+  }
+  
+  .info-dupla {
+    flex-direction: column;
+  }
+  
+  .resultado-placar {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .time-casa, .time-visitante {
+    justify-content: center;
+  }
+  
+  .buttons {
+    flex-direction: column;
+  }
+}
+
+/* ==================== SKELETON LOADING ==================== */
+.skeleton-card {
+  background: #1a1a1a;
+  border-radius: 20px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.skeleton-title {
+  width: 60%;
+  height: 24px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-dupla {
+  display: flex;
+  gap: 15px;
+}
+
+.skeleton-box {
+  flex: 1;
+  height: 100px;
+  background: #2a2a2a;
+  border-radius: 12px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* ==================== CORREÇÃO DO PERFIL ==================== */
+.navbar a[href="perfil.html"] {
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.navbar a[href="perfil.html"] i,
+.navbar a[href="perfil.html"] span {
+  pointer-events: none;
+}
+
+
+/* ==================== PÁGINA DE PERFIL ==================== */
+
+/* Container do perfil - GARANTE ESPAÇAMENTO */
+.perfil-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 90px 15px 100px;
+}
+
+/* Card principal do perfil */
+.perfil-card {
+    background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+    border-radius: 24px;
+    padding: 25px;
+    border: 1px solid #2a2a2a;
+}
+
+/* Título do perfil */
+.titulo-perfil {
+    text-align: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.titulo-perfil h2 {
+    color: #ff6b00;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.titulo-perfil p {
+    color: #888;
+    font-size: 13px;
+}
+
+/* Container dos cards de informação */
+.info-dupla {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+/* Cards individuais de informação */
+.info-box {
+    flex: 1;
+    background: #1a1a1a;
+    border-radius: 16px;
+    padding: 18px 15px;
+    transition: all 0.3s ease;
+    border: 1px solid #2a2a2a;
+    text-align: center;
+}
+
+.info-box:hover {
+    transform: translateY(-5px);
+    border-color: #ff6b00;
+    background: #222;
+}
+
+.info-box h4 {
+    font-size: 13px;
+    color: #ff6b00;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.info-box p {
+    font-size: 14px;
+    color: #fff;
+    line-height: 1.4;
+    word-break: break-word;
+    margin-bottom: 12px;
+}
+
+/* Botão de confirmar treino */
+.btn-confirmar-treino {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #00ff88;
+    color: #000;
+    font-size: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.btn-confirmar-treino:hover {
+    transform: scale(1.02);
+    background: #00cc6a;
+}
+
+/* Total de confirmados no treino */
+.total-confirmados {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00ff88;
+    margin-top: 8px;
+}
+
+/* Área do ADMIN no perfil */
+#areaAdminPerfil {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+    border: 1px solid #ff6b00;
+    margin-top: 20px;
+}
+
+#areaAdminPerfil h3 {
+    color: #ff6b00;
+    font-size: 18px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#areaAdminPerfil button {
+    background: #2a2a2a;
+    color: #fff;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+#areaAdminPerfil button:hover {
+    background: #ff6b00;
+    transform: translateY(-2px);
+}
+
+/* Responsivo para mobile */
+@media (max-width: 600px) {
+    .perfil-container {
+        padding: 90px 15px 100px;
+    }
+    
+    .info-dupla {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .info-box {
+        padding: 15px;
+    }
+    
+    .info-box h4 {
+        font-size: 12px;
+    }
+    
+    .info-box p {
+        font-size: 13px;
+    }
+    
+    .titulo-perfil h2 {
+        font-size: 20px;
+    }
+}
+
+/* ==================== PRESENÇAS NO TREINO ==================== */
+.card h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ff6b00;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+#listaPresencasTreino {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#listaPresencasTreino li {
+    margin-bottom: 12px;
+    padding: 12px 15px;
+    background: #1a1a1a;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+#listaPresencasTreino li:hover {
+    transform: translateX(5px);
+    background: #222;
+}
+
+#listaPresencasTreino li strong {
+    color: #fff;
+    font-size: 15px;
+}
+
+#listaPresencasTreino li small {
+    color: #888;
+    font-size: 11px;
+}
+
+#listaPresencasTreino li button {
+    width: auto;
+    padding: 5px 12px;
+    margin: 0;
+    background: #c42b2b;
+    font-size: 12px;
+    border-radius: 8px;
+}
+
+#listaPresencasTreino li button:hover {
+    background: #ff3333;
+}
+
+/* Mensagem quando não tem presenças */
+#listaPresencasTreino li:first-child {
+    color: #888;
+    justify-content: center;
+    font-style: italic;
+}
+
+/* Botão de limpar presenças do treino */
+#btnLimparPresencasTreino {
+    margin-top: 15px;
+    background: #c42b2b;
+    transition: all 0.3s ease;
+}
+
+#btnLimparPresencasTreino:hover {
+    background: #ff3333;
+    transform: translateY(-2px);
+}
+
+/* Contador dentro da lista */
+#listaPresencasTreino .contador-presencas {
+    margin-top: 15px;
+    padding: 10px;
+    background: #2a2a2a;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    color: #fff;
+}
+
+#listaPresencasTreino .contador-presencas strong {
+    color: #ff6b00;
+    font-size: 16px;
+}
+
+/* ==================== LISTA DE PRESENÇAS ESTILIZADA ==================== */
+.presencas {
+    background: #111;
+    border-radius: 20px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.presencas h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    color: #ff6b00;
+    font-size: 16px;
+}
+
+#listaAdmin {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#listaAdmin li {
+    margin-bottom: 12px;
+    padding: 12px 15px;
+    background: #1a1a1a;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+#listaAdmin li:hover {
+    transform: translateX(5px);
+    background: #222;
+}
+
+#listaAdmin li div strong {
+    color: #fff;
+    font-size: 15px;
+}
+
+#listaAdmin li div small {
+    color: #888;
+    font-size: 11px;
+}
+
+#listaAdmin li button {
+    width: auto;
+    padding: 5px 12px;
+    margin: 0;
+    background: #c42b2b;
+    font-size: 12px;
+    border-radius: 8px;
+}
+
+#listaAdmin li button:hover {
+    background: #ff3333;
+}
+
+/* Mensagem quando não tem presenças */
+#listaAdmin li:first-child {
+    justify-content: center;
+    font-style: italic;
+    color: #888;
+}

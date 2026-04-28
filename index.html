@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Nexus FC</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+
+<!-- OneSignal -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "104480cd-3733-41c6-9a00-f89f221e3c52",
+    });
+  });
+</script>
+
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo-area">
+    <div class="logo-circle"><img class="logo" src="img/Nexus-logo (2).png" alt="logo"></div>
+    <div>
+      <h2>NEXUS</h2>
+      <span>FC FUTSAL</span>
+    </div>
+  </div>
+
+  <div id="areaUsuario">
+    <button class="btn-login" onclick="window.abrirLogin()">ENTRAR</button>
+  </div>
+</header>
+
+<!-- CONTEÚDO -->
+<main class="container">
+
+  <!-- HERO -->
+  <section class="hero">
+    <span class="local"><i data-lucide="map-pin"></i> ARACAJU • SERGIPE</span>
+    <h1>NEXUS<br>FC</h1>
+    <p>Futsal que conecta. Força que une.</p>
+    <div class="buttons">
+      <a href="agenda.html" class="btn-primary"><i data-lucide="calendar"></i> VER AGENDA</a>
+      <a href="equipe.html" class="btn-outline"><i data-lucide="users"></i> CONHEÇA A EQUIPE</a>
+    </div>
+  </section>
+
+  <!-- PRÓXIMO JOGO -->
+  <section class="card jogo">
+    <div class="card">
+      <h2><i data-lucide="soccer"></i> Próximo jogo</h2>
+      <p id="infoJogo">Carregando...</p>
+      <div class="times">
+        <span id="time1">...</span>
+        <span>X</span>
+        <span id="time2">...</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMUNICADO -->
+<div class="card">
+  <h3><i data-lucide="megaphone"></i> Comunicado</h3>
+  <p id="comunicado">Nenhum aviso</p>
+  <div id="botoesComunicado" style="display: none; gap: 10px; margin-top: 10px;">
+    <button onclick="enviarAviso()" style="flex: 1;"><i data-lucide="send"></i> Enviar Comunicado</button>
+     <button id="btnRemoverComunicado" onclick="removerComunicadoGlobal()" style="flex: 1; background: #ff5722;"><i data-lucide="trash-2"></i> Remover comunicado</button>
+  </div>
+</div>
+
+ <div class="presencas">
+   <h4><i data-lucide="check-square"></i> Presenças Confirmadas</h4>
+    <ul id="listaAdmin"></ul>
+ </div>
+<!-- ÁREA DO ADMINISTRADOR -->
+<div id="adminArea" style="display:none;" class="card">
+  
+  <h3><i data-lucide="shield"></i> Painel Administrativo</h3>
+
+  
+  <button onclick="limparPresencas()" style="background: #c42b2b; width: 100%; margin-bottom: 10px;">
+    <i data-lucide="trash-2"></i> Limpar todas as presenças
+  </button>
+  
+  <button onclick="cadastrarJogador()" style="margin-top: 15px; background: #4CAF50; width: 100%; margin-bottom: 10px;">
+    <i data-lucide="user-plus"></i> Cadastrar Novo Jogador
+  </button>
+  
+  <button onclick="tornarCapitao()" style="background: #ff9800; width: 100%; margin-bottom: 10px;">
+    <i data-lucide="crown"></i> Tornar Capitão
+  </button>
+  
+  <button onclick="removerCapitao()" style="background: #ff5722; width: 100%; margin-bottom: 10px;">
+    <i data-lucide="user-minus"></i> Remover Capitão
+  </button>
+  
+  <button onclick="removerJogador()" style="background: #c42b2b; width: 100%; margin-bottom: 10px;">
+    <i data-lucide="user-x"></i> Remover Jogador
+  </button>
+
+</div>
+
+</main>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html"><i data-lucide="home"></i><span>Início</span></a>
+  <a href="equipe.html"><i data-lucide="users"></i><span>Equipe</span></a>
+  <a href="agenda.html"><i data-lucide="calendar"></i><span>Agenda</span></a>
+  <a href="resultados.html"><i data-lucide="bar-chart-3"></i><span>Resultados</span></a>
+  <a href="perfil.html"><i data-lucide="user"></i><span>Perfil</span></a>
+</nav>
+
+<!-- MODAL LOGIN -->
+<div class="modal" id="modalLogin">
+  <div class="modal-box">
+    <h4><i data-lucide="lock"></i> Login do Time</h4>
+    
+    <input id="nomeLogin" placeholder="Seu nome" type="text">
+    <input id="numeroLogin" placeholder="Número da camisa" type="text">
+    <input id="pinLogin" placeholder="PIN" type="password">
+    
+    <button onclick="window.loginJogador()"><i data-lucide="log-in"></i> Entrar</button>
+    
+    <hr>
+    
+    <button onclick="window.fecharModal()" style="background: #555; margin-top: 10px;"><i data-lucide="x"></i> Fechar</button>
+  </div>
+</div>
+
+<script type="module" src="script.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
+
+<script>
+    // Função de emergência para abrir modal
+    function abrirLogin() {
+        var modal = document.getElementById("modalLogin");
+        if (modal) modal.style.display = "flex";
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Agenda</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+<header class="header">
+  <h2><i data-lucide="calendar"></i> AGENDA</h2>
+</header>
+
+<div class="container" id="listaJogos"></div>
+
+<button class="btn-confirmar" onclick="confirmarPresenca()">
+  <i data-lucide="check-circle"></i> Confirmar presença
+</button>
+
+<div id="statusJogos" style="text-align: center; margin-top: 10px; font-size: 12px; color: #888;"></div>
+
+<!-- BOTÃO ADM -->
+<button id="btnAddJogo" style="display:none;" onclick="addJogo()">
+  <i data-lucide="plus-circle"></i> Adicionar jogo
+</button>
+
+<nav class="navbar">
+  <a href="index.html"><i data-lucide="home"></i><span>Início</span></a>
+  <a href="equipe.html"><i data-lucide="users"></i><span>Equipe</span></a>
+  <a href="agenda.html"><i data-lucide="calendar"></i><span>Agenda</span></a>
+  <a href="resultados.html"><i data-lucide="bar-chart"></i><span>Resultados</span></a>
+  <a href="perfil.html"><i data-lucide="user"></i><span>Perfil</span></a>
+</nav>
+
+<script type="module" src="script.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
+</body>
+</html>

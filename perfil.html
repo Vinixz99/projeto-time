@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Perfil</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+<header class="header">
+  <h2><i data-lucide="user-circle"></i> Perfil</h2>
+</header>
+
+<main class="perfil-container">
+
+  <!-- CARD PRINCIPAL -->
+  <div class="card perfil-card">
+    <div class="titulo-perfil">
+      <h2 id="nomePerfil">Bem-vindo</h2>
+      <p>Área exclusiva do time</p>
+    </div>
+
+    <div class="info-dupla">
+      <!-- TREINO -->
+      <div class="info-box">
+        <h4><i data-lucide="calendar"></i> Próximo treino</h4>
+        <p id="proximoTreino">Carregando...</p>
+        <button class="btn-confirmar-treino" onclick="confirmarPresencaTreino()">
+          <i data-lucide="check-circle"></i> Confirmar presença no treino
+        </button>
+      </div>
+
+      <!-- COMUNICADO -->
+      <div class="info-box">
+        <h4><i data-lucide="megaphone"></i> Comunicados</h4>
+        <p id="comunicadoPerfil">Nenhum comunicado no momento.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTA DE PRESENÇAS NO TREINO -->
+  <div class="card">
+    <h3><i data-lucide="users"></i> Presenças no Treino</h3>
+    <ul id="listaPresencasTreino"></ul>
+    <button id="btnLimparPresencasTreino" onclick="limparPresencasTreino()" style="background: #c42b2b; display: none;">
+      <i data-lucide="trash-2"></i> Limpar todas as presenças do treino
+    </button>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="card" id="areaAdminPerfil" style="display:none;">
+    <h3><i data-lucide="shield"></i> Painel ADM</h3>
+    <button onclick="definirTreino()"><i data-lucide="calendar-plus"></i> Definir próximo treino</button>
+    <button onclick="removerTreino()"><i data-lucide="calendar-minus"></i> Remover treino</button>
+    <button onclick="definirComunicadoPerfil()"><i data-lucide="send"></i> Criar comunicado</button>
+    <button onclick="removerComunicadoPerfil()"><i data-lucide="trash-2"></i> Remover comunicado</button>
+  </div>
+
+</main>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html"><i data-lucide="home"></i><span>Início</span></a>
+  <a href="equipe.html"><i data-lucide="users"></i><span>Equipe</span></a>
+  <a href="agenda.html"><i data-lucide="calendar"></i><span>Agenda</span></a>
+  <a href="resultados.html"><i data-lucide="bar-chart"></i><span>Resultados</span></a>
+  <a href="perfil.html"><i data-lucide="user"></i><span>Perfil</span></a>
+</nav>
+
+<script type="module" src="script.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
+</body>
+</html>

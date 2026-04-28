@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Resultados</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+<header class="header">
+  <h2><i data-lucide="trophy"></i> RESULTADOS</h2>
+</header>
+
+<main class="container">
+  
+  <!-- Botões para ADM -->
+  <div id="adminResultadosArea" style="display:none;" class="card">
+    <h3><i data-lucide="settings"></i> Gerenciar Resultados</h3>
+     <button onclick="adicionarResultado()" style="background: #4CAF50; width: 100%;">
+    <i data-lucide="plus-circle"></i> Adicionar Resultado
+  </button>
+  </div>
+
+  <!-- Lista de resultados -->
+  <div id="listaResultados"></div>
+
+</main>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html"><i data-lucide="home"></i><span>Início</span></a>
+  <a href="equipe.html"><i data-lucide="users"></i><span>Equipe</span></a>
+  <a href="agenda.html"><i data-lucide="calendar"></i><span>Agenda</span></a>
+  <a href="resultados.html"><i data-lucide="bar-chart"></i><span>Resultados</span></a>
+  <a href="perfil.html"><i data-lucide="user"></i><span>Perfil</span></a>
+</nav>
+
+<script type="module" src="script.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
+</body>
+</html>
